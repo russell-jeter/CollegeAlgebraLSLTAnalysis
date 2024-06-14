@@ -1,0 +1,7 @@
+name = "environment"
+uuid = "95951c3f-5c20-4939-8caf-c4777e7f40ad"
+authors = ["Russell <russell.jeter@motusnova.com>"]
+version = "0.1.0"
+
+[deps]
+ReadStatTables = "52522f7a-9570-4e34-8ac6-c005c74d4b84"

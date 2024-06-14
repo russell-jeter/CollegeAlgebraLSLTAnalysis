@@ -1,0 +1,1 @@
+julia --project="./environment" install_dependencies.jl
