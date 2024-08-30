@@ -1,5 +1,6 @@
 from pypdf import PdfReader
 import re
+import pandas as pd
 
 def get_is_student_response_report(text_array):
     for row in text_array:
@@ -30,6 +31,30 @@ def page_has_question_array(text_array):
             return True
     return False
 
+def is_student_row(row):
+    if len(re.findall(r'\d{4}', row)) > 0:
+        if not ('MAC 1105' in row):
+            return True
+        
+    return False
+
+def convert_student_row_to_dict(student_row, question_array):
+    student_dict = dict()
+    surname = student_row[0]
+    if 'Average' in surname:
+        surname = "N/A"
+    for i in range(len(question_array)):
+        student_dict[question_array[i]] = student_row[-len(question_array) + i]
+    student_id = "N/A"
+    for student_row_entry in student_row:
+        if len(re.findall(r'\d{4}', student_row_entry)) > 0:
+            student_id = student_row_entry
+    student_dict["student_id"] = student_id
+    student_dict["surname"] = surname
+
+    return student_dict
+
+
 def get_question_array(text_array):
     for row in text_array:
         if "Question" in row:
@@ -46,22 +71,57 @@ def get_first_student_row_index(text_array):
     for i in range(len(text_array)):
         row = text_array[i]
         if i != len(text_array) - 1:
-            print(row)
-            print(re.findall(r'\d{4}', row))
-reader = PdfReader("./data/pdf_data/fall_2017_final_exam_results.pdf")
-number_of_pages = len(reader.pages)
-page_number = 0
-for page in reader.pages:
-    
-    text = page.extract_text()
+            if is_student_row(row):
+                    return i
+            
+def create_aggregate_function_dict(column_list):
+    aggregate_function_dict = dict()
 
+    for column in column_list:
+        aggregate_function_dict[column] = "max"
+    aggregate_function_dict["surname"] = ', '.join
+    del aggregate_function_dict["student_id"]
+    return aggregate_function_dict
+
+reader = PdfReader("./data/pdf_data/fall_2017_final_exam_results.pdf")
+assessment_name = "Final Exam"
+
+student_dict_array = []
+
+for page in reader.pages:    
+    text = page.extract_text()
     text_array = text.split("\n")
+    
+    #This is a good first check to make sure the page has student results.
     if get_is_student_response_report(text_array):
-        get_form_code(text_array)
+    
+        #The prescence of a form code let's us know if this is a page with student results on it.
         if get_form_code(text_array):
             form_code = get_form_code(text_array)
+    
+            #Update the question array if there is a list of question names in the header.
             if page_has_question_array(text_array):
                 question_array = get_question_array(text_array)
-                get_first_student_row_index(text_array)
-    page_number += 1
-    #print(page_number)
+    
+            #Iterate from the first row of students through the second to last line in the page
+            #(The last line is garbage.)
+            first_student_index = get_first_student_row_index(text_array)
+            for i in range(first_student_index, len(text_array) - 1):
+                text_row = text_array[i]
+                text_row = text_row.split(" ")
+                student_dict = convert_student_row_to_dict(student_row = text_row, question_array = question_array)
+                student_dict["form"] = form_code
+                student_dict_array.append(student_dict)
+
+student_frame = pd.DataFrame(student_dict_array)
+
+student_frame = student_frame.fillna(-1)
+numeric_columns = list(student_frame.columns.values)
+numeric_columns.remove("student_id")
+numeric_columns.remove("surname")
+numeric_columns.remove("form")
+student_frame[numeric_columns] = student_frame[numeric_columns].apply(pd.to_numeric, errors = 'coerce').fillna(-1).astype(int)
+student_frame[numeric_columns] = student_frame[numeric_columns].astype(int)
+student_frame = student_frame.groupby('student_id').agg(create_aggregate_function_dict(student_frame.columns)).reset_index()
+
+student_frame.to_csv("./data/final_exam.txt", sep = '|', index = False)
