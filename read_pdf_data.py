@@ -33,7 +33,7 @@ def page_has_question_array(text_array):
 
 def is_student_row(row):
     if len(re.findall(r'\d{4}', row)) > 0:
-        if not ('MAC 1105' in row):
+        if not ('MAC 1105' in row) and not ('MAC1105' in row) :
             return True
         
     return False
@@ -73,6 +73,7 @@ def get_first_student_row_index(text_array):
         if i != len(text_array) - 1:
             if is_student_row(row):
                     return i
+    return 0
             
 def create_aggregate_function_dict(column_list):
     aggregate_function_dict = dict()
@@ -83,8 +84,8 @@ def create_aggregate_function_dict(column_list):
     del aggregate_function_dict["student_id"]
     return aggregate_function_dict
 
-reader = PdfReader("./data/pdf_data/fall_2017_final_exam_results.pdf")
-assessment_name = "Final Exam"
+reader = PdfReader("./data/pdf_data/fall_2017_exam_three_results.pdf")
+assessment_name = "Exam Three"
 
 student_dict_array = []
 
@@ -102,16 +103,16 @@ for page in reader.pages:
             #Update the question array if there is a list of question names in the header.
             if page_has_question_array(text_array):
                 question_array = get_question_array(text_array)
-    
-            #Iterate from the first row of students through the second to last line in the page
             #(The last line is garbage.)
             first_student_index = get_first_student_row_index(text_array)
             for i in range(first_student_index, len(text_array) - 1):
+                
                 text_row = text_array[i]
-                text_row = text_row.split(" ")
-                student_dict = convert_student_row_to_dict(student_row = text_row, question_array = question_array)
-                student_dict["form"] = form_code
-                student_dict_array.append(student_dict)
+                if is_student_row(text_row):
+                    text_row = text_row.split(" ")
+                    student_dict = convert_student_row_to_dict(student_row = text_row, question_array = question_array)
+                    student_dict["form"] = form_code
+                    student_dict_array.append(student_dict)
 
 student_frame = pd.DataFrame(student_dict_array)
 
@@ -124,4 +125,4 @@ student_frame[numeric_columns] = student_frame[numeric_columns].apply(pd.to_nume
 student_frame[numeric_columns] = student_frame[numeric_columns].astype(int)
 student_frame = student_frame.groupby('student_id').agg(create_aggregate_function_dict(student_frame.columns)).reset_index()
 
-student_frame.to_csv("./data/final_exam.txt", sep = '|', index = False)
+student_frame.to_csv("./data/exam_three.txt", sep = '|', index = False)
