@@ -19,11 +19,11 @@ def get_completed_answer_choices(dict_of_dfs = None):
     if "answer_choices" not in dict_of_dfs.keys():
         dict_of_dfs = load_database_to_dict_of_dfs()
 
-    completed_answer_choices = dict_of_dfs['answer_choices']
+    completed_answer_choices = dict_of_dfs["answer_choices"]
 
     # Convert option_id to a number with index starting at 1.
-    if 'A' in pd.unique(completed_answer_choices['option_id']):
-        completed_answer_choices['option_id'] = completed_answer_choices['option_id'] = [ ord(letter) - 64 for letter in completed_answer_choices['option_id'] ]
+    if "A" in pd.unique(completed_answer_choices["option_id"]):
+        completed_answer_choices["option_id"] = completed_answer_choices["option_id"] = [ ord(letter) - 64 for letter in completed_answer_choices["option_id"] ]
     
     # Omit the first answer choice from the final exam. It is not a real question
     completed_answer_choices = completed_answer_choices[~completed_answer_choices["question_id"].isin(["4A01", "4B01", "4C01"])]
@@ -53,15 +53,15 @@ def get_student_responses(dict_of_dfs = None):
     # Load completed answer choices table from database file.
     if dict_of_dfs == None:
         dict_of_dfs = load_database_to_dict_of_dfs()
-    if "student_responses" not in dict_of_dfs.keys():
+    if "student_question_responses" not in dict_of_dfs.keys():
         dict_of_dfs = load_database_to_dict_of_dfs()
 
     completed_answer_choices = get_completed_answer_choices(dict_of_dfs)
 
-    student_responses = dict_of_dfs['answer_choices']
+    student_responses = dict_of_dfs["student_question_responses"]
 
     # Only grab the student responses that are for the questions in the completed answer choices dataframe
-    student_responses = student_responses[student_responses['question_id'].isin(pd.unique(completed_answer_choices['question_id']))]
+    student_responses = student_responses[student_responses["question_id"].isin(pd.unique(completed_answer_choices["question_id"]))]
     
     # Return processed dataframe.
     return student_responses
@@ -72,15 +72,14 @@ def get_student_responses_with_details(dict_of_dfs = None):
     """
     completed_answer_choices = get_completed_answer_choices(dict_of_dfs)
     student_responses        = get_student_responses(dict_of_dfs)
-
     student_responses_with_details = pd.merge(
         left=student_responses, 
         right=completed_answer_choices,
-        how='left',
-        left_on=['question_id', 'selected_option'],
-        right_on=['question_id', 'option_id'],
+        how="left",
+        left_on=["question_id", "selected_option"],
+        right_on=["question_id", "option_id"],
     )
     return student_responses_with_details
 
 if __name__ == "__main__":
-    print(get_student_responses())
+    print(get_student_responses_with_details())
