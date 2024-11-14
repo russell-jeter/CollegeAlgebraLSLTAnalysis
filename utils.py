@@ -3,7 +3,7 @@ import pandas as pd
 def load_database_to_dict_of_dfs(df_filename = None):
     """
     Load a dictionary of dataframe from an xlsx file.
-    
+
     Parameters
     ----------
     df_filename : File name of the xlsx file that contains the database you 
@@ -123,6 +123,7 @@ def get_student_responses_with_details(dict_of_dfs = None):
 
         question_id, student_id, selected_option, option_id, is_distractor, distractor_type, distractor_learning_objective_understanding, notes.
         TODO: Add description of fields
+        TODO: Update columns that are floats to ints.
     """
     completed_answer_choices = get_completed_answer_choices(dict_of_dfs)
     student_responses        = get_student_responses(dict_of_dfs)
@@ -136,4 +137,4 @@ def get_student_responses_with_details(dict_of_dfs = None):
     return student_responses_with_details
 
 if __name__ == "__main__":
-    print(get_completed_answer_choices())
+    print(get_student_responses_with_details())
