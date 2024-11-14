@@ -2,16 +2,48 @@ import pandas as pd
 
 def load_database_to_dict_of_dfs(df_filename = None):
     """
-    TODO: UPDATE THIS DOCSTRING
+    Load a dictionary of dataframe from an xlsx file.
+    Parameters
+    ----------
+    df_filename : File name of the xlsx file that contains the database you 
+        want to load,optional
+        
+        Default: None. If no filename is given is given, the function will load
+            excel database file in the ./data/ directory.
+
+    Returns
+    -------
+    completed_answer_choices : Pandas dataframe of answer choices to each exam question.
+        The dataframe has the following fields: 
+        question_id, option_id, is_distractor, distractor_type, distractor_learning_objective_understanding, notes.
+        TODO: Add description of fields
     """
     if df_filename == None:
         df_filename = "./data/question_database_schema.xlsx"
+
+    if ".xlsx" not in df_filename:
+        raise(f"The filename {df_filename} was not valid. Please input an xlsx file.")
+    
     dict_of_dfs = pd.read_excel(df_filename, sheet_name = None)
     return dict_of_dfs
 
 def get_completed_answer_choices(dict_of_dfs = None):
     """
-    TODO: UPDATE THIS DOCSTRING
+    Get a dataframe that details each answer choice for each question.
+    Parameters
+    ----------
+    dict_of_dfs : Dictionary of dataframes that has the existing frames you want 
+        to manipulated, optional
+        
+        Default: None. If no dictionary is given, the function will load the dictionary
+            using the excel database file in the ./data/ directory.
+
+    Returns
+    -------
+    completed_answer_choices : Pandas dataframe of answer choices to each exam question.
+        The dataframe has the following fields: 
+        question_id, option_id, is_distractor, distractor_type, distractor_learning_objective_understanding, notes.
+        TODO: Add description of fields
     """
     # Load completed answer choices table from database file.
     if dict_of_dfs == None:
@@ -68,7 +100,25 @@ def get_student_responses(dict_of_dfs = None):
 
 def get_student_responses_with_details(dict_of_dfs = None):
     """
-    TODO: UPDATE THIS DOCSTRING
+    Get a dataframe of student responses with details about the distractors
+      for all valid exam questions.
+    Parameters
+    ----------
+    dict_of_dfs : Dictionary of dataframes that has the existing frames you want 
+        to manipulated, optional
+        
+        Default: None. If no dictionary is given, the function will load the dictionary
+            using the excel database file in the ./data/ directory.
+
+    Returns
+    -------
+    student_responses_with_details : Pandas dataframe of student responses to exams with details
+        about the distractors to the question.
+
+        The dataframe has the following fields:
+
+        question_id, student_id, selected_option, option_id, is_distractor, distractor_type, distractor_learning_objective_understanding, notes.
+        TODO: Add description of fields
     """
     completed_answer_choices = get_completed_answer_choices(dict_of_dfs)
     student_responses        = get_student_responses(dict_of_dfs)
@@ -82,4 +132,4 @@ def get_student_responses_with_details(dict_of_dfs = None):
     return student_responses_with_details
 
 if __name__ == "__main__":
-    print(get_student_responses_with_details())
+    print(get_completed_answer_choices())
