@@ -3,6 +3,7 @@ import pandas as pd
 def load_database_to_dict_of_dfs(df_filename = None):
     """
     Load a dictionary of dataframe from an xlsx file.
+    
     Parameters
     ----------
     df_filename : File name of the xlsx file that contains the database you 
@@ -30,6 +31,7 @@ def load_database_to_dict_of_dfs(df_filename = None):
 def get_completed_answer_choices(dict_of_dfs = None):
     """
     Get a dataframe that details each answer choice for each question.
+
     Parameters
     ----------
     dict_of_dfs : Dictionary of dataframes that has the existing frames you want 
@@ -66,6 +68,7 @@ def get_completed_answer_choices(dict_of_dfs = None):
 def get_student_responses(dict_of_dfs = None):
     """
     Get a dataframe of student responses for all valid exam questions.
+
     Parameters
     ----------
     dict_of_dfs : Dictionary of dataframes that has the existing frames you want 
@@ -102,6 +105,7 @@ def get_student_responses_with_details(dict_of_dfs = None):
     """
     Get a dataframe of student responses with details about the distractors
       for all valid exam questions.
+
     Parameters
     ----------
     dict_of_dfs : Dictionary of dataframes that has the existing frames you want 
