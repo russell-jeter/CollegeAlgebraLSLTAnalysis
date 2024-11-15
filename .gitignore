@@ -1,3 +1,9 @@
+
+*__pycache__/
+
+#Dumb Mac finder file
+*.DS_Store
+#Data files
 data/
 .json
 .xpt
