@@ -27,9 +27,30 @@ def show_exam_question_distractor_counts(dict_of_dfs = None):
     )
     exam_question_distractor_count_frame["percent"] = exam_question_distractor_count_frame["count"] / exam_question_distractor_count_frame["count"].sum() 
 
+    print("-----------------------------------------")
+    print("Exam question distractor counts frame:")
     print(exam_question_distractor_count_frame)
+
+def show_student_distractor_selection_counts(dict_of_dfs = None):
+    if type(dict_of_dfs) == type(None):
+        dict_of_dfs = utils.load_database_to_dict_of_dfs()
+
+    student_responses_distractor_selection_counts = student_responses_with_details.groupby(by = 'distractor_type').count()["question_id"].reset_index().rename(columns = {"question_id": "count", "distractor_type": "distractor_id"})
+    student_responses_distractor_selection_counts = pd.merge(
+        left=student_responses_distractor_selection_counts, 
+        right=dict_of_dfs['distractor_type'],
+        how='left',
+        left_on=['distractor_id'],
+        right_on=['distractor_id'],
+    )
+    student_responses_distractor_selection_counts["percent"] = student_responses_distractor_selection_counts["count"] / student_responses_distractor_selection_counts["count"].sum() 
+    print("-----------------------------------------")
+    print("Student responses distractor counts frame:")
+    print(student_responses_distractor_selection_counts)
 
 if __name__ == "__main__":
     student_responses_with_details = utils.get_student_responses_with_details()
     show_question_counts(student_responses_with_details)
-    show_exam_question_distractor_counts()
+    dict_of_dfs = utils.load_database_to_dict_of_dfs()
+    show_exam_question_distractor_counts(dict_of_dfs)
+    show_student_distractor_selection_counts(dict_of_dfs)
