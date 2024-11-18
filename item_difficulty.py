@@ -3,6 +3,33 @@ import utils
 from effective_distractors_analysis import get_distractor_counts_frame
 import matplotlib.pyplot as plt
 
+def add_pbc_subplot(point_biserial_correlation_frame, axis, bins, exam_keys, title):
+    data_list = []
+    for key in exam_keys:
+        data_list.append(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([key])]["pbc"].values)
+    axis.hist(data_list, bins, histtype='bar', label=exam_keys)
+    axis.legend(prop={'size': 10})
+    axis.set_xlabel("Corrected Point-Biserial Correlation")
+    axis.set_ylabel("Number of Questions")
+    axis.set_title(title)
+
+def save_pbc_distribution_plots(point_biserial_correlation_frame = None, filename = None):
+    if type(point_biserial_correlation_frame) == type(None):
+        point_biserial_correlation_frame = get_point_biserial_coefficient_frame()
+    if type(filename) == type(None):
+        filename = "./figures/pbc_distributions.png"
+    bins = [-.5, -.25, 0, 0.25, 0.5, 0.75, 1]
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
+
+    add_pbc_subplot(point_biserial_correlation_frame, ax0, bins, ["1A", "1B"], "Exam 1")
+    add_pbc_subplot(point_biserial_correlation_frame, ax1, bins, ["2A", "2B", "2C"], "Exam 2")
+    add_pbc_subplot(point_biserial_correlation_frame, ax2, bins, ["3A", "3B", "3C"], "Exam 3")
+    add_pbc_subplot(point_biserial_correlation_frame, ax3, bins, ["4A", "4B", "4C"], "Exam 4")
+
+    fig.tight_layout()
+    plt.savefig(filename)
+    plt.close(fig)
 
 def get_item_difficulty_frame():
 
@@ -41,6 +68,7 @@ def save_item_difficulty_distributions(item_difficulty_frame = None, filename = 
 
     fig.tight_layout()
     plt.savefig(filename)
+    plt.close(fig)
 
 def get_student_score_frame(student_responses_with_details = None):
     if type(student_responses_with_details) == type(None):
@@ -92,3 +120,4 @@ if __name__ == "__main__":
     save_item_difficulty_distributions()
     print(get_student_score_frame())
     print(get_point_biserial_coefficient_frame())
+    save_pbc_distribution_plots()
