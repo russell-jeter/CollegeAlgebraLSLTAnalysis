@@ -17,9 +17,11 @@ def get_item_summary_frame(dict_of_dfs = None):
     pbc_frame = item_difficulty.get_point_biserial_coefficient_frame().reset_index()
     pbc_frame = pbc_frame.drop(columns = ["exam_id", "index"])
     item_summary_frame = pd.merge(pbc_frame, item_difficulty_frame, on = "question_id")
-    item_summary_frame = pd.merge(distractor_counts_frame, item_summary_frame, on = "question_id")
+    #item_summary_frame = pd.merge(distractor_counts_frame, item_summary_frame, on = "question_id")
+    
     return item_summary_frame
 
 if __name__ == "__main__":
+    item_summary_frame = get_item_summary_frame()
 
-    print(get_item_summary_frame())
+    print(item_summary_frame)
