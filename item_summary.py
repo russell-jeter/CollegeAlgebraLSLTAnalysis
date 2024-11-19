@@ -29,4 +29,4 @@ def get_item_summary_frame(dict_of_dfs = None):
 if __name__ == "__main__":
     item_summary_frame = get_item_summary_frame()
 
-    print(item_summary_frame)
+    item_summary_frame.to_excel("item_summary.xlsx", index = False)
