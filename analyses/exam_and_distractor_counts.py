@@ -2,7 +2,7 @@ try:
     from analyses import database_utils  # Absolute import (for direct execution)
 except ImportError:
     import database_utils  # Relative import (for package context)
-    
+
 import pandas as pd
 
 def show_question_counts(student_responses_with_details = None):
@@ -38,7 +38,9 @@ def show_exam_question_distractor_counts(dict_of_dfs = None):
 def show_student_distractor_selection_counts(dict_of_dfs = None):
     if type(dict_of_dfs) == type(None):
         dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
-
+    
+    student_responses_with_details = database_utils.get_student_responses_with_details(dict_of_dfs)
+    
     student_responses_distractor_selection_counts = student_responses_with_details.groupby(by = 'distractor_type').count()["question_id"].reset_index().rename(columns = {"question_id": "count", "distractor_type": "distractor_id"})
     student_responses_distractor_selection_counts = pd.merge(
         left=student_responses_distractor_selection_counts, 
