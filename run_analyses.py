@@ -1,6 +1,4 @@
-import numpy as np
 from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, item_difficulty, kr_20_analysis
-import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
@@ -8,7 +6,7 @@ if __name__ == "__main__":
     exam_and_distractor_counts.show_question_counts()
     exam_and_distractor_counts.show_exam_question_distractor_counts()
     exam_and_distractor_counts.show_student_distractor_selection_counts()
-    
+
     #Display distractor analysis
     effective_distractors_analysis.show_effective_distractors_by_form()
     effective_distractors_analysis.show_percent_of_distractors_by_form()
