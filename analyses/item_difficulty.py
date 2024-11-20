@@ -1,6 +1,14 @@
 import numpy as np
-import database_utils
-from effective_distractors_analysis import get_distractor_counts_frame
+try:
+    # Absolute import (for direct execution)
+    from analyses import database_utils  
+    from analyses.effective_distractors_analysis import get_distractor_counts_frame
+except ImportError:
+    # Relative import (for package context)
+    import database_utils  
+    from effective_distractors_analysis import get_distractor_counts_frame
+
+
 import matplotlib.pyplot as plt
 
 def add_pbc_subplot(point_biserial_correlation_frame, axis, bins, exam_keys, title):
@@ -28,7 +36,13 @@ def save_pbc_distribution_plots(point_biserial_correlation_frame = None, filenam
     add_pbc_subplot(point_biserial_correlation_frame, ax3, bins, ["4A", "4B", "4C"], "Exam 4")
 
     fig.tight_layout()
-    plt.savefig(filename)
+    
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+    
     plt.close(fig)
 
 def get_item_difficulty_frame():
@@ -67,7 +81,12 @@ def save_item_difficulty_distributions(item_difficulty_frame = None, filename = 
     add_item_difficulty_subplot(item_difficulty_frame, ax3, bins, ["4A", "4B", "4C"], "Exam 4")
 
     fig.tight_layout()
-    plt.savefig(filename)
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+        
     plt.close(fig)
 
 def get_student_score_frame(student_responses_with_details = None):

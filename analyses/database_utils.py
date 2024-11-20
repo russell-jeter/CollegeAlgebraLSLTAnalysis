@@ -19,13 +19,19 @@ def load_database_to_dict_of_dfs(df_filename = None):
         question_id, option_id, is_distractor, distractor_type, distractor_learning_objective_understanding, notes.
         TODO: Add description of fields
     """
-    if df_filename == None:
-        df_filename = "./data/question_database_schema.xlsx"
+    try: 
+        if df_filename == None:
+            df_filename = "./data/question_database_schema.xlsx"
 
-    if ".xlsx" not in df_filename:
-        raise(f"The filename {df_filename} was not valid. Please input an xlsx file.")
+        if ".xlsx" not in df_filename:
+            raise(f"The filename {df_filename} was not valid. Please input an xlsx file.")
     
-    dict_of_dfs = pd.read_excel(df_filename, sheet_name = None)
+        dict_of_dfs = pd.read_excel(df_filename, sheet_name = None)
+        
+    except FileNotFoundError:
+        df_filename = "." + df_filename
+        dict_of_dfs = pd.read_excel(df_filename, sheet_name = None)
+    
     return dict_of_dfs
 
 def get_completed_answer_choices(dict_of_dfs = None):

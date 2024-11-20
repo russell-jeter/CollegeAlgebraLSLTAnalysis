@@ -1,4 +1,8 @@
-import database_utils
+try:
+    from analyses import database_utils  # Absolute import (for direct execution)
+except ImportError:
+    import database_utils  # Relative import (for package context)
+    
 import pandas as pd
 
 def show_question_counts(student_responses_with_details = None):

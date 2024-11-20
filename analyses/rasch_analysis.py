@@ -291,8 +291,14 @@ def build_rasch_dfs(list_of_rasch_dicts):
     return [rasch_students_df, rasch_items_df]
 
 def get_rasch_students_and_items_frames_as_dict():
-    raw_df = pd.read_excel("question_database_schema.xlsx", sheet_name="student_question_responses")
-    key_df = pd.read_excel("question_database_schema.xlsx", sheet_name="answer_choices")
+    database_filename = "./data/question_database_schema.xlsx"
+    try:
+        raw_df = pd.read_excel(database_filename, sheet_name="student_question_responses")
+        key_df = pd.read_excel(database_filename, sheet_name="answer_choices")
+    except FileNotFoundError:
+        database_filename = "." + database_filename
+        raw_df = pd.read_excel(database_filename, sheet_name="student_question_responses")
+        key_df = pd.read_excel(database_filename, sheet_name="answer_choices")
     key_df = key_df[key_df['is_distractor'] == 0] 
 
     all_exam_numbers_and_forms=collect_all_exam_numbers_and_forms(raw_df) # creates list of exam numbers and forms from df

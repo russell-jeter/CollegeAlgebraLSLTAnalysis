@@ -1,6 +1,11 @@
+try:
+    from analyses import database_utils  # Absolute import (for direct execution)
+except ImportError:
+    import database_utils  # Relative import (for package context)
+    
 import numpy as np
 import pandas as pd
-import database_utils
+
 
 def get_kr_20_frame(student_responses_with_details = None):
     if type(student_responses_with_details) == type(None):

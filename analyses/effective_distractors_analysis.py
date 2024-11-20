@@ -1,4 +1,8 @@
-import database_utils
+try:
+    from analyses import database_utils  # Absolute import (for direct execution)
+except ImportError:
+    import database_utils  # Relative import (for package context)
+
 import pandas as pd
 
 def get_distractor_counts_frame(dict_of_dfs = None):
@@ -89,9 +93,9 @@ def show_percent_of_distractors_by_form(distractor_selection_counts = None):
         exam_distractors_chosen_dict["exam_id"] = exam_id
         exam_selection_frame = distractor_selection_counts[distractor_selection_counts["exam_id"].isin([exam_id])]
         exam_selection_frame = exam_selection_frame[exam_selection_frame["is_distractor"] == 1]
-        exam_distractors_chosen_dict["never_chosen"] = len(exam_selection_frame[exam_selection_frame["percent"] == 0])
-        exam_distractors_chosen_dict["rarely_chosen"] = len(exam_selection_frame[(exam_selection_frame["percent"] > 0) & (exam_selection_frame["percent"] <= 0.05)])
-        exam_distractors_chosen_dict["sometimes_chosen"] = len(exam_selection_frame[exam_selection_frame["percent"] > 0.05])
+        exam_distractors_chosen_dict["never_chosen"]      = len(exam_selection_frame[exam_selection_frame["percent"] == 0])
+        exam_distractors_chosen_dict["rarely_chosen"]     = len(exam_selection_frame[(exam_selection_frame["percent"] > 0) & (exam_selection_frame["percent"] <= 0.05)])
+        exam_distractors_chosen_dict["sometimes_chosen"]  = len(exam_selection_frame[exam_selection_frame["percent"] > 0.05])
         exam_distractors_chosen_dict["total_distractors"] = len(exam_selection_frame)
         distractors_chosen_list.append(exam_distractors_chosen_dict)
     

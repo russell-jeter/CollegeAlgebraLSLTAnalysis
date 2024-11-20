@@ -1,8 +1,14 @@
-import database_utils
+try:
+    # Absolute import (for direct execution)
+    from analyses import database_utils, effective_distractors_analysis, item_difficulty, rasch_analysis  
+except ImportError:
+    # Relative import (for package context)
+    import database_utils      
+    import effective_distractors_analysis
+    import item_difficulty
+    import rasch_analysis
+    
 import pandas as pd
-import effective_distractors_analysis
-import item_difficulty
-import rasch_analysis
 
 def get_item_summary_frame(dict_of_dfs = None):
     if type(dict_of_dfs) == type(None):
