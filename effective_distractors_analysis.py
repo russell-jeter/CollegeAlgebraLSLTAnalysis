@@ -165,6 +165,6 @@ def show_effective_distractors_by_form(distractor_selection_counts = None):
 if __name__ == "__main__":
 
     dict_of_dfs = utils.load_database_to_dict_of_dfs()
-    #show_percent_of_distractors_by_form()
-    #print(get_distractor_counts_frame(dict_of_dfs))
-    show_effective_distractors_by_question()
+    show_percent_of_distractors_by_form()
+    print(get_distractor_counts_frame(dict_of_dfs))
+    show_effective_distractors_by_form()
