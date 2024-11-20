@@ -1,4 +1,4 @@
-import utils
+import database_utils
 import pandas as pd
 
 def get_distractor_counts_frame(dict_of_dfs = None):
@@ -24,10 +24,10 @@ def get_distractor_counts_frame(dict_of_dfs = None):
         TODO: Update columns that are floats to ints.
     """
     if type(dict_of_dfs) == type(None):
-        dict_of_dfs = utils.load_database_to_dict_of_dfs()
+        dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
 
-    student_responses_with_details = utils.get_student_responses_with_details(dict_of_dfs = dict_of_dfs)
-    completed_answer_choices       = utils.get_completed_answer_choices(dict_of_dfs=dict_of_dfs)
+    student_responses_with_details = database_utils.get_student_responses_with_details(dict_of_dfs = dict_of_dfs)
+    completed_answer_choices       = database_utils.get_completed_answer_choices(dict_of_dfs=dict_of_dfs)
     
     distractor_selection_counts = student_responses_with_details.groupby(by = ['question_id', 'selected_option']).count()
     distractor_selection_counts = distractor_selection_counts.rename(columns = {"student_id": "count"})["count"].to_frame().reset_index()
@@ -164,7 +164,7 @@ def show_effective_distractors_by_form(distractor_selection_counts = None):
 
 if __name__ == "__main__":
 
-    dict_of_dfs = utils.load_database_to_dict_of_dfs()
+    dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
     show_percent_of_distractors_by_form()
     print(get_distractor_counts_frame(dict_of_dfs))
     show_effective_distractors_by_form()

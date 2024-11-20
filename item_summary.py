@@ -1,4 +1,4 @@
-import utils
+import database_utils
 import pandas as pd
 import effective_distractors_analysis
 import item_difficulty
@@ -6,7 +6,7 @@ import rasch_analysis
 
 def get_item_summary_frame(dict_of_dfs = None):
     if type(dict_of_dfs) == type(None):
-        dict_of_dfs = utils.load_database_to_dict_of_dfs()
+        dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
 
     distractor_counts_frame = effective_distractors_analysis.get_distractor_counts_frame(dict_of_dfs = dict_of_dfs)
     distractor_counts_frame = distractor_counts_frame.rename(columns = {"count": "option_selected_count"})

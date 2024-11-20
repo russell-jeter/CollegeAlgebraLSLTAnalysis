@@ -1,5 +1,5 @@
 import numpy as np
-import utils
+import database_utils
 from effective_distractors_analysis import get_distractor_counts_frame
 import matplotlib.pyplot as plt
 
@@ -72,9 +72,9 @@ def save_item_difficulty_distributions(item_difficulty_frame = None, filename = 
 
 def get_student_score_frame(student_responses_with_details = None):
     if type(student_responses_with_details) == type(None):
-        student_responses_with_details = utils.get_student_responses_with_details()
+        student_responses_with_details = database_utils.get_student_responses_with_details()
 
-    student_responses_with_details = utils.get_student_responses_with_details()
+    student_responses_with_details = database_utils.get_student_responses_with_details()
     student_score_frame = student_responses_with_details[["question_id", "student_id", "is_distractor"]].copy()
     student_score_frame["exam_id"] = student_score_frame["question_id"].str[:2]
     student_score_frame.loc[:, "question_score"] = (student_score_frame.loc[:, "is_distractor"] == 0).astype(int)

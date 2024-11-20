@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-import utils
+import database_utils
 
 def get_kr_20_frame(student_responses_with_details = None):
     if type(student_responses_with_details) == type(None):
-        student_responses_with_details = utils.get_student_responses_with_details()
+        student_responses_with_details = database_utils.get_student_responses_with_details()
 
     student_score_frame = student_responses_with_details[["question_id", "student_id", "is_distractor"]].copy()
     student_score_frame["exam_id"] = student_score_frame["question_id"].str[:2]
