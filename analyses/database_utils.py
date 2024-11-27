@@ -15,9 +15,7 @@ def load_database_to_dict_of_dfs(df_filename = None):
 
     Returns
     -------
-    completed_answer_choices : Pandas dataframe of answer choices to each exam question.
-        The dataframe has the following fields: 
-        question_id, option_id, is_distractor, distractor_type, distractor_learning_objective_understanding, notes.
+    list of dictionaries
         TODO: Add description of fields
     """
     try: 
@@ -144,10 +142,21 @@ def get_student_responses_with_details(dict_of_dfs = None):
     )
     return student_responses_with_details
 
+def get_questions_per_exam(completed_answer_choices = None):
+    if type(completed_answer_choices) == type(None):
+        completed_answer_choices = get_completed_answer_choices()
+    question_list = pd.unique(completed_answer_choices["question_id"])
+    question_frame = pd.DataFrame(data = question_list, columns=["question_id"])
+    question_frame["exam_id"] = question_frame["question_id"].str[0:2]
+    question_counts = question_frame.groupby(by = ["exam_id"]).count().reset_index()
+    question_counts = question_counts.rename(columns={"question_id": "number_of_questions"})
+    return question_counts
+
 def get_exam_scores(student_responses_with_details = None):
     if type(student_responses_with_details) == type(None):
         student_responses_with_details = get_student_responses_with_details()
 
+    questions_per_exam = get_questions_per_exam()
     student_score_frame = student_responses_with_details[["question_id", "student_id", "is_distractor"]].copy()
     student_score_frame["exam_id"] = student_score_frame["question_id"].str[:2]
     student_score_frame.loc[:, "question_score"] = (student_score_frame.loc[:, "is_distractor"] == 0).astype(int)
@@ -155,6 +164,7 @@ def get_exam_scores(student_responses_with_details = None):
     student_score_frame = student_score_frame.drop(columns=["is_distractor"])
 
     student_score_frame["exam_score"] = student_score_frame.loc[:, "question_score"]
+    student_score_frame["exam_score_percent"] = student_score_frame.loc[:, "question_score"].astype(float)
 
     student_id_list = np.unique(student_score_frame["student_id"].values)
 
@@ -163,11 +173,13 @@ def get_exam_scores(student_responses_with_details = None):
         exam_id_list = np.unique(student_exam_frame["exam_id"].values) 
         for exam_id in exam_id_list:
             student_score_frame_for_one_exam =  student_exam_frame[student_exam_frame["exam_id"].isin([exam_id])]
+            number_of_questions =  questions_per_exam[questions_per_exam["exam_id"].isin([exam_id])]["number_of_questions"].values[0]
             student_score_frame.loc[student_score_frame_for_one_exam.index.values, "exam_score"] = student_score_frame_for_one_exam["question_score"].sum()
+            student_score_frame.loc[student_score_frame_for_one_exam.index.values, "exam_score_percent"] = student_score_frame_for_one_exam["question_score"].sum()/number_of_questions
     
-    exam_scores = student_score_frame[["exam_id", "student_id", "exam_score"]].copy()
+    exam_scores = student_score_frame[["exam_id", "student_id", "exam_score", "exam_score_percent"]].copy()
     exam_scores = exam_scores.groupby(by = ["exam_id", "student_id"]).mean().reset_index()
     return exam_scores
 
 if __name__ == "__main__":
-    print(get_student_responses_with_details())
+    print(get_exam_scores())
