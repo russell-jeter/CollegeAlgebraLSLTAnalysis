@@ -46,7 +46,6 @@ def save_pbc_distribution_plots(point_biserial_correlation_frame = None, filenam
     plt.close(fig)
 
 def get_item_difficulty_frame():
-
     distractor_selection_counts = get_distractor_counts_frame()
     item_difficulty_frame = distractor_selection_counts[distractor_selection_counts["is_distractor"] == 0]
 
@@ -54,6 +53,18 @@ def get_item_difficulty_frame():
     item_difficulty_frame = item_difficulty_frame.rename(columns = {"percent": "item_difficulty"})
 
     return item_difficulty_frame
+
+def show_item_difficulty_statistics(item_difficulty_frame = None):
+    if type(item_difficulty_frame) == type(None):
+        item_difficulty_frame = get_item_difficulty_frame()
+    mean_series = item_difficulty_frame.groupby(by = ["exam_id"])["item_difficulty"].mean()
+    summary_frame = mean_series.to_frame()
+    summary_frame = summary_frame.rename(columns={"item_difficulty": "mean"})
+    summary_frame["median"] = item_difficulty_frame.groupby(by = ["exam_id"])["item_difficulty"].median()
+    summary_frame["std"] = item_difficulty_frame.groupby(by = ["exam_id"])["item_difficulty"].std()
+    summary_frame["skewness"] = item_difficulty_frame.groupby(by = ["exam_id"])["item_difficulty"].skew()
+    summary_frame["kurtosis"] = item_difficulty_frame.groupby(by = ["exam_id"])["item_difficulty"].apply(pd.Series.kurtosis)
+    print(summary_frame)
 
 def add_item_difficulty_subplot(item_difficulty_frame, axis, bins, exam_keys, title):
     data_list = []
