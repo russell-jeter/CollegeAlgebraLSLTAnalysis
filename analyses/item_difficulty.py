@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 try:
     # Absolute import (for direct execution)
@@ -153,9 +154,30 @@ def show_pbc_ranges(point_biserial_correlation_frame = None):
     if type(point_biserial_correlation_frame) == type(None):
         point_biserial_correlation_frame = get_point_biserial_coefficient_frame()
 
+    pbc_bins = [0, 0.15, 0.25, 1]
+    exam_ids = np.unique(point_biserial_correlation_frame["exam_id"])
+    dict_list = []
+
+    for i in range(len(pbc_bins) + 1):
+        new_dict = dict()
+        for exam_id in exam_ids:
+            new_dict[exam_id] = 0
+        dict_list.append(new_dict)
+
+    for exam_id in exam_ids:
+        pbc_bin_assignment = np.digitize(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]["pbc"], pbc_bins, right=False)
+        unique, counts = np.unique(pbc_bin_assignment, return_counts=True)
+        for i in range(len(unique)):
+            print(i, exam_id)
+            dict_list[unique[i]][exam_id] = float(counts[i])/sum(counts)
+    print(pd.DataFrame(dict_list))
+
+    pd.DataFrame(dict_list).to_excel("pbc_ranges.xlsx")
+
 if __name__ == "__main__":
-    print(get_item_difficulty_frame())
-    save_item_difficulty_distributions()
-    print(get_student_score_frame())
-    print(get_point_biserial_coefficient_frame())
-    save_pbc_distribution_plots()
+    #print(get_item_difficulty_frame())
+    #save_item_difficulty_distributions()
+    #print(get_student_score_frame())
+    #print(get_point_biserial_coefficient_frame())
+    #save_pbc_distribution_plots()
+    show_pbc_ranges()

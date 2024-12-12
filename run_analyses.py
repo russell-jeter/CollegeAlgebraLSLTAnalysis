@@ -20,6 +20,7 @@ if __name__ == "__main__":
     #Save item difficulty plots
     item_difficulty.save_item_difficulty_distributions()
     item_difficulty.save_pbc_distribution_plots()
+    item_difficulty.show_pbc_ranges()
 
     #Save item summary frame
     item_summary_frame = item_summary.get_item_summary_frame()
