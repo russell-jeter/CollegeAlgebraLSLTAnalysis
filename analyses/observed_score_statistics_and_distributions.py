@@ -6,6 +6,10 @@ except ImportError:
 import pandas as pd
 import matplotlib.pyplot as plt
 
+custom_palette = ['#cf4456', '#f29566', '#831c64', '#2f0f3e', '#feedb0']
+
+plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
+
 def get_student_exam_taken_count(exam_scores = None):
     if type(exam_scores) == type(None):
         exam_scores = database_utils.get_exam_scores()
@@ -42,7 +46,7 @@ def add_os_subplot(exam_scores, axis, bins, exam_keys, title):
         data_list.append(exam_scores[exam_scores["exam_id"].isin([key])]["exam_score_percent"].values)
     print(data_list)
     print(bins)
-    axis.hist(data_list, bins, histtype='bar', label=exam_keys)
+    axis.hist(data_list, bins, histtype='bar', stacked = True, label=exam_keys)
     axis.legend(prop={'size': 10})
     axis.set_xlabel("Exam Score")
     axis.set_ylabel("Number of Students")
@@ -73,6 +77,6 @@ def save_os_distribution_plots(exam_scores = None, filename = None):
     plt.close(fig)
 
 if __name__ == "__main__":
-    #get_student_exam_taken_count()
+    get_student_exam_taken_count()
     export_observed_score_statistics()
-    #save_os_distribution_plots()
+    save_os_distribution_plots()

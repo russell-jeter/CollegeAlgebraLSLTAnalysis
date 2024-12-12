@@ -1,4 +1,5 @@
 import numpy as np
+
 try:
     # Absolute import (for direct execution)
     from analyses import database_utils  
@@ -11,13 +12,17 @@ except ImportError:
 
 import matplotlib.pyplot as plt
 
+custom_palette = ['#cf4456', '#f29566', '#831c64', '#2f0f3e', '#feedb0']
+
+plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
+
 def add_pbc_subplot(point_biserial_correlation_frame, axis, bins, exam_keys, title):
     data_list = []
     for key in exam_keys:
         data_list.append(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([key])]["pbc"].values)
-    axis.hist(data_list, bins, histtype='bar', label=exam_keys)
+    axis.hist(data_list, bins, histtype='bar', stacked=True, label=exam_keys)
     axis.legend(prop={'size': 10})
-    axis.set_xlabel("Corrected Point-Biserial Correlation")
+    axis.set_xlabel("Point-Biserial Correlation")
     axis.set_ylabel("Number of Questions")
     axis.set_title(title)
 
@@ -70,7 +75,7 @@ def add_item_difficulty_subplot(item_difficulty_frame, axis, bins, exam_keys, ti
     data_list = []
     for key in exam_keys:
         data_list.append(item_difficulty_frame[item_difficulty_frame["exam_id"].isin([key])]["item_difficulty"].values)
-    axis.hist(data_list, bins, histtype='bar', label=exam_keys)
+    axis.hist(data_list, bins, histtype='bar', stacked=True, label=exam_keys)
     axis.legend(prop={'size': 10})
     axis.set_xlabel("Item Difficulty")
     axis.set_ylabel("Number of Questions")
@@ -82,7 +87,6 @@ def save_item_difficulty_distributions(item_difficulty_frame = None, filename = 
     if type(filename) == type(None):
         filename = "./figures/item_difficulty_distributions.png"
     bins = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-
 
     fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
 
@@ -144,6 +148,10 @@ def get_point_biserial_coefficient_frame(student_score_frame = None):
     point_biserial_correlation_frame["exam_id"] = point_biserial_correlation_frame["question_id"].str[0:2]
 
     return point_biserial_correlation_frame
+
+def show_pbc_ranges(point_biserial_correlation_frame = None):
+    if type(point_biserial_correlation_frame) == type(None):
+        point_biserial_correlation_frame = get_point_biserial_coefficient_frame()
 
 if __name__ == "__main__":
     print(get_item_difficulty_frame())

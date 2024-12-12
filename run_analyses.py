@@ -1,7 +1,10 @@
-from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, item_difficulty, kr_20_analysis
+from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, item_difficulty, kr_20_analysis, observed_score_statistics_and_distributions
 
 if __name__ == "__main__":
 
+    observed_score_statistics_and_distributions.get_student_exam_taken_count()
+    observed_score_statistics_and_distributions.export_observed_score_statistics()
+    observed_score_statistics_and_distributions.save_os_distribution_plots()
     #Display Exam and distractor counts
     exam_and_distractor_counts.show_question_counts()
     exam_and_distractor_counts.show_exam_question_distractor_counts()
