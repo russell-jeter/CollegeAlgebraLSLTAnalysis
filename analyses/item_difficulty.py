@@ -165,11 +165,13 @@ def show_pbc_ranges(point_biserial_correlation_frame = None):
         dict_list.append(new_dict)
 
     for exam_id in exam_ids:
-        pbc_bin_assignment = np.digitize(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]["pbc"], pbc_bins, right=False)
+        
+        pbc_bin_assignment = np.digitize(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]["pbc"], pbc_bins, right = False)
         unique, counts = np.unique(pbc_bin_assignment, return_counts=True)
+        
         for i in range(len(unique)):
-            print(i, exam_id)
             dict_list[unique[i]][exam_id] = float(counts[i])/sum(counts)
+    
     print(pd.DataFrame(dict_list))
 
     pd.DataFrame(dict_list).to_excel("pbc_ranges.xlsx")
