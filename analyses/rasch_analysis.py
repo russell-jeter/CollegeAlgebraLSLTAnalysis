@@ -261,6 +261,10 @@ def build_rasch_dfs(list_of_rasch_dicts):
     for rasch_dict in list_of_rasch_dicts:
         student_statistics=['var_estimates_students', 'outfit_students', 'infit_students']
         student_partial_series_list=[rasch_dict[s_key] for s_key in student_statistics] # list of rasch Series statistics on students
+        #Append student scores
+        student_score_series = rasch_dict['true_false_df'].mean(axis=1)
+        student_score_series.name = 'student_exam_score'
+        student_partial_series_list.append(student_score_series) 
         temp_student_df=join_series_from_list_on_index(student_partial_series_list) # Joins Series into single df joined on shared indicies
 
         temp_standard_error=math.sqrt(2/len(temp_student_df)) # standard error to determine outliers as 2 more than fit value of 1
