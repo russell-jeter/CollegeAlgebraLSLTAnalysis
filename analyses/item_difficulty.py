@@ -17,6 +17,59 @@ custom_palette = ['#cf4456', '#f29566', '#831c64', '#2f0f3e', '#feedb0']
 
 plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
 
+def add_pbc_subplot_with_dynamic_threshold(point_biserial_correlation_frame, axis, exam_keys, title):
+    labels = ["Poor", "Acceptable", "Good"]
+    text_color = ["black", "black", "white"]
+    bar_bottoms = [0, 0, 0]
+    bar_count = 0
+    for key in exam_keys:
+        exam_bar_data = []
+        exam_pbc_values = point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([key])]
+        #poor pbc value count
+        exam_bar_data.append(len(exam_pbc_values.query("pbc <= poor_threshold")))
+        #acceptable
+        exam_bar_data.append(len(exam_pbc_values.query("pbc > poor_threshold & pbc < good_threshold")))
+        #good
+        exam_bar_data.append(len(exam_pbc_values.query("pbc >= good_threshold")))
+        exam_bar_data = exam_bar_data/np.sum(exam_bar_data) * 100
+        axis.bar(labels, exam_bar_data, label=key, bottom = bar_bottoms)
+        
+        for i in range(len(bar_bottoms)):
+            bar_bottoms[i] += exam_bar_data[i]
+        for j in range(len(exam_bar_data)):
+            y_position = (bar_bottoms[j] - exam_bar_data[j]/2)
+            if exam_bar_data[j] >= 25:
+                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 10)
+        bar_count += 1
+    
+    axis.legend(prop={'size': 10})
+    axis.set_xlabel("Point-Biserial Correlation Category")
+    axis.set_ylabel("Percent Questions")
+    axis.set_title(title)
+
+def save_pbc_distribution_plots_with_thresholds(point_biserial_correlation_frame = None, filename = None):
+    if type(point_biserial_correlation_frame) == type(None):
+        point_biserial_correlation_frame = get_point_biserial_coefficient_frame()
+    if type(filename) == type(None):
+        filename = "./figures/pbc_distributions_dynamic_thresholds.png"
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
+
+    add_pbc_subplot_with_dynamic_threshold(point_biserial_correlation_frame, ax0, ["1A", "1B"], "Exam 1")
+    add_pbc_subplot_with_dynamic_threshold(point_biserial_correlation_frame, ax1, ["2A", "2B", "2C"], "Exam 2")
+    add_pbc_subplot_with_dynamic_threshold(point_biserial_correlation_frame, ax2, ["3A", "3B", "3C"], "Exam 3")
+    add_pbc_subplot_with_dynamic_threshold(point_biserial_correlation_frame, ax3, ["4A", "4B", "4C"], "Exam 4")
+
+    fig.tight_layout()
+    
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+    
+    plt.close(fig)
+
 def add_pbc_subplot(point_biserial_correlation_frame, axis, bins, exam_keys, title):
     data_list = []
     for key in exam_keys:
@@ -139,42 +192,55 @@ def get_point_biserial_coefficient_frame(student_score_frame = None):
     point_biserial_correlation_frame = point_biserial_correlation_frame[point_biserial_correlation_frame["level_1"] == "exam_score"].drop(columns="level_1")
     point_biserial_correlation_frame = point_biserial_correlation_frame.rename(columns={"question_score": "pbc"})
     point_biserial_correlation_frame["p_value"] = point_biserial_correlation_frame["pbc"]
+    point_biserial_correlation_frame["poor_threshold"] = point_biserial_correlation_frame["pbc"]
+    point_biserial_correlation_frame["good_threshold"] = point_biserial_correlation_frame["pbc"]
 
     for index, row in point_biserial_correlation_frame.iterrows():
         question_id = row["question_id"]
         student_question_response_frame = student_score_frame[student_score_frame["question_id"].isin([question_id])]
+        n = len(student_question_response_frame)
         p_value = student_question_response_frame["question_score"].sum()/len(student_question_response_frame)
         point_biserial_correlation_frame.loc[index, "p_value"] = p_value
+        point_biserial_correlation_frame.loc[index, "poor_threshold"] = 1.0/(np.sqrt(n - 3))
 
     point_biserial_correlation_frame["exam_id"] = point_biserial_correlation_frame["question_id"].str[0:2]
 
+    exams = np.unique(point_biserial_correlation_frame["exam_id"])
+    for exam_id in exams:
+        subframe = point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]
+        k = len(subframe)
+        point_biserial_correlation_frame.loc[subframe.index, "good_threshold"] = 1.0/np.sqrt(k)
+
     return point_biserial_correlation_frame
 
-def show_pbc_ranges(point_biserial_correlation_frame = None):
+def show_pbc_ranges(point_biserial_correlation_frame = None, use_arbitrary_binning = False):
     if type(point_biserial_correlation_frame) == type(None):
         point_biserial_correlation_frame = get_point_biserial_coefficient_frame()
 
-    pbc_bins = [0, 0.15, 0.25, 1]
-    exam_ids = np.unique(point_biserial_correlation_frame["exam_id"])
-    dict_list = []
+    if use_arbitrary_binning:
+        pbc_bins = [0, 0.15, 0.25, 1]
+        exam_ids = np.unique(point_biserial_correlation_frame["exam_id"])
+        dict_list = []
 
-    for i in range(len(pbc_bins) + 1):
-        new_dict = dict()
+        for i in range(len(pbc_bins) + 1):
+            new_dict = dict()
+            for exam_id in exam_ids:
+                new_dict[exam_id] = 0
+            dict_list.append(new_dict)
+
         for exam_id in exam_ids:
-            new_dict[exam_id] = 0
-        dict_list.append(new_dict)
-
-    for exam_id in exam_ids:
+            
+            pbc_bin_assignment = np.digitize(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]["pbc"], pbc_bins, right = False)
+            unique, counts = np.unique(pbc_bin_assignment, return_counts=True)
+            
+            for i in range(len(unique)):
+                dict_list[unique[i]][exam_id] = float(counts[i])/sum(counts)
         
-        pbc_bin_assignment = np.digitize(point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]["pbc"], pbc_bins, right = False)
-        unique, counts = np.unique(pbc_bin_assignment, return_counts=True)
-        
-        for i in range(len(unique)):
-            dict_list[unique[i]][exam_id] = float(counts[i])/sum(counts)
-    
-    print(pd.DataFrame(dict_list))
+        print(pd.DataFrame(dict_list))
 
-    pd.DataFrame(dict_list).to_excel("pbc_ranges.xlsx")
+        pd.DataFrame(dict_list).to_excel("pbc_ranges.xlsx")
+    else:
+        a = 1
 
 if __name__ == "__main__":
     #print(get_item_difficulty_frame())
@@ -182,4 +248,5 @@ if __name__ == "__main__":
     #print(get_student_score_frame())
     #print(get_point_biserial_coefficient_frame())
     #save_pbc_distribution_plots()
-    show_pbc_ranges()
+    #show_pbc_ranges(point_biserial_correlation_frame = None, use_arbitrary_binning = True)
+    save_pbc_distribution_plots_with_thresholds()
