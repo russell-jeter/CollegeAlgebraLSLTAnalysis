@@ -4,6 +4,12 @@ except ImportError:
     import database_utils  # Relative import (for package context)
 
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+custom_palette = ['#cf4456', '#f29566', '#831c64', '#2f0f3e', '#feedb0']
+
+plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
 
 def get_distractor_counts_frame(dict_of_dfs = None):
     """
@@ -58,7 +64,7 @@ def get_distractor_counts_frame(dict_of_dfs = None):
     
     return distractor_selection_counts
 
-def show_percent_of_distractors_by_form(distractor_selection_counts = None):
+def get_percent_of_distractors_by_form(distractor_selection_counts = None):
     """
     Print summary of distractor selection by exam, including distractor selection 
         counts and percentages for each exam. The categories are:
@@ -108,7 +114,61 @@ def show_percent_of_distractors_by_form(distractor_selection_counts = None):
     exam_distractors_chosen_frame["form"] = exam_distractors_chosen_frame["exam_id"].str[1]
     exam_distractors_chosen_frame["exam_id"] = exam_distractors_chosen_frame["exam_id"].str[0]
 
+    return exam_distractors_chosen_frame
+
+def add_distractors_chosen_subplot(exam_distractors_chosen_frame, axis, exam_keys, title):
+    labels = ["Never Chosen", "Rarely Chosen", "Sometimes Chosen"]
+    text_color = ["black", "black", "white"]
+    bar_bottoms = [0, 0, 0]
+    bar_count = 0
+    for key in exam_keys:
+        exam_bar_data = []
+        exam_distractors_chosen = exam_distractors_chosen_frame[exam_distractors_chosen_frame["exam_form_id"].isin([key])]   
+        #never chosen percent
+        exam_bar_data.append(exam_distractors_chosen["never_chosen_percent"].values[0])
+        #rareley chosen percent
+        exam_bar_data.append(exam_distractors_chosen["rarely_chosen_percent"].values[0])
+        #sometimes chosen percent
+        exam_bar_data.append(exam_distractors_chosen["sometimes_chosen_percent"].values[0])
+        exam_bar_data = np.array(exam_bar_data) * 100
+        axis.bar(labels, exam_bar_data, label=key, bottom = bar_bottoms)
+        
+        
+        for i in range(len(bar_bottoms)):
+            bar_bottoms[i] += exam_bar_data[i]
+        for j in range(len(exam_bar_data)):
+            y_position = (bar_bottoms[j] - exam_bar_data[j]/2)
+            if exam_bar_data[j] >= 25:
+                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 10)
+        bar_count += 1
+    
+    axis.legend(prop={'size': 10})
+    axis.set_xlabel("Distractors Chosen Category")
+    axis.set_ylabel("Percent of Distractor Answer Choices")
+    axis.set_title(title)
+
+def save_distractors_chosen_plots(exam_distractors_chosen_frame = None, filename = None):
+    if type(exam_distractors_chosen_frame) == type(None):
+        exam_distractors_chosen_frame = exam_distractors_chosen_frame()
+    if type(filename) == type(None):
+        filename = "./figures/distractors_chosen_bar_chart.png"
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
     print(exam_distractors_chosen_frame)
+    add_distractors_chosen_subplot(exam_distractors_chosen_frame, ax0, ["1A", "1B"], "Exam 1")
+    add_distractors_chosen_subplot(exam_distractors_chosen_frame, ax1, ["2A", "2B", "2C"], "Exam 2")
+    add_distractors_chosen_subplot(exam_distractors_chosen_frame, ax2, ["3A", "3B", "3C"], "Exam 3")
+    add_distractors_chosen_subplot(exam_distractors_chosen_frame, ax3, ["4A", "4B", "4C"], "Exam 4")
+
+    fig.tight_layout()
+    
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+    
+    plt.close(fig)
 
 def create_effective_distractor_counts_list():
     """
@@ -116,7 +176,7 @@ def create_effective_distractor_counts_list():
     """
     return [0, 0, 0, 0, 0]
 
-def show_effective_distractors_by_form(distractor_selection_counts = None):
+def get_effective_distractors_by_form(distractor_selection_counts = None):
     """
     Print summary of the number of effective distractors (Selected > 5% of the time) by form  
         The output is read as follows:
@@ -135,7 +195,7 @@ def show_effective_distractors_by_form(distractor_selection_counts = None):
 
     Returns
     -------
-    None. This function prints a dataframe, it does not return a value.
+    None. This function returns a list of the percent of effective distractors per form.
     """
     
     if type(distractor_selection_counts) == type(None):
@@ -163,12 +223,71 @@ def show_effective_distractors_by_form(distractor_selection_counts = None):
         
         for i in range(len(effective_distractor_count_dict[key])):
             effective_distractor_count_dict[key][i] = effective_distractor_count_dict[key][i] / list_sum
-        
+    
+    return effective_distractor_count_dict 
+
+def show_effective_distractor_counts(effective_distractor_count_dict):
+    for key in effective_distractor_count_dict.keys():
         print(key, effective_distractor_count_dict[key])
+
+def add_effective_distractors_subplot(distractor_counts_dict, axis, exam_keys, title):
+    labels = ["0", "1", "2", "3"]
+    text_color = ["black", "black", "white"]
+    bar_bottoms = [0, 0, 0, 0]
+    bar_count = 0
+    for key in exam_keys:
+        exam_effective_distractor_percents = distractor_counts_dict[key][:4]
+
+        if len(exam_effective_distractor_percents) < 4:
+            while len(exam_effective_distractor_percents) < 4:
+                exam_effective_distractor_percents.append(0)
+
+        exam_effective_distractor_percents = np.array(exam_effective_distractor_percents) * 100 
+        axis.bar(labels, exam_effective_distractor_percents, label=key, bottom = bar_bottoms)
+        
+        for i in range(len(bar_bottoms)):
+            bar_bottoms[i] += exam_effective_distractor_percents[i]
+        for j in range(len(exam_effective_distractor_percents)):
+            y_position = (bar_bottoms[j] - exam_effective_distractor_percents[j]/2)
+            if exam_effective_distractor_percents[j] >= 20:
+                axis.text(labels[j], y_position, f"{exam_effective_distractor_percents[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 10)
+        bar_count += 1
+    
+    axis.legend(prop={'size': 10})
+    axis.set_xlabel("Number of Effective Distractors")
+    axis.set_ylabel("Percent of Questions")
+    axis.set_title(title)
+
+def save_effective_distractors_plots(distractor_counts_dict = None, filename = None):
+    if type(distractor_counts_dict) == type(None):
+        distractor_counts_dict = get_effective_distractors_by_form()
+    if type(filename) == type(None):
+        filename = "./figures/effective_distractors_bar_chart.png"
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
+
+    add_effective_distractors_subplot(distractor_counts_dict, ax0, ["1A", "1B"], "Exam 1")
+    add_effective_distractors_subplot(distractor_counts_dict, ax1, ["2A", "2B", "2C"], "Exam 2")
+    add_effective_distractors_subplot(distractor_counts_dict, ax2, ["3A", "3B", "3C"], "Exam 3")
+    add_effective_distractors_subplot(distractor_counts_dict, ax3, ["4A", "4B", "4C"], "Exam 4")
+
+    fig.tight_layout()
+    
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+    
+    plt.close(fig)
 
 if __name__ == "__main__":
 
     dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
-    show_percent_of_distractors_by_form()
+    exam_distractors_chosen_frame = get_percent_of_distractors_by_form()
+    
+    save_distractors_chosen_plots(exam_distractors_chosen_frame, filename = None)
     print(get_distractor_counts_frame(dict_of_dfs))
-    show_effective_distractors_by_form()
+    distractor_counts_dict = get_effective_distractors_by_form()
+    show_effective_distractor_counts(distractor_counts_dict)
+    save_effective_distractors_plots(distractor_counts_dict, filename = None)
