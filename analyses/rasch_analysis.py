@@ -261,13 +261,27 @@ def build_rasch_dfs(list_of_rasch_dicts):
     for rasch_dict in list_of_rasch_dicts:
         student_statistics=['var_estimates_students', 'outfit_students', 'infit_students']
         student_partial_series_list=[rasch_dict[s_key] for s_key in student_statistics] # list of rasch Series statistics on students
+        #Append student scores
+        student_score_series = rasch_dict['true_false_df'].mean(axis=1)
+        student_score_series.name = 'student_exam_score'
+        student_partial_series_list.append(student_score_series) 
         temp_student_df=join_series_from_list_on_index(student_partial_series_list) # Joins Series into single df joined on shared indicies
 
         temp_standard_error=math.sqrt(2/len(temp_student_df)) # standard error to determine outliers as 2 more than fit value of 1
 
-        temp_student_df['is_outfit_outlier']=(temp_student_df['outfit_students'] > 1+2*temp_standard_error) # create 0/1 column to easily sort in Excel
-        temp_student_df['is_infit_outlier']=(temp_student_df['infit_students'] > 1+2*temp_standard_error) # create 0/1 column to easily sort in Excel
-        temp_student_df=temp_student_df.astype({'is_outfit_outlier': 'int', 'is_infit_outlier': 'int'}) # cast from True/False to 1/0
+        # Categorize outfits
+        temp_student_df['is_good_outfit']=(temp_student_df['outfit_students'] <= 1-2*temp_standard_error) 
+        temp_student_df['is_acceptable_outfit']=(1-2*temp_standard_error < temp_student_df['outfit_students']) & (temp_student_df['outfit_students'] < 1+2*temp_standard_error) 
+        temp_student_df['is_poor_outfit']=(temp_student_df['outfit_students'] >= 1+2*temp_standard_error)
+
+        # Categorize infits
+        temp_student_df['is_good_infit']=(temp_student_df['infit_students'] <= 1-2*temp_standard_error) 
+        temp_student_df['is_acceptable_infit']=(1-2*temp_standard_error < temp_student_df['infit_students']) & (temp_student_df['infit_students'] < 1+2*temp_standard_error)
+        temp_student_df['is_poor_infit']=(temp_student_df['infit_students'] >= 1+2*temp_standard_error)
+
+        # Cast infit and outfit categories from True/False to 1/0
+        temp_student_df=temp_student_df.astype({'is_good_outfit': 'int', 'is_acceptable_outfit': 'int', 'is_poor_outfit': 'int', 
+                                                'is_good_infit': 'int', 'is_acceptable_infit': 'int', 'is_poor_infit': 'int'}) 
 
         list_of_student_dfs.append(temp_student_df) # Add student statistics for specific exam and version to list to be concat later
 
@@ -275,10 +289,18 @@ def build_rasch_dfs(list_of_rasch_dicts):
         item_partial_series_list=[rasch_dict[i_key] for i_key in item_statistics] # list of rasch Series statistics on items
         temp_item_df=join_series_from_list_on_index(item_partial_series_list) # Joins Series into single df joined on shared indicies
 
+        # Categorize outfits
+        temp_item_df['is_good_outfit']=(temp_item_df['outfit_items'] <= 1-2*temp_standard_error) 
+        temp_item_df['is_acceptable_outfit']=(1-2*temp_standard_error < temp_item_df['outfit_items']) & (temp_item_df['outfit_items'] < 1+2*temp_standard_error) 
+        temp_item_df['is_poor_outfit']=(temp_item_df['outfit_items'] >= 1+2*temp_standard_error)
 
-        temp_item_df['is_outfit_outlier']=(temp_item_df['outfit_items'] > 1+2*temp_standard_error) # create 0/1 column to easily sort in Excel
-        temp_item_df['is_infit_outlier']=(temp_item_df['infit_items'] > 1+2*temp_standard_error) # create 0/1 column to easily sort in Excel
-        temp_item_df=temp_item_df.astype({'is_outfit_outlier': 'int', 'is_infit_outlier': 'int'}) # cast from True/False to 1/0
+        # Categorize infits
+        temp_item_df['is_good_infit']=(temp_item_df['infit_items'] <= 1-2*temp_standard_error) 
+        temp_item_df['is_acceptable_infit']=(1-2*temp_standard_error < temp_item_df['infit_items']) & (temp_item_df['infit_items'] < 1+2*temp_standard_error)
+        temp_item_df['is_poor_infit']=(temp_item_df['infit_items'] >= 1+2*temp_standard_error)
+
+        temp_item_df=temp_item_df.astype({'is_good_outfit': 'int', 'is_acceptable_outfit': 'int', 'is_poor_outfit': 'int', 
+                                          'is_good_infit': 'int', 'is_acceptable_infit': 'int', 'is_poor_infit': 'int'}) 
 
         list_of_item_dfs.append(temp_item_df) # Add item statistics for specific exam and version to list to be concat later
 

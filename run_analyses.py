@@ -1,4 +1,4 @@
-from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, item_difficulty, kr_20_analysis, observed_score_statistics_and_distributions
+from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, student_summary, item_difficulty, kr_20_analysis, observed_score_statistics_and_distributions
 
 if __name__ == "__main__":
 
@@ -25,3 +25,7 @@ if __name__ == "__main__":
     #Save item summary frame
     item_summary_frame = item_summary.get_item_summary_frame()
     item_summary_frame.to_excel("item_summary.xlsx", index = False)
+
+    #Save student summary frame
+    student_summary_frame = student_summary.get_student_summary_frame()
+    student_summary_frame.to_excel("student_summary.xlsx", index=False)
