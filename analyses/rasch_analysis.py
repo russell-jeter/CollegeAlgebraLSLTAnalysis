@@ -4,6 +4,13 @@ import math
 import statistics # Used for statistics.fmean()
 import os # Used to define file location at end of ipynb
 
+import matplotlib.pyplot as plt
+import matplotlib
+
+custom_palette = ['#cf4456', '#f29566', '#831c64', '#2f0f3e', '#feedb0']
+
+plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
+
 # Definitions to form 0/1 dataframe with each row being a student and each column being a single exam/version question
 
 # Returns dataframe df with just rows with 'question_id' == num_and_ver
@@ -337,3 +344,94 @@ def get_rasch_students_and_items_frames_as_dict():
     rasch_students_df, rasch_items_df = build_rasch_dfs(list_of_rasch_dicts)
     return {'rasch_student_df': rasch_students_df, 'rasch_items_df': rasch_items_df}
 
+
+def add_rasch_item_difficulty_subplot(rasch_items_df, axis, bins, exam_keys, title):
+    data_list = []
+    for key in exam_keys:
+        data_list.append(rasch_items_df[rasch_items_df["exam_id"].isin([key])]["var_estimates_items"].values)
+    axis.hist(data_list, bins, histtype='bar', stacked=True, label=exam_keys)
+    axis.legend(prop={'size': 10})
+    fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
+    axis.xaxis.set_major_formatter(fmt)
+    fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
+    axis.yaxis.set_major_formatter(fmt)
+    axis.set_xlabel("Estimated Item Difficulty, " + r"$\delta$")
+    axis.set_ylabel("Number of Questions")
+    axis.set_title(title)
+
+def save_rasch_items_distributions(rasch_items_df = None, filename = None):
+    if type(rasch_items_df) == type(None):
+        rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
+        rasch_items_df = rasch_analysis_dict["rasch_items_df"]
+    if type(filename) == type(None):
+        filename = "./figures/rasch_items_distributions.png"
+
+    rasch_items_df = rasch_items_df.reset_index()
+    rasch_items_df["exam_id"] = rasch_items_df["question_id"].str[0:2]
+
+    plt.rcParams['text.usetex'] = True
+
+    bins = [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
+
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax0, bins, ["1A", "1B"], "Exam 1")
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax1, bins, ["2A", "2B", "2C"], "Exam 2")
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax2, bins, ["3A", "3B", "3C"], "Exam 3")
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax3, bins, ["4A", "4B", "4C"], "Exam 4")
+
+    fig.tight_layout()
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+        
+    plt.close(fig)
+
+def save_rasch_ability_distributions(rasch_student_df = None, filename = None):
+    if type(rasch_student_df) == type(None):
+        rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
+        rasch_student_df = rasch_analysis_dict["rasch_student_df"]
+    if type(filename) == type(None):
+        filename = "./figures/rasch_latent_ability_distribution.png"
+
+    plt.rcParams['text.usetex'] = True
+
+    bins = [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+
+    fig, ((axis)) = plt.subplots(nrows=1, ncols=1, figsize=(10,6))
+    font = {'size'   : 22}
+    matplotlib.rc('font', **font)
+    fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
+    axis.xaxis.set_major_formatter(fmt)
+    fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
+    axis.yaxis.set_major_formatter(fmt)
+    axis.hist(rasch_student_df["var_estimates_students"].values, bins, histtype='bar', stacked=True)
+    axis.set_xlabel("Estimated Latent Ability, " + r"$\theta$")
+    axis.set_ylabel("Number of Students")
+
+    fig.tight_layout()
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+        
+    plt.close(fig)
+
+
+
+if __name__ == "__main__":
+    #print(get_item_difficulty_frame())
+    #save_item_difficulty_distributions()
+    #print(get_student_score_frame())
+    #print(get_point_biserial_coefficient_frame())
+    #save_pbc_distribution_plots()
+    #show_pbc_ranges(point_biserial_correlation_frame = None, use_arbitrary_binning = True)
+    #save_rasch_items_distributions()
+    rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
+    rasch_items_df = rasch_analysis_dict["rasch_items_df"]
+    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
+    save_rasch_items_distributions(rasch_items_df = rasch_items_df)
+    save_rasch_ability_distributions(rasch_student_df = rasch_student_df)
