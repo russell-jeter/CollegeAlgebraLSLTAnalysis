@@ -14,7 +14,7 @@ def get_item_summary_frame(dict_of_dfs = None):
     if type(dict_of_dfs) == type(None):
         dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
 
-    distractor_counts_frame = effective_distractors_analysis.get_distractor_counts_frame(dict_of_dfs = dict_of_dfs)
+    distractor_counts_frame = effective_distractors_analysis.get_effective_distractors_per_question()
     distractor_counts_frame = distractor_counts_frame.rename(columns = {"count": "option_selected_count"})
 
     item_difficulty_frame = item_difficulty.get_item_difficulty_frame().reset_index()
@@ -27,7 +27,7 @@ def get_item_summary_frame(dict_of_dfs = None):
     rasch_item_frame = rasch_analysis.get_rasch_students_and_items_frames_as_dict()["rasch_items_df"].reset_index()
 
     item_summary_frame = pd.merge(pbc_frame, item_difficulty_frame, on = "question_id")
-    #item_summary_frame = pd.merge(distractor_counts_frame, item_summary_frame, on = "question_id")
+    item_summary_frame = pd.merge(distractor_counts_frame, item_summary_frame, on = "question_id")
     item_summary_frame = pd.merge(rasch_item_frame, item_summary_frame, on = "question_id")
     
     return item_summary_frame

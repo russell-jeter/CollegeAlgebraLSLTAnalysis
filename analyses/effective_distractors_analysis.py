@@ -230,6 +230,24 @@ def show_effective_distractor_counts(effective_distractor_count_dict):
     for key in effective_distractor_count_dict.keys():
         print(key, effective_distractor_count_dict[key])
 
+def get_effective_distractors_per_question(distractor_counts_frame = None):
+    if type(distractor_counts_frame) == type(None):
+        distractor_counts_frame = get_distractor_counts_frame()
+
+    question_ids = np.unique(distractor_counts_frame["question_id"].values)
+    dict_list = []
+    for question_id in question_ids:
+        row_dict = dict()
+        row_dict["question_id"] = question_id
+
+        question_distractor_counts_frame = distractor_counts_frame[distractor_counts_frame["question_id"].isin([question_id])]
+        effective_distractor_count = len(question_distractor_counts_frame.query("is_distractor > 0 and percent > 0.05"))
+        row_dict["effective_distractors"] = effective_distractor_count
+        dict_list.append(row_dict)
+
+    effective_distractors_frame = pd.DataFrame(dict_list)
+    return effective_distractors_frame
+
 def add_effective_distractors_subplot(distractor_counts_dict, axis, exam_keys, title):
     labels = ["0", "1", "2", "3"]
     text_color = ["black", "black", "white"]
