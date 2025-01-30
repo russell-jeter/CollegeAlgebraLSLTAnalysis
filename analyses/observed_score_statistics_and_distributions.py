@@ -5,6 +5,7 @@ except ImportError:
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 custom_palette = ['#cf4456', '#f29566', '#831c64', '#2f0f3e', '#feedb0']
 
@@ -44,13 +45,36 @@ def add_os_subplot(exam_scores, axis, bins, exam_keys, title):
     data_list = []
     for key in exam_keys:
         data_list.append(exam_scores[exam_scores["exam_id"].isin([key])]["exam_score_percent"].values)
-    print(data_list)
-    print(bins)
-    axis.hist(data_list, bins, histtype='bar', stacked = True, label=exam_keys)
+
+    # Calculate histogram values for annotations
+    hist_values = []
+    for data in data_list:
+        counts, _ = np.histogram(data, bins=bins)
+        hist_values.append(counts)
+
+    # The actual plotting
+    n_bins = len(bins) - 1  # Number of bins
+    cumulative_counts = np.zeros(n_bins)  # Keep track of where the last bar ended
+
+    bars = axis.hist(data_list, bins, histtype='bar', stacked=True, label=exam_keys)
+    text_color = ["black", "black", "white"]
+    for i, key in enumerate(exam_keys):  # Iterate through each exam type
+        for j, rect in enumerate(bars[2][i]):  # Iterate through each bar in a given exam type
+            height = rect.get_height()
+            if height >= 20:  # Only add label if bar is visible
+                x_center = rect.get_x() + rect.get_width() / 2
+                y_center = cumulative_counts[j] + height / 2  # Stack bars
+                text_label = f"{height:.2f}"  # Convert count to int for cleaner label
+                
+                axis.text(x_center, y_center, text_label, ha='center', va='center', 
+                          color=text_color[i] if height > np.max(hist_values)/3 else 'black')  # Adjust color
+            cumulative_counts[j] += height  # Update cumulative height for next bar
+
     axis.legend(prop={'size': 10})
     axis.set_xlabel("Exam Score")
     axis.set_ylabel("Number of Students")
     axis.set_title(title)
+
 
 def save_os_distribution_plots(exam_scores = None, filename = None):
     if type(exam_scores) == type(None):
