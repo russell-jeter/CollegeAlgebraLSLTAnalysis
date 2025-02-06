@@ -182,4 +182,5 @@ def get_exam_scores(student_responses_with_details = None):
     return exam_scores
 
 if __name__ == "__main__":
-    print(get_exam_scores())
+    print(load_database_to_dict_of_dfs())
+    #print(get_exam_scores())

@@ -101,6 +101,7 @@ def save_os_distribution_plots(exam_scores = None, filename = None):
     plt.close(fig)
 
 if __name__ == "__main__":
-    get_student_exam_taken_count()
-    export_observed_score_statistics()
-    save_os_distribution_plots()
+    print(database_utils.get_exam_scores())
+    #get_student_exam_taken_count()
+    #export_observed_score_statistics()
+    #save_os_distribution_plots()
