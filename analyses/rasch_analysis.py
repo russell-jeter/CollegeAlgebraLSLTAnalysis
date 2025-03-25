@@ -121,7 +121,7 @@ def difficulty_estimate(col):
     return math.log((1 - col['avg_question_score'] ) / col['avg_question_score'])
 
 # Calculuate ability and difficulty estimates based on 0/1 df
-def approximate_ability_and_difficulty(df):
+def approximate_ability_and_difficulty(df, answer_choices_df, questions_df=pd.DataFrame()):
     temp_df=df.copy() # creates a copy just in case 
     temp_df['avg_student_score']=temp_df.mean(axis=1) # mean by row, where mean of 0/1s is overall score on exam
     theta_s=temp_df.apply(ability_estimate, axis=1).tolist() # df.apply returns a single value based on the row, which would be a Series that we convert to list
@@ -133,11 +133,34 @@ def approximate_ability_and_difficulty(df):
     avg_beta_i=beta_i_non_normal.mean() # calculates average beta_i (difficulty estimate for item i) to normalize
     beta_i=beta_i_non_normal - avg_beta_i # normalizes difficulty estimates
     beta_i_keys=beta_i.keys().tolist() # Question names for dict keys, needed for calc_expected_values function
-    return {'beta_i_keys': beta_i_keys, 'beta_i': beta_i, 'theta_s': theta_s} # returns ability and difficulty estimate with question_id keys for future columns
+
+    if len(questions_df['difficulty_coeff'].dropna()) == 0:
+        diff_coeff_list = np.empty(len(beta_i))
+        diff_coeff_list.fill(1)
+    else:
+        for_merge_df = pd.DataFrame(beta_i_keys, columns=['question_id'])
+        for_merge_df.merge(questions_df, on='question_id', how='left')
+        difficulty_coeffs = for_merge_df['difficulty_coeff']
+        diff_coeffs_not_na = difficulty_coeffs.notna()
+        diff_coeff_list = []
+        for index in range(0, len(diff_coeffs_not_na)):
+            if np.isnan(diff_coeffs_not_na.loc[index]):
+                diff_coeff_list.append(1)
+            else:
+                diff_coeff_list.append(diff_coeffs_not_na.loc[index])
+
+    guess_p_list = []
+    for question_name in beta_i_keys:
+        temp_num_of_options = answer_choices_df.value_counts('question_id').loc[question_name]
+        guess_p_list.append(1/temp_num_of_options)
+
+    return {'beta_i_keys': beta_i_keys, 'diff_coeff_i': diff_coeff_list, 'beta_i': beta_i, 'guess_i': guess_p_list, 'theta_s': theta_s} # returns ability and difficulty estimate with question_id keys for future columns
 
 # If error is too large, adjust beta_i and theta_s by sum of error / sum of variance 
 def iterate_variable_estimates(variable_estimates_dict, variance_df, residuals_df):
+    diff_coeff_i = list(variable_estimates_dict['diff_coeff_i'])
     beta_i=list(variable_estimates_dict['beta_i'])
+    guess_i = list(variable_estimates_dict['guess_i'])
     theta_s=list(variable_estimates_dict['theta_s'])
     beta_i_keys=list(variable_estimates_dict['beta_i_keys']) # Not used in this function but is returned for new variable_estimates_dict
 
@@ -162,13 +185,17 @@ def iterate_variable_estimates(variable_estimates_dict, variance_df, residuals_d
     beta_mean=statistics.fmean(new_beta_i) # convert all values to float-type then compute mean, faster than .mean
     new_beta_i=[x-beta_mean for x in new_beta_i] # normalizes difficulty estimates, as before
 
-    return {'beta_i': new_beta_i, 'theta_s': new_theta_s, 'beta_i_keys': beta_i_keys}
+    return {'beta_i': new_beta_i, 'diff_coeff_i': diff_coeff_i, 'guess_i': guess_i, 'theta_s': new_theta_s, 'beta_i_keys': beta_i_keys}
 
 # Expected values are the probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
 # Matched against student responses (1/0) on exam
 def calc_expected_values(variable_estimates_dict):
-    beta_i_keys=list(variable_estimates_dict['beta_i_keys'])
+    diff_coeff_i = list(variable_estimates_dict['diff_coeff_i'])
     beta_i=list(variable_estimates_dict['beta_i'])
+    guess_i = list(variable_estimates_dict['guess_i'])
+
+    beta_i_keys=list(variable_estimates_dict['beta_i_keys'])
+
     theta_s=list(variable_estimates_dict['theta_s'])
 
     list_of_ev_dicts=[]
@@ -176,8 +203,8 @@ def calc_expected_values(variable_estimates_dict):
     for theta_index in range(0, len(theta_s)):
         temp_ev_dict={} # initalize new row for theta_index
         for beta_index in range(0, len(beta_i)): # iterate by column to create row dict
-            exp_vars=math.exp(theta_s[theta_index] - beta_i[beta_index]) # Rasch model of 1PL with alpha=1
-            temp_ev_dict[beta_i_keys[beta_index]] = exp_vars / (1 + exp_vars) # probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
+            exp_vars=math.exp(diff_coeff_i[beta_index]*(theta_s[theta_index] - beta_i[beta_index])) 
+            temp_ev_dict[beta_i_keys[beta_index]] = guess_i[beta_index] + ((1 - guess_i[beta_index])*(exp_vars / (1 + exp_vars))) # probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
         list_of_ev_dicts.append(temp_ev_dict) 
 
     ev_df=pd.DataFrame(list_of_ev_dicts)
@@ -194,16 +221,17 @@ def calc_sum_sqr_residuals(df):
     sum_of_sqrs = temp_series_sum.sum() # sum the squares of each Series entry
     return sum_of_sqrs
 
-def build_rasch_model(base_df):
+def build_rasch_model(base_df, answer_choices_df, questions_df=pd.DataFrame()):
     student_ids=base_df.index.tolist() # Save student_ids to apply at end
     first_iteration=1 # first iteration will approximate ability and difficulty, all others will iterate the variables
-    sum_sqr_res=1 # forces while to fail on first iteration and is calculated later
+    sum_sqr_res_current = 10000 # forces while to fail on first iteration and is calculated later
+    sum_sqr_res_previous = 0
     iteration_num=0 # only used for testing
-    while sum_sqr_res > 0.0001: # while sum of errors is "large"
+    while abs(sum_sqr_res_current - sum_sqr_res_previous) > 0.0001: # while sum of errors is "large"
         if first_iteration==1:
             iteration_num=1 # only used for testing
             first_iteration=0 # forces future iterations to iterate on future ability and difficulty estimates
-            variable_estimates_dict=approximate_ability_and_difficulty(base_df) # initial ability estimates by student and difficulty estimates by item
+            variable_estimates_dict=approximate_ability_and_difficulty(base_df, answer_choices_df, questions_df) # initial ability estimates by student and difficulty estimates by item
         else:
             iteration_num+=1
             variable_estimates_dict=iterate_variable_estimates(variable_estimates_dict, est_var_ex_vals_df, residuals_df) # modifies ability and difficulty estimates by giving more weight to ability and less to difficulty
@@ -211,7 +239,8 @@ def build_rasch_model(base_df):
         est_var_ex_vals_df=calc_est_var(expected_values_df) # variance of expected values as 1*p*(1-p)
         base_df.index=expected_values_df.index # ensure indicies between base_df and expected_values_df are equal for subtraction of dfs
         residuals_df=base_df-expected_values_df # difference between actual response scores and probability based on student ability and item difficulty
-        sum_sqr_res=calc_sum_sqr_residuals(residuals_df) # sum of errors between actual response scores and probability
+        sum_sqr_res_previous = sum_sqr_res_current
+        sum_sqr_res_current = calc_sum_sqr_residuals(residuals_df) # sum of errors between actual response scores and probability
 
     fit_df=residuals_df.pow(2)/est_var_ex_vals_df # final normalized error for each expected value
     fit_df.index=student_ids # applies original index of base_df
@@ -324,10 +353,14 @@ def get_rasch_students_and_items_frames_as_dict():
     try:
         raw_df = pd.read_excel(database_filename, sheet_name="student_question_responses")
         key_df = pd.read_excel(database_filename, sheet_name="answer_choices")
+        options_df = pd.read_excel(database_filename, sheet_name="answer_choices")
+        questions_df = pd.read_excel(database_filename, sheet_name="questions")
     except FileNotFoundError:
         database_filename = "." + database_filename
         raw_df = pd.read_excel(database_filename, sheet_name="student_question_responses")
         key_df = pd.read_excel(database_filename, sheet_name="answer_choices")
+        options_df = pd.read_excel(database_filename, sheet_name="answer_choices")
+        questions_df = pd.read_excel(database_filename, sheet_name="questions")
     key_df = key_df[key_df['is_distractor'] == 0] 
 
     all_exam_numbers_and_forms=collect_all_exam_numbers_and_forms(raw_df) # creates list of exam numbers and forms from df
@@ -336,7 +369,7 @@ def get_rasch_students_and_items_frames_as_dict():
     list_of_rasch_dicts=[]
     for exam_dict in list_of_tf_dfs:
         no_error_exam_df=remove_issue_scores(exam_dict['true_false_df']) # removes 0% and 100% from student rows and question columns
-        rasch_dict=build_rasch_model(no_error_exam_df) # iterates through until error is effectively 0
+        rasch_dict=build_rasch_model(no_error_exam_df, options_df, questions_df) # iterates through until error is effectively 0
         rasch_dict['exam_num_and_form']=exam_dict['exam_num_and_form'] # extract exam number and form from 
         rasch_dict['true_false_df']=exam_dict['true_false_df'] # save originally graded dataframe based on student responses
         list_of_rasch_dicts.append(rasch_dict)

@@ -11,8 +11,8 @@ if __name__ == "__main__":
     exam_and_distractor_counts.show_student_distractor_selection_counts()
 
     #Display distractor analysis
-    effective_distractors_analysis.show_effective_distractors_by_form()
-    effective_distractors_analysis.show_percent_of_distractors_by_form()
+    #effective_distractors_analysis.show_effective_distractors_by_form()
+    #effective_distractors_analysis.show_percent_of_distractors_by_form()
 
     #Display KR-20 Analysis
     print(kr_20_analysis.get_kr_20_frame())
