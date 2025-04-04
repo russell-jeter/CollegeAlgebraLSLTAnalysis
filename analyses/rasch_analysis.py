@@ -189,7 +189,7 @@ def iterate_variable_estimates(variable_estimates_dict, variance_df, residuals_d
 
 # Expected values are the probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
 # Matched against student responses (1/0) on exam
-def calc_expected_values(variable_estimates_dict):
+def calc_expected_values(variable_estimates_dict, model_parameters):
     diff_coeff_i = list(variable_estimates_dict['diff_coeff_i'])
     beta_i=list(variable_estimates_dict['beta_i'])
     guess_i = list(variable_estimates_dict['guess_i'])
@@ -203,8 +203,12 @@ def calc_expected_values(variable_estimates_dict):
     for theta_index in range(0, len(theta_s)):
         temp_ev_dict={} # initalize new row for theta_index
         for beta_index in range(0, len(beta_i)): # iterate by column to create row dict
-            exp_vars=math.exp(diff_coeff_i[beta_index]*(theta_s[theta_index] - beta_i[beta_index])) 
-            temp_ev_dict[beta_i_keys[beta_index]] = guess_i[beta_index] + ((1 - guess_i[beta_index])*(exp_vars / (1 + exp_vars))) # probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
+            if model_parameters==3:
+                exp_vars=math.exp(1.7*diff_coeff_i[beta_index]*(theta_s[theta_index] - beta_i[beta_index])) 
+                temp_ev_dict[beta_i_keys[beta_index]] = guess_i[beta_index] + ((1 - guess_i[beta_index])*(exp_vars / (1 + exp_vars))) # probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
+            elif model_parameters==1:
+                exp_vars=math.exp(theta_s[theta_index] - beta_i[beta_index])
+                temp_ev_dict[beta_i_keys[beta_index]] = exp_vars / (1 + exp_vars) # probability of student s answering question i correctly given a student's ability score theta_i and the item's difficulty beta_i
         list_of_ev_dicts.append(temp_ev_dict) 
 
     ev_df=pd.DataFrame(list_of_ev_dicts)
@@ -221,13 +225,13 @@ def calc_sum_sqr_residuals(df):
     sum_of_sqrs = temp_series_sum.sum() # sum the squares of each Series entry
     return sum_of_sqrs
 
-def build_rasch_model(base_df, answer_choices_df, questions_df=pd.DataFrame()):
+def build_rasch_model(base_df, answer_choices_df, model_parameters, questions_df=pd.DataFrame()):
     student_ids=base_df.index.tolist() # Save student_ids to apply at end
     first_iteration=1 # first iteration will approximate ability and difficulty, all others will iterate the variables
     sum_sqr_res_current = 10000 # forces while to fail on first iteration and is calculated later
     sum_sqr_res_previous = 0
     iteration_num=0 # only used for testing
-    while abs(sum_sqr_res_current - sum_sqr_res_previous) > 0.0001: # while sum of errors is "large"
+    while abs(sum_sqr_res_current - sum_sqr_res_previous) > 0.001: # while sum of errors is "large"
         if first_iteration==1:
             iteration_num=1 # only used for testing
             first_iteration=0 # forces future iterations to iterate on future ability and difficulty estimates
@@ -235,7 +239,7 @@ def build_rasch_model(base_df, answer_choices_df, questions_df=pd.DataFrame()):
         else:
             iteration_num+=1
             variable_estimates_dict=iterate_variable_estimates(variable_estimates_dict, est_var_ex_vals_df, residuals_df) # modifies ability and difficulty estimates by giving more weight to ability and less to difficulty
-        expected_values_df=calc_expected_values(variable_estimates_dict) # probability a student s answers question i correctly
+        expected_values_df=calc_expected_values(variable_estimates_dict, model_parameters) # probability a student s answers question i correctly
         est_var_ex_vals_df=calc_est_var(expected_values_df) # variance of expected values as 1*p*(1-p)
         base_df.index=expected_values_df.index # ensure indicies between base_df and expected_values_df are equal for subtraction of dfs
         residuals_df=base_df-expected_values_df # difference between actual response scores and probability based on student ability and item difficulty
@@ -246,35 +250,35 @@ def build_rasch_model(base_df, answer_choices_df, questions_df=pd.DataFrame()):
     fit_df.index=student_ids # applies original index of base_df
 
     var_estimates_students=pd.Series(variable_estimates_dict['theta_s'], index=student_ids) # variance for ability estimates by student
-    var_estimates_students.name='var_estimates_students'
+    var_estimates_students.name=f'var_estimates_students_{model_parameters}PL'
     var_estimates_items=pd.Series(variable_estimates_dict['beta_i'], index=variable_estimates_dict['beta_i_keys']) # variance for difficulty estimates by item
-    var_estimates_items.name='var_estimates_items'
+    var_estimates_items.name=f'var_estimates_items_{model_parameters}PL'
 
     # Outfit (Outlier-Sensitivity fit) Unweighted Fit Mean Square
     # Sensitive to "outer" outliers (difficulty and ability far apart)
     outfit_students=fit_df.mean(axis=1) 
     outfit_students.index=student_ids
-    outfit_students.name='outfit_students'
+    outfit_students.name=f'outfit_students_{model_parameters}PL'
 
     outfit_items=fit_df.mean(axis=0)
-    outfit_items.name='outfit_items'
+    outfit_items.name=f'outfit_items_{model_parameters}PL'
 
     # Infit (Inlier-Sensitivity fit) Weighted Fit Mean Square
     # Sensitive to "inner" outliers (unexpected performance on items at student difficulty level)
     infit_students=residuals_df.pow(2).sum(axis=1)/est_var_ex_vals_df.sum(axis=1) # Weighted by variance
     infit_students.index=student_ids
-    infit_students.name='infit_students'
+    infit_students.name=f'infit_students_{model_parameters}PL'
 
     infit_items=residuals_df.pow(2).sum(axis=0)/est_var_ex_vals_df.sum(axis=0) # Weighted by variance
-    infit_items.name='infit_items'
+    infit_items.name=f'infit_items_{model_parameters}PL'
 
-    rasch_dict={'fit_df': fit_df, 
-            'var_estimates_students': var_estimates_students, # returns as Series
-            'var_estimates_items': var_estimates_items, # returns as Series
-            'outfit_students': outfit_students, # returns as Series
-            'outfit_items': outfit_items, # returns as Series
-            'infit_students': infit_students, # returns as Series
-            'infit_items': infit_items # returns as Series
+    rasch_dict={f'fit_df_{model_parameters}PL': fit_df, 
+            f'var_estimates_students_{model_parameters}PL': var_estimates_students, # returns as Series
+            f'var_estimates_items_{model_parameters}PL': var_estimates_items, # returns as Series
+            f'outfit_students_{model_parameters}PL': outfit_students, # returns as Series
+            f'outfit_items_{model_parameters}PL': outfit_items, # returns as Series
+            f'infit_students_{model_parameters}PL': infit_students, # returns as Series
+            f'infit_items_{model_parameters}PL': infit_items # returns as Series
             }
     return rasch_dict
 
@@ -295,48 +299,62 @@ def build_rasch_dfs(list_of_rasch_dicts):
     list_of_student_dfs=[] # initalize list to be converted to df
     list_of_item_dfs=[] # initalize list to be converted to df
     for rasch_dict in list_of_rasch_dicts:
-        student_statistics=['var_estimates_students', 'outfit_students', 'infit_students']
+        student_statistics=['var_estimates_students_1PL', 'outfit_students_1PL', 'infit_students_1PL', 
+                            'var_estimates_students_3PL', 'outfit_students_3PL', 'infit_students_3PL']
         student_partial_series_list=[rasch_dict[s_key] for s_key in student_statistics] # list of rasch Series statistics on students
+        
         #Append student scores
-        student_score_series = rasch_dict['true_false_df'].mean(axis=1)
-        student_score_series.name = 'student_exam_score'
+        student_score_series = rasch_dict[f'true_false_df'].mean(axis=1)
+        student_score_series.name = f'student_exam_score'
         student_partial_series_list.append(student_score_series) 
         temp_student_df=join_series_from_list_on_index(student_partial_series_list) # Joins Series into single df joined on shared indicies
 
         temp_standard_error=math.sqrt(2/len(temp_student_df)) # standard error to determine outliers as 2 more than fit value of 1
 
-        # Categorize outfits
-        temp_student_df['is_good_outfit']=(temp_student_df['outfit_students'] <= 1-2*temp_standard_error) 
-        temp_student_df['is_acceptable_outfit']=(1-2*temp_standard_error < temp_student_df['outfit_students']) & (temp_student_df['outfit_students'] < 1+2*temp_standard_error) 
-        temp_student_df['is_poor_outfit']=(temp_student_df['outfit_students'] >= 1+2*temp_standard_error)
+        for num_par in [1, 3]:
+            model_parameters = num_par
+            # Categorize outfits
+            temp_student_df[f'is_good_outfit_{model_parameters}PL']=(temp_student_df[f'outfit_students_{model_parameters}PL'] <= 1-2*temp_standard_error) 
+            temp_student_df[f'is_acceptable_outfit_{model_parameters}PL']=(1-2*temp_standard_error < temp_student_df[f'outfit_students_{model_parameters}PL']) & (temp_student_df[f'outfit_students_{model_parameters}PL'] < 1+2*temp_standard_error) 
+            temp_student_df[f'is_poor_outfit_{model_parameters}PL']=(temp_student_df[f'outfit_students_{model_parameters}PL'] >= 1+2*temp_standard_error)
 
-        # Categorize infits
-        temp_student_df['is_good_infit']=(temp_student_df['infit_students'] <= 1-2*temp_standard_error) 
-        temp_student_df['is_acceptable_infit']=(1-2*temp_standard_error < temp_student_df['infit_students']) & (temp_student_df['infit_students'] < 1+2*temp_standard_error)
-        temp_student_df['is_poor_infit']=(temp_student_df['infit_students'] >= 1+2*temp_standard_error)
+            # Categorize infits
+            temp_student_df[f'is_good_infit_{model_parameters}PL']=(temp_student_df[f'infit_students_{model_parameters}PL'] <= 1-2*temp_standard_error) 
+            temp_student_df[f'is_acceptable_infit_{model_parameters}PL']=(1-2*temp_standard_error < temp_student_df[f'infit_students_{model_parameters}PL']) & (temp_student_df[f'infit_students_{model_parameters}PL'] < 1+2*temp_standard_error)
+            temp_student_df[f'is_poor_infit_{model_parameters}PL']=(temp_student_df[f'infit_students_{model_parameters}PL'] >= 1+2*temp_standard_error)
 
         # Cast infit and outfit categories from True/False to 1/0
-        temp_student_df=temp_student_df.astype({'is_good_outfit': 'int', 'is_acceptable_outfit': 'int', 'is_poor_outfit': 'int', 
-                                                'is_good_infit': 'int', 'is_acceptable_infit': 'int', 'is_poor_infit': 'int'}) 
+        temp_student_df=temp_student_df.astype({'is_good_outfit_1PL': 'int', 'is_acceptable_outfit_1PL': 'int', 'is_poor_outfit_1PL': 'int', 
+                                                'is_good_infit_1PL': 'int', 'is_acceptable_infit_1PL': 'int', 'is_poor_infit_1PL': 'int',
+                                                'is_good_outfit_3PL': 'int', 'is_acceptable_outfit_3PL': 'int', 'is_poor_outfit_3PL': 'int', 
+                                                'is_good_infit_3PL': 'int', 'is_acceptable_infit_3PL': 'int', 'is_poor_infit_3PL': 'int'}
+                                                ) 
 
         list_of_student_dfs.append(temp_student_df) # Add student statistics for specific exam and version to list to be concat later
 
-        item_statistics=['var_estimates_items', 'outfit_items', 'infit_items'] 
+        item_statistics=['var_estimates_items_1PL', 'outfit_items_1PL', 'infit_items_1PL', 
+                         'var_estimates_items_3PL', 'outfit_items_3PL', 'infit_items_3PL', 
+                        ] 
         item_partial_series_list=[rasch_dict[i_key] for i_key in item_statistics] # list of rasch Series statistics on items
         temp_item_df=join_series_from_list_on_index(item_partial_series_list) # Joins Series into single df joined on shared indicies
 
-        # Categorize outfits
-        temp_item_df['is_good_outfit']=(temp_item_df['outfit_items'] <= 1-2*temp_standard_error) 
-        temp_item_df['is_acceptable_outfit']=(1-2*temp_standard_error < temp_item_df['outfit_items']) & (temp_item_df['outfit_items'] < 1+2*temp_standard_error) 
-        temp_item_df['is_poor_outfit']=(temp_item_df['outfit_items'] >= 1+2*temp_standard_error)
+        for num_par in [1, 3]:
+            model_parameters = num_par
+            # Categorize outfits
+            temp_item_df[f'is_good_outfit_{model_parameters}PL']=(temp_item_df[f'outfit_items_{model_parameters}PL'] <= 1-2*temp_standard_error) 
+            temp_item_df[f'is_acceptable_outfit_{model_parameters}PL']=(1-2*temp_standard_error < temp_item_df[f'outfit_items_{model_parameters}PL']) & (temp_item_df[f'outfit_items_{model_parameters}PL'] < 1+2*temp_standard_error) 
+            temp_item_df[f'is_poor_outfit_{model_parameters}PL']=(temp_item_df[f'outfit_items_{model_parameters}PL'] >= 1+2*temp_standard_error)
 
-        # Categorize infits
-        temp_item_df['is_good_infit']=(temp_item_df['infit_items'] <= 1-2*temp_standard_error) 
-        temp_item_df['is_acceptable_infit']=(1-2*temp_standard_error < temp_item_df['infit_items']) & (temp_item_df['infit_items'] < 1+2*temp_standard_error)
-        temp_item_df['is_poor_infit']=(temp_item_df['infit_items'] >= 1+2*temp_standard_error)
+            # Categorize infits
+            temp_item_df[f'is_good_infit_{model_parameters}PL']=(temp_item_df[f'infit_items_{model_parameters}PL'] <= 1-2*temp_standard_error) 
+            temp_item_df[f'is_acceptable_infit_{model_parameters}PL']=(1-2*temp_standard_error < temp_item_df[f'infit_items_{model_parameters}PL']) & (temp_item_df[f'infit_items_{model_parameters}PL'] < 1+2*temp_standard_error)
+            temp_item_df[f'is_poor_infit_{model_parameters}PL']=(temp_item_df[f'infit_items_{model_parameters}PL'] >= 1+2*temp_standard_error)
 
-        temp_item_df=temp_item_df.astype({'is_good_outfit': 'int', 'is_acceptable_outfit': 'int', 'is_poor_outfit': 'int', 
-                                          'is_good_infit': 'int', 'is_acceptable_infit': 'int', 'is_poor_infit': 'int'}) 
+        temp_item_df=temp_item_df.astype({'is_good_outfit_1PL': 'int', 'is_acceptable_outfit_1PL': 'int', 'is_poor_outfit_1PL': 'int', 
+                                          'is_good_infit_1PL': 'int', 'is_acceptable_infit_1PL': 'int', 'is_poor_infit_1PL': 'int',
+                                          'is_good_outfit_3PL': 'int', 'is_acceptable_outfit_3PL': 'int', 'is_poor_outfit_3PL': 'int', 
+                                          'is_good_infit_3PL': 'int', 'is_acceptable_infit_3PL': 'int', 'is_poor_infit_3PL': 'int',
+                                          }) 
 
         list_of_item_dfs.append(temp_item_df) # Add item statistics for specific exam and version to list to be concat later
 
@@ -369,7 +387,11 @@ def get_rasch_students_and_items_frames_as_dict():
     list_of_rasch_dicts=[]
     for exam_dict in list_of_tf_dfs:
         no_error_exam_df=remove_issue_scores(exam_dict['true_false_df']) # removes 0% and 100% from student rows and question columns
-        rasch_dict=build_rasch_model(no_error_exam_df, options_df, questions_df) # iterates through until error is effectively 0
+
+        rasch_dict_1PL=build_rasch_model(no_error_exam_df.copy(), options_df, 1, questions_df) # iterates through until error is effectively 0
+        rasch_dict_3PL=build_rasch_model(no_error_exam_df.copy(), options_df, 3, questions_df) # iterates through until model fits enough
+
+        rasch_dict = rasch_dict_1PL | rasch_dict_3PL
         rasch_dict['exam_num_and_form']=exam_dict['exam_num_and_form'] # extract exam number and form from 
         rasch_dict['true_false_df']=exam_dict['true_false_df'] # save originally graded dataframe based on student responses
         list_of_rasch_dicts.append(rasch_dict)
@@ -378,26 +400,26 @@ def get_rasch_students_and_items_frames_as_dict():
     return {'rasch_student_df': rasch_students_df, 'rasch_items_df': rasch_items_df}
 
 
-def add_rasch_item_difficulty_subplot(rasch_items_df, axis, bins, exam_keys, title):
+def add_rasch_item_difficulty_subplot(rasch_items_df, axis, bins, exam_keys, title, PL):
     data_list = []
     for key in exam_keys:
-        data_list.append(rasch_items_df[rasch_items_df["exam_id"].isin([key])]["var_estimates_items"].values)
+        data_list.append(rasch_items_df[rasch_items_df["exam_id"].isin([key])][f"var_estimates_items_{PL}"].values)
     axis.hist(data_list, bins, histtype='bar', stacked=True, label=exam_keys)
     axis.legend(prop={'size': 10})
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
     axis.xaxis.set_major_formatter(fmt)
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
     axis.yaxis.set_major_formatter(fmt)
-    axis.set_xlabel("Estimated Item Difficulty, " + r"$\delta$")
+    axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\delta$")
     axis.set_ylabel("Number of Questions")
     axis.set_title(title)
 
-def save_rasch_items_distributions(rasch_items_df = None, filename = None):
+def save_rasch_items_distributions(PL, rasch_items_df = None, filename = None):
     if type(rasch_items_df) == type(None):
         rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
         rasch_items_df = rasch_analysis_dict["rasch_items_df"]
     if type(filename) == type(None):
-        filename = "./figures/rasch_items_distributions.png"
+        filename = f"./figures/rasch_items_distributions_{PL}PL.png"
 
     rasch_items_df = rasch_items_df.reset_index()
     rasch_items_df["exam_id"] = rasch_items_df["question_id"].str[0:2]
@@ -408,10 +430,10 @@ def save_rasch_items_distributions(rasch_items_df = None, filename = None):
 
     fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
 
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax0, bins, ["1A", "1B"], "Exam 1")
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax1, bins, ["2A", "2B", "2C"], "Exam 2")
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax2, bins, ["3A", "3B", "3C"], "Exam 3")
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax3, bins, ["4A", "4B", "4C"], "Exam 4")
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax0, bins, ["1A", "1B"], "Exam 1", PL)
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax1, bins, ["2A", "2B", "2C"], "Exam 2", PL)
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax2, bins, ["3A", "3B", "3C"], "Exam 3", PL)
+    add_rasch_item_difficulty_subplot(rasch_items_df, ax3, bins, ["4A", "4B", "4C"], "Exam 4", PL)
 
     fig.tight_layout()
     try:
@@ -422,7 +444,7 @@ def save_rasch_items_distributions(rasch_items_df = None, filename = None):
         
     plt.close(fig)
 
-def save_rasch_ability_distributions(rasch_student_df = None, filename = None):
+def save_rasch_ability_distributions(PL, rasch_student_df = None, filename = None):
     if type(rasch_student_df) == type(None):
         rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
         rasch_student_df = rasch_analysis_dict["rasch_student_df"]
@@ -440,8 +462,8 @@ def save_rasch_ability_distributions(rasch_student_df = None, filename = None):
     axis.xaxis.set_major_formatter(fmt)
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
     axis.yaxis.set_major_formatter(fmt)
-    axis.hist(rasch_student_df["var_estimates_students"].values, bins, histtype='bar', stacked=True)
-    axis.set_xlabel("Estimated Latent Ability, " + r"$\theta$")
+    axis.hist(rasch_student_df[f"var_estimates_students_{PL}"].values, bins, histtype='bar', stacked=True)
+    axis.set_xlabel(f"Estimated Latent Ability for {PL}PL Model, " + r"$\theta$")
     axis.set_ylabel("Number of Students")
 
     fig.tight_layout()
@@ -466,5 +488,7 @@ if __name__ == "__main__":
     rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
     rasch_items_df = rasch_analysis_dict["rasch_items_df"]
     rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-    save_rasch_items_distributions(rasch_items_df = rasch_items_df)
-    save_rasch_ability_distributions(rasch_student_df = rasch_student_df)
+    save_rasch_items_distributions(1, rasch_items_df = rasch_items_df)
+    save_rasch_items_distributions(3, rasch_items_df = rasch_items_df)
+    save_rasch_ability_distributions(1, rasch_student_df = rasch_student_df)
+    save_rasch_ability_distributions(3, rasch_student_df = rasch_student_df)
