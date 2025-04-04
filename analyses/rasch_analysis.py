@@ -225,6 +225,35 @@ def calc_sum_sqr_residuals(df):
     sum_of_sqrs = temp_series_sum.sum() # sum the squares of each Series entry
     return sum_of_sqrs
 
+def calc_Q3_bar(df):
+    full_sum = df.sum().sum()
+    num_of_items = df.shape[0]
+    # avg_corr when i != j subtracts off diagonal and divides by 2 from double counting
+    sum_distinct_corr = (full_sum - num_of_items)/2
+    combin_coeff = math.comb(num_of_items, 2)
+    return (1/combin_coeff)*sum_distinct_corr
+
+def calc_Q3_star(df):
+    '''
+    Calculates the maximum difference of Q3 correlations by item
+
+    MAX( 
+        highest Q3 - q3_bar, 
+        -( lowest Q3 - q3_bar)
+    )
+
+    Returns series with question items as indicies 
+    '''
+
+    min_max_df = pd.DataFrame()
+    dropped_1s = df.copy()
+    dropped_1s.replace(1, 0, inplace=True)
+    q3_bar = calc_Q3_bar(df)
+    min_max_df['pos_q3*'] = dropped_1s.max(axis=0) - q3_bar
+    min_max_df['neg_q3*'] = -(dropped_1s.min(axis=0) - q3_bar)
+    q3_star_series = min_max_df.max(axis=1)
+    return q3_star_series
+
 def build_rasch_model(base_df, answer_choices_df, model_parameters, questions_df=pd.DataFrame()):
     student_ids=base_df.index.tolist() # Save student_ids to apply at end
     first_iteration=1 # first iteration will approximate ability and difficulty, all others will iterate the variables
@@ -245,6 +274,15 @@ def build_rasch_model(base_df, answer_choices_df, model_parameters, questions_df
         residuals_df=base_df-expected_values_df # difference between actual response scores and probability based on student ability and item difficulty
         sum_sqr_res_previous = sum_sqr_res_current
         sum_sqr_res_current = calc_sum_sqr_residuals(residuals_df) # sum of errors between actual response scores and probability
+
+    # Q3 test for item local independence
+    exam_name = residuals_df.keys()[0]
+    corr_df = residuals_df.corr()
+    
+    # Q3* by item
+    q3_star_series = calc_Q3_star(corr_df)
+    q3_star_series.rename(f'q3_star_items_{model_parameters}PL', inplace=True)
+    corr_df.to_excel(f'./corr_matrix/residual_exam{exam_name}_{model_parameters}PL.xlsx')
 
     fit_df=residuals_df.pow(2)/est_var_ex_vals_df # final normalized error for each expected value
     fit_df.index=student_ids # applies original index of base_df
@@ -278,7 +316,8 @@ def build_rasch_model(base_df, answer_choices_df, model_parameters, questions_df
             f'outfit_students_{model_parameters}PL': outfit_students, # returns as Series
             f'outfit_items_{model_parameters}PL': outfit_items, # returns as Series
             f'infit_students_{model_parameters}PL': infit_students, # returns as Series
-            f'infit_items_{model_parameters}PL': infit_items # returns as Series
+            f'infit_items_{model_parameters}PL': infit_items, # returns as Series
+            f'q3_star_items_{model_parameters}PL': q3_star_series
             }
     return rasch_dict
 
@@ -334,6 +373,7 @@ def build_rasch_dfs(list_of_rasch_dicts):
 
         item_statistics=['var_estimates_items_1PL', 'outfit_items_1PL', 'infit_items_1PL', 
                          'var_estimates_items_3PL', 'outfit_items_3PL', 'infit_items_3PL', 
+                         'q3_star_items_1PL', 'q3_star_items_3PL'
                         ] 
         item_partial_series_list=[rasch_dict[i_key] for i_key in item_statistics] # list of rasch Series statistics on items
         temp_item_df=join_series_from_list_on_index(item_partial_series_list) # Joins Series into single df joined on shared indicies
