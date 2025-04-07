@@ -1,4 +1,4 @@
-from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, student_summary, item_difficulty, kr_20_analysis, observed_score_statistics_and_distributions
+from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, student_summary, item_difficulty, kr_20_analysis, observed_score_statistics_and_distributions, rasch_analysis
 
 if __name__ == "__main__":
 
@@ -29,3 +29,14 @@ if __name__ == "__main__":
     #Save student summary frame
     student_summary_frame = student_summary.get_student_summary_frame()
     student_summary_frame.to_excel("student_summary.xlsx", index=False)
+
+    # Save 1PL and 3PL models
+    rasch_analysis_dict = rasch_analysis.get_rasch_students_and_items_frames_as_dict()
+
+    rasch_items_df = rasch_analysis_dict["rasch_items_df"]
+    rasch_analysis.save_rasch_distributions(1, 'items', rasch_df = rasch_items_df)
+    rasch_analysis.save_rasch_distributions(3, 'items', rasch_df = rasch_items_df)
+
+    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
+    rasch_analysis.save_rasch_distributions(1, 'students', rasch_df = rasch_student_df)
+    rasch_analysis.save_rasch_distributions(3, 'students', rasch_df = rasch_student_df)
