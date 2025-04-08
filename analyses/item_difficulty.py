@@ -240,7 +240,7 @@ def get_point_biserial_coefficient_frame(student_score_frame = None):
         point_biserial_correlation_frame.loc[index, "p_value"] = p_value
 
         point_biserial_correlation_frame.loc[index, "poor_threshold"] = exam_info_list[exam_name]['poor_threshold']
-        point_biserial_correlation_frame.loc[index, "good_threshold"] =exam_info_list[exam_name]['good_threshold']
+        point_biserial_correlation_frame.loc[index, "good_threshold"] = exam_info_list[exam_name]['good_threshold']
 
     return point_biserial_correlation_frame
 
