@@ -4,7 +4,7 @@ if __name__ == "__main__":
 
     observed_score_statistics_and_distributions.get_student_exam_taken_count()
     observed_score_statistics_and_distributions.export_observed_score_statistics()
-    observed_score_statistics_and_distributions.save_os_distribution_plots()
+    #observed_score_statistics_and_distributions.save_os_distribution_plots()
     #Display Exam and distractor counts
     exam_and_distractor_counts.show_question_counts()
     exam_and_distractor_counts.show_exam_question_distractor_counts()
@@ -14,13 +14,13 @@ if __name__ == "__main__":
     #effective_distractors_analysis.show_effective_distractors_by_form()
     #effective_distractors_analysis.show_percent_of_distractors_by_form()
 
-    #Display KR-20 Analysis
-    print(kr_20_analysis.get_kr_20_frame())
+    #Save KR-20 Analysis
+    kr_20_analysis.get_kr_20_frame().to_excel('KR_20_frame.xlsx')
 
     #Save item difficulty plots
-    item_difficulty.save_item_difficulty_distributions()
-    item_difficulty.save_pbc_distribution_plots()
-    item_difficulty.show_pbc_ranges()
+    #item_difficulty.save_item_difficulty_distributions()
+    #item_difficulty.save_pbc_distribution_plots()
+    #item_difficulty.show_pbc_ranges()
 
     #Save item summary frame
     item_summary_frame = item_summary.get_item_summary_frame()
@@ -29,14 +29,3 @@ if __name__ == "__main__":
     #Save student summary frame
     student_summary_frame = student_summary.get_student_summary_frame()
     student_summary_frame.to_excel("student_summary.xlsx", index=False)
-
-    # Save 1PL and 3PL models
-    rasch_analysis_dict = rasch_analysis.get_rasch_students_and_items_frames_as_dict()
-
-    rasch_items_df = rasch_analysis_dict["rasch_items_df"]
-    rasch_analysis.save_rasch_distributions(1, 'items', rasch_df = rasch_items_df)
-    rasch_analysis.save_rasch_distributions(3, 'items', rasch_df = rasch_items_df)
-
-    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-    rasch_analysis.save_rasch_distributions(1, 'students', rasch_df = rasch_student_df)
-    rasch_analysis.save_rasch_distributions(3, 'students', rasch_df = rasch_student_df)

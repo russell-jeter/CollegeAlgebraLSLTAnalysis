@@ -441,7 +441,6 @@ def get_rasch_students_and_items_frames_as_dict():
     rasch_students_df, rasch_items_df = build_rasch_dfs(list_of_rasch_dicts)
     return {'rasch_student_df': rasch_students_df, 'rasch_items_df': rasch_items_df}
 
-
 def add_rasch_subplot(rasch_df, axis, bins, exam_keys, title, PL, variable_type):
     data_list = []
     for key in exam_keys:
@@ -453,14 +452,14 @@ def add_rasch_subplot(rasch_df, axis, bins, exam_keys, title, PL, variable_type)
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
     axis.yaxis.set_major_formatter(fmt)
     if variable_type == 'items':
-        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\delta$")
+        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\beta$")
         axis.set_ylabel("Number of Questions")
     elif variable_type == 'students':
-        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\delta$")
+        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\theta$")
         axis.set_ylabel("Number of Students")
     axis.set_title(title)
 
-def save_rasch_distributions(PL, variable_type, rasch_df = None, filename = None):
+def save_rasch_distributions_by_PL(PL, variable_type, rasch_df = None, filename = None):
     if type(rasch_df) == type(None):
         rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
         if variable_type == 'items':
@@ -498,13 +497,122 @@ def save_rasch_distributions(PL, variable_type, rasch_df = None, filename = None
         
     plt.close(fig)
 
-#if __name__ == "__main__":
-#    rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
+def save_rasch_distributions_both_PL(variable_type, rasch_df = None, filename = None):
+    if type(rasch_df) == type(None):
+        rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
+        if variable_type == 'items':
+            rasch_df = rasch_analysis_dict["rasch_items_df"]
+        elif variable_type == 'students':
+            rasch_df = rasch_analysis_dict["rasch_students_df"]
+    if type(filename) == type(None):
+        if variable_type == 'items':
+            filename = f"./figures/rasch_items_distributions_all.png"
+        elif variable_type == 'students':
+            filename = f"./figures/rasch_students_distributions_all.png"
 
-#    rasch_items_df = rasch_analysis_dict["rasch_df"]
-#    save_rasch_distributions(1, 'items', rasch_df = rasch_items_df)
-#    save_rasch_distributions(3, 'items', rasch_df = rasch_items_df)
+    rasch_df = rasch_df.reset_index()
+    if variable_type == 'items':
+        rasch_df["exam_id"] = rasch_df["question_id"].str[0:2]
+    # rasch_df["exam_id"] already defined for students
 
-#    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-#    save_rasch_distributions(1, 'students', rasch_df = rasch_student_df)
-#    save_rasch_distributions(3, 'students', rasch_df = rasch_student_df)
+    plt.rcParams['text.usetex'] = True
+
+    bins = [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(7, 9), sharey=True)
+
+    add_rasch_subplot(rasch_df, ax00, bins, ["1A", "1B"], "Exam 1", '1', variable_type)
+    add_rasch_subplot(rasch_df, ax10, bins, ["2A", "2B", "2C"], "Exam 2", '1', variable_type)
+    add_rasch_subplot(rasch_df, ax20, bins, ["3A", "3B", "3C"], "Exam 3", '1', variable_type)
+    add_rasch_subplot(rasch_df, ax30, bins, ["4A", "4B", "4C"], "Exam 4", '1', variable_type)
+    
+    add_rasch_subplot(rasch_df, ax01, bins, ["1A", "1B"], "Exam 1", '3', variable_type)
+    add_rasch_subplot(rasch_df, ax11, bins, ["2A", "2B", "2C"], "Exam 2", '3', variable_type)
+    add_rasch_subplot(rasch_df, ax21, bins, ["3A", "3B", "3C"], "Exam 3", '3', variable_type)
+    add_rasch_subplot(rasch_df, ax31, bins, ["4A", "4B", "4C"], "Exam 4", '3', variable_type)
+
+    fig.tight_layout()
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+        
+    plt.close(fig)
+
+def create_fit_dict(fit_type, df):
+    fit_dict = {}
+    for exam_num in range(1, 5):
+        if exam_num == 1:
+            ver_list = ['A', 'B']
+        else: 
+            ver_list = ['A', 'B', 'C']
+        for exam_ver in ver_list:
+            temp_exam_num_and_ver = f'{exam_num}{exam_ver}'
+            df['question_id'] = df.index
+            df['exam_id'] = df['question_id'].str[0:2]
+            temp_df = df[df['exam_id'] == temp_exam_num_and_ver]
+            fit_dict[temp_exam_num_and_ver] = {
+                'Good_1PL': 100*temp_df[f'is_good_{fit_type}_1PL'].sum()/len(temp_df[f'is_good_{fit_type}_1PL']),
+                'Acceptable_1PL': 100*temp_df[f'is_acceptable_{fit_type}_1PL'].sum()/len(temp_df[f'is_acceptable_{fit_type}_1PL']),
+                'Poor_1PL': 100*temp_df[f'is_poor_{fit_type}_1PL'].sum()/len(temp_df[f'is_poor_{fit_type}_1PL']),
+                'Good_3PL': 100*temp_df[f'is_good_{fit_type}_3PL'].sum()/len(temp_df[f'is_good_{fit_type}_3PL']),
+                'Acceptable_3PL': 100*temp_df[f'is_acceptable_{fit_type}_3PL'].sum()/len(temp_df[f'is_acceptable_{fit_type}_3PL']),
+                'Poor_3PL': 100*temp_df[f'is_poor_{fit_type}_3PL'].sum()/len(temp_df[f'is_poor_{fit_type}_3PL'])
+            }
+    return fit_dict
+
+def add_fit_subplot(df, exam_keys, fit_type, PL, axis, title):
+    fit_dict = create_fit_dict(fit_type, df)
+
+    labels = ["Poor", "Acceptable", "Good"]
+    text_color = ["black", "black", "white"]
+    bar_bottoms = [0, 0, 0]
+    bar_count = 0
+    for key in exam_keys:
+        exam_bar_data = []
+        for temp_label in [f"Poor_{PL}PL", f"Acceptable_{PL}PL", f"Good_{PL}PL"]:
+            exam_bar_data.append(fit_dict[key][temp_label])
+        axis.bar(labels, exam_bar_data, label=key, bottom = bar_bottoms)
+        
+        for i in range(len(bar_bottoms)):
+            bar_bottoms[i] += exam_bar_data[i]
+        for j in range(len(exam_bar_data)):
+            y_position = (bar_bottoms[j] - exam_bar_data[j]/2)
+            if exam_bar_data[j] >= 25:
+                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 10)
+        bar_count += 1
+    
+    axis.legend(prop={'size': 10})
+    axis.set_xlabel(f"{fit_type} categories")
+    axis.set_ylabel("Percent of fit")
+    axis.set_title(title)
+    custom_palette = ['#cf4456', '#f29566', '#831c64']
+    plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
+
+def save_fit_plots(rasch_df, fit_type, variable_type, filename = None):
+    if type(filename) == type(None):
+        if variable_type == 'items':
+            filename = f"./figures/items_{fit_type}_all.png"
+        elif variable_type == 'students':
+            filename = f"./figures/students_{fit_type}_all.png"
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(7, 9), sharey=True)
+
+    add_fit_subplot(df=rasch_df, axis=ax00, exam_keys=["1A", "1B"], title="Exam 1", fit_type=fit_type, PL='1')
+    add_fit_subplot(df=rasch_df, axis=ax10, exam_keys=["2A", "2B", "2C"], title="Exam 2", fit_type=fit_type, PL='1')
+    add_fit_subplot(df=rasch_df, axis=ax20, exam_keys=["3A", "3B", "3C"], title="Exam 3", fit_type=fit_type, PL='1')
+    add_fit_subplot(df=rasch_df, axis=ax30, exam_keys=["4A", "4B", "4C"], title="Exam 4", fit_type=fit_type, PL='1')
+
+    add_fit_subplot(df=rasch_df, axis=ax01, exam_keys=["1A", "1B"], title="Exam 1", fit_type=fit_type, PL='3')
+    add_fit_subplot(df=rasch_df, axis=ax11, exam_keys=["2A", "2B", "2C"], title="Exam 2", fit_type=fit_type, PL='3')
+    add_fit_subplot(df=rasch_df, axis=ax21, exam_keys=["3A", "3B", "3C"], title="Exam 3", fit_type=fit_type, PL='3')
+    add_fit_subplot(df=rasch_df, axis=ax31, exam_keys=["4A", "4B", "4C"], title="Exam 4", fit_type=fit_type, PL='3')
+
+    fig.tight_layout()
+    
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        filename = "." + filename
+        plt.savefig(filename)
+    plt.close(fig)

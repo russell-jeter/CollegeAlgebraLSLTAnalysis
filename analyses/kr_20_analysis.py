@@ -18,6 +18,7 @@ def get_kr_20_frame(student_responses_with_details = None, exam_scores = None):
 
     kr_frame = pd.DataFrame(columns=["K", "r", "variance", "exam_id"])
     kr_frame["exam_id"] = np.unique(exam_scores["exam_id"].values)
+    print(kr_frame['exam_id'])
 
     for index, row in kr_frame.iterrows():
         exam_id = row["exam_id"]
