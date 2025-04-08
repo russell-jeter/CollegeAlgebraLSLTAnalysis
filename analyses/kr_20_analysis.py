@@ -18,7 +18,6 @@ def get_kr_20_frame(student_responses_with_details = None, exam_scores = None):
 
     kr_frame = pd.DataFrame(columns=["K", "r", "variance", "exam_id"])
     kr_frame["exam_id"] = np.unique(exam_scores["exam_id"].values)
-    print(kr_frame['exam_id'])
 
     for index, row in kr_frame.iterrows():
         exam_id = row["exam_id"]
@@ -28,6 +27,7 @@ def get_kr_20_frame(student_responses_with_details = None, exam_scores = None):
         number_of_questions = sum(exam_id in string for string in question_id_list)
         kr_frame.loc[index, "variance"] = exam_score_variance
         kr_frame.loc[index, "K"] = number_of_questions
+        # TO DO - define kr_frame.loc[index, "r"]
 
     return kr_frame
 
