@@ -191,25 +191,56 @@ def get_point_biserial_coefficient_frame(student_score_frame = None):
     point_biserial_correlation_frame = point_biserial_correlation_frame["question_score"].reset_index()
     point_biserial_correlation_frame = point_biserial_correlation_frame[point_biserial_correlation_frame["level_1"] == "exam_score"].drop(columns="level_1")
     point_biserial_correlation_frame = point_biserial_correlation_frame.rename(columns={"question_score": "pbc"})
-    point_biserial_correlation_frame["p_value"] = point_biserial_correlation_frame["pbc"]
-    point_biserial_correlation_frame["poor_threshold"] = point_biserial_correlation_frame["pbc"]
-    point_biserial_correlation_frame["good_threshold"] = point_biserial_correlation_frame["pbc"]
+    point_biserial_correlation_frame["exam_id"] = point_biserial_correlation_frame["question_id"].str[0:2]
+
+    # 3 bound scenarios
+        # A: poor_threshold = 1/sqrt(k), good_threshold = 2/sqrt(n-3) when 4k+3 >= n
+        # B: poor_threshold = 2/sqrt(n-3), good_threshold = 1/sqrt(k) when 4k+3 < n < 9k+3
+        # C: poor_threshold = 1/sqrt(k) - 1/sqrt(n-3), good_threshold = 1/sqrt(k) when n >= 9k+3
+
+    exam_list = student_score_frame['exam_id'].unique()
+    exam_info_list = {}
+    for exam in exam_list:
+        full_exam_question_list = student_score_frame['question_id'].unique()
+        exam_question_list = [question for question in full_exam_question_list if exam in question]
+        exam_num_of_questions = len(exam_question_list)
+
+        specific_exam_df = student_score_frame[student_score_frame['exam_id'] == exam]
+        exam_num_of_students = len(specific_exam_df['student_id'].unique())
+        
+        if (4*exam_num_of_questions + 3) >= exam_num_of_students:
+            scenario_type = 'A'
+            poor_threshold = 1/np.sqrt(exam_num_of_questions)
+            good_threshold = 2/np.sqrt(exam_num_of_students-3)
+        elif (9*exam_num_of_questions + 3) <= exam_num_of_students:
+            scenario_type = 'C'
+            poor_threshold = (1/np.sqrt(exam_num_of_questions)) - (1/np.sqrt(exam_num_of_students-3))
+            good_threshold = 1/np.sqrt(exam_num_of_questions)
+        else: 
+            scenario_type = 'B'
+            poor_threshold = 2/np.sqrt(exam_num_of_students-3)
+            good_threshold = 1/np.sqrt(exam_num_of_questions)   
+
+        exam_dict = {
+            'exam_num_of_questions': exam_num_of_questions,
+            'exam_num_of_students': exam_num_of_students, 
+            'bounds_scenario': scenario_type, 
+            'poor_threshold': poor_threshold,
+            'good_threshold': good_threshold
+        }
+        exam_info_list[exam]=exam_dict
 
     for index, row in point_biserial_correlation_frame.iterrows():
         question_id = row["question_id"]
+        exam_name = question_id[0:2]
+
         student_question_response_frame = student_score_frame[student_score_frame["question_id"].isin([question_id])]
         n = len(student_question_response_frame)
         p_value = student_question_response_frame["question_score"].sum()/len(student_question_response_frame)
         point_biserial_correlation_frame.loc[index, "p_value"] = p_value
-        point_biserial_correlation_frame.loc[index, "poor_threshold"] = 1.0/(np.sqrt(n - 3))
 
-    point_biserial_correlation_frame["exam_id"] = point_biserial_correlation_frame["question_id"].str[0:2]
-
-    exams = np.unique(point_biserial_correlation_frame["exam_id"])
-    for exam_id in exams:
-        subframe = point_biserial_correlation_frame[point_biserial_correlation_frame["exam_id"].isin([exam_id])]
-        k = len(subframe)
-        point_biserial_correlation_frame.loc[subframe.index, "good_threshold"] = 1.0/np.sqrt(k)
+        point_biserial_correlation_frame.loc[index, "poor_threshold"] = exam_info_list[exam_name]['poor_threshold']
+        point_biserial_correlation_frame.loc[index, "good_threshold"] = exam_info_list[exam_name]['good_threshold']
 
     return point_biserial_correlation_frame
 

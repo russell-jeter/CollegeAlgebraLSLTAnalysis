@@ -276,13 +276,13 @@ def build_rasch_model(base_df, answer_choices_df, model_parameters, questions_df
         sum_sqr_res_current = calc_sum_sqr_residuals(residuals_df) # sum of errors between actual response scores and probability
 
     # Q3 test for item local independence
-    exam_name = residuals_df.keys()[0]
+    exam_id = residuals_df.keys()[0][0:2]
     corr_df = residuals_df.corr()
     
     # Q3* by item
     q3_star_series = calc_Q3_star(corr_df)
     q3_star_series.rename(f'q3_star_items_{model_parameters}PL', inplace=True)
-    corr_df.to_excel(f'./corr_matrix/residual_exam{exam_name}_{model_parameters}PL.xlsx')
+    corr_df.to_excel(f'./corr_matrix/residual_exam{exam_id}_{model_parameters}PL.xlsx')
 
     fit_df=residuals_df.pow(2)/est_var_ex_vals_df # final normalized error for each expected value
     fit_df.index=student_ids # applies original index of base_df
@@ -310,7 +310,8 @@ def build_rasch_model(base_df, answer_choices_df, model_parameters, questions_df
     infit_items=residuals_df.pow(2).sum(axis=0)/est_var_ex_vals_df.sum(axis=0) # Weighted by variance
     infit_items.name=f'infit_items_{model_parameters}PL'
 
-    rasch_dict={f'fit_df_{model_parameters}PL': fit_df, 
+    rasch_dict={f'exam_id': exam_id,
+            f'fit_df_{model_parameters}PL': fit_df, 
             f'var_estimates_students_{model_parameters}PL': var_estimates_students, # returns as Series
             f'var_estimates_items_{model_parameters}PL': var_estimates_items, # returns as Series
             f'outfit_students_{model_parameters}PL': outfit_students, # returns as Series
@@ -347,6 +348,7 @@ def build_rasch_dfs(list_of_rasch_dicts):
         student_score_series.name = f'student_exam_score'
         student_partial_series_list.append(student_score_series) 
         temp_student_df=join_series_from_list_on_index(student_partial_series_list) # Joins Series into single df joined on shared indicies
+        temp_student_df['exam_id'] = rasch_dict['exam_id']
 
         temp_standard_error=math.sqrt(2/len(temp_student_df)) # standard error to determine outliers as 2 more than fit value of 1
 
@@ -440,29 +442,41 @@ def get_rasch_students_and_items_frames_as_dict():
     return {'rasch_student_df': rasch_students_df, 'rasch_items_df': rasch_items_df}
 
 
-def add_rasch_item_difficulty_subplot(rasch_items_df, axis, bins, exam_keys, title, PL):
+def add_rasch_subplot(rasch_df, axis, bins, exam_keys, title, PL, variable_type):
     data_list = []
     for key in exam_keys:
-        data_list.append(rasch_items_df[rasch_items_df["exam_id"].isin([key])][f"var_estimates_items_{PL}"].values)
+        data_list.append(rasch_df[rasch_df["exam_id"].isin([key])][f"var_estimates_{variable_type}_{PL}PL"].values)
     axis.hist(data_list, bins, histtype='bar', stacked=True, label=exam_keys)
     axis.legend(prop={'size': 10})
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
     axis.xaxis.set_major_formatter(fmt)
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
     axis.yaxis.set_major_formatter(fmt)
-    axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\delta$")
-    axis.set_ylabel("Number of Questions")
+    if variable_type == 'items':
+        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\delta$")
+        axis.set_ylabel("Number of Questions")
+    elif variable_type == 'students':
+        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\delta$")
+        axis.set_ylabel("Number of Students")
     axis.set_title(title)
 
-def save_rasch_items_distributions(PL, rasch_items_df = None, filename = None):
-    if type(rasch_items_df) == type(None):
+def save_rasch_distributions(PL, variable_type, rasch_df = None, filename = None):
+    if type(rasch_df) == type(None):
         rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
-        rasch_items_df = rasch_analysis_dict["rasch_items_df"]
+        if variable_type == 'items':
+            rasch_df = rasch_analysis_dict["rasch_items_df"]
+        elif variable_type == 'students':
+            rasch_df = rasch_analysis_dict["rasch_students_df"]
     if type(filename) == type(None):
-        filename = f"./figures/rasch_items_distributions_{PL}PL.png"
+        if variable_type == 'items':
+            filename = f"./figures/rasch_items_distributions_{PL}PL.png"
+        elif variable_type == 'students':
+            filename = f"./figures/rasch_students_distributions_{PL}PL.png"
 
-    rasch_items_df = rasch_items_df.reset_index()
-    rasch_items_df["exam_id"] = rasch_items_df["question_id"].str[0:2]
+    rasch_df = rasch_df.reset_index()
+    if variable_type == 'items':
+        rasch_df["exam_id"] = rasch_df["question_id"].str[0:2]
+    # rasch_df["exam_id"] already defined for students
 
     plt.rcParams['text.usetex'] = True
 
@@ -470,10 +484,10 @@ def save_rasch_items_distributions(PL, rasch_items_df = None, filename = None):
 
     fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10,6))
 
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax0, bins, ["1A", "1B"], "Exam 1", PL)
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax1, bins, ["2A", "2B", "2C"], "Exam 2", PL)
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax2, bins, ["3A", "3B", "3C"], "Exam 3", PL)
-    add_rasch_item_difficulty_subplot(rasch_items_df, ax3, bins, ["4A", "4B", "4C"], "Exam 4", PL)
+    add_rasch_subplot(rasch_df, ax0, bins, ["1A", "1B"], "Exam 1", PL, variable_type)
+    add_rasch_subplot(rasch_df, ax1, bins, ["2A", "2B", "2C"], "Exam 2", PL, variable_type)
+    add_rasch_subplot(rasch_df, ax2, bins, ["3A", "3B", "3C"], "Exam 3", PL, variable_type)
+    add_rasch_subplot(rasch_df, ax3, bins, ["4A", "4B", "4C"], "Exam 4", PL, variable_type)
 
     fig.tight_layout()
     try:
@@ -484,51 +498,13 @@ def save_rasch_items_distributions(PL, rasch_items_df = None, filename = None):
         
     plt.close(fig)
 
-def save_rasch_ability_distributions(PL, rasch_student_df = None, filename = None):
-    if type(rasch_student_df) == type(None):
-        rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
-        rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-    if type(filename) == type(None):
-        filename = "./figures/rasch_latent_ability_distribution.png"
+#if __name__ == "__main__":
+#    rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
 
-    plt.rcParams['text.usetex'] = True
+#    rasch_items_df = rasch_analysis_dict["rasch_df"]
+#    save_rasch_distributions(1, 'items', rasch_df = rasch_items_df)
+#    save_rasch_distributions(3, 'items', rasch_df = rasch_items_df)
 
-    bins = [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
-
-    fig, ((axis)) = plt.subplots(nrows=1, ncols=1, figsize=(10,6))
-    font = {'size'   : 22}
-    matplotlib.rc('font', **font)
-    fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
-    axis.xaxis.set_major_formatter(fmt)
-    fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
-    axis.yaxis.set_major_formatter(fmt)
-    axis.hist(rasch_student_df[f"var_estimates_students_{PL}"].values, bins, histtype='bar', stacked=True)
-    axis.set_xlabel(f"Estimated Latent Ability for {PL}PL Model, " + r"$\theta$")
-    axis.set_ylabel("Number of Students")
-
-    fig.tight_layout()
-    try:
-        plt.savefig(filename)
-    except FileNotFoundError:
-        filename = "." + filename
-        plt.savefig(filename)
-        
-    plt.close(fig)
-
-
-
-if __name__ == "__main__":
-    #print(get_item_difficulty_frame())
-    #save_item_difficulty_distributions()
-    #print(get_student_score_frame())
-    #print(get_point_biserial_coefficient_frame())
-    #save_pbc_distribution_plots()
-    #show_pbc_ranges(point_biserial_correlation_frame = None, use_arbitrary_binning = True)
-    #save_rasch_items_distributions()
-    rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
-    rasch_items_df = rasch_analysis_dict["rasch_items_df"]
-    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-    save_rasch_items_distributions(1, rasch_items_df = rasch_items_df)
-    save_rasch_items_distributions(3, rasch_items_df = rasch_items_df)
-    save_rasch_ability_distributions(1, rasch_student_df = rasch_student_df)
-    save_rasch_ability_distributions(3, rasch_student_df = rasch_student_df)
+#    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
+#    save_rasch_distributions(1, 'students', rasch_df = rasch_student_df)
+#    save_rasch_distributions(3, 'students', rasch_df = rasch_student_df)
