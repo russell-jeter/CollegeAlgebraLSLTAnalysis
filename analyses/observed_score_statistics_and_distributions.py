@@ -86,46 +86,34 @@ def add_os_subplot(exam_scores, axis, bins, exam_keys, title):
     # returns (n, bins, patches)
     # n is a list of arrays (one for each dataset) representing heights
     # patches is a list of lists of Patch objects (Rectangle)
+    # Note: patches structure depends on matplotlib version, but typically patches[i] is list of rects for i-th dataset.
     counts, _, patches = axis.hist(
         data_list, bins, histtype="bar", stacked=True, label=exam_keys
     )
 
-    # Text annotation logic
-    # We need to calculate the cumulative height to place text correctly in stacked bars
-
-    # Flatten counts if single dataset, but here data_list is list of lists, so counts is list of arrays
-    # counts structure: [array(bin1_count, bin2_count...), array(...)] corresponding to layers
-
-    # Initialize bottom accumulator
-    bottoms = np.zeros(len(bins) - 1)
-
-    text_color = ["black", "black", "white"]
+    text_color = ["black", "black", "white", "white", "black"] # Match palette length better or just sufficient
 
     # Iterate through layers (exams)
-    for i, layer_counts in enumerate(counts):
-        # Iterate through bins
-        for j, count in enumerate(layer_counts):
-            height = count
-            if height >= 20:  # Threshold for showing label
-                # Calculate center position
-                # bin_edges are bins[j] and bins[j+1]
-                x_center = (bins[j] + bins[j + 1]) / 2
-                y_center = bottoms[j] + height / 2
-
-                # Dynamic text color logic
-                # Simplification: if bar is tall enough, use contrast color from palette
-
-                color = text_color[i % len(text_color)]
+    # patches is a list of BarContainer objects (which behave like lists of Rectangles) or list of lists
+    for i, layer_patches in enumerate(patches):
+        # Determine color for this layer
+        color = text_color[i % len(text_color)]
+        
+        for rect in layer_patches:
+            height = rect.get_height()
+            if height >= 10:  # Lowered threshold slightly to ensure visibility, user noted "white text never shows"
+                x_center = rect.get_x() + rect.get_width() / 2
+                y_center = rect.get_y() + height / 2
+                
                 axis.text(
                     x_center,
                     y_center,
                     f"{height:.0f}",
                     ha="center",
-                    va="center",
+                    va="center", # Reverted to center because using exact rect center
                     color=color,
+                    fontsize=10,
                 )
-
-            bottoms[j] += height  # Stack up
 
     axis.legend(prop={"size": 10})
     axis.set_xlabel("Exam Score")
