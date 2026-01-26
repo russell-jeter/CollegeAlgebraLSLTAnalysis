@@ -1,42 +1,75 @@
-from analyses import exam_and_distractor_counts, effective_distractors_analysis, item_summary, student_summary, item_difficulty, kr_20_analysis, observed_score_statistics_and_distributions, rasch_analysis
+from analyses import (
+    exam_and_distractor_counts, 
+    effective_distractors_analysis, 
+    item_summary, 
+    student_summary, 
+    item_difficulty, 
+    kr_20_analysis, 
+    observed_score_statistics_and_distributions, 
+    rasch_analysis
+)
 
-if __name__ == "__main__":
 
+def main():
+    """
+    Main execution script for College Algebra LSLT Analysis.
+    Runs various statistical analyses and generates reports/figures.
+    """
+    print("Starting Analysis...")
+
+    # Observed Score Statistics
+    print("Calculating observed score statistics...")
     observed_score_statistics_and_distributions.get_student_exam_taken_count()
     observed_score_statistics_and_distributions.export_observed_score_statistics()
     observed_score_statistics_and_distributions.save_os_distribution_plots()
-    #Display Exam and distractor counts
+    
+    # Exam and Distractor Counts
+    print("Displaying exam and distractor counts...")
     exam_and_distractor_counts.show_question_counts()
     exam_and_distractor_counts.show_exam_question_distractor_counts()
     exam_and_distractor_counts.show_student_distractor_selection_counts()
 
-    #Display distractor analysis
-    #effective_distractors_analysis.show_effective_distractors_by_form()
-    #effective_distractors_analysis.show_percent_of_distractors_by_form()
+    # Distractor Analysis (Commented out in original, kept commented)
+    # effective_distractors_analysis.show_effective_distractors_by_form()
+    # effective_distractors_analysis.show_percent_of_distractors_by_form()
 
-    #Display KR-20 Analysis
+    # KR-20 Analysis
+    print("Calculating KR-20 reliability coefficients...")
     print(kr_20_analysis.get_kr_20_frame())
 
-    #Save item difficulty plots
+    # Item Difficulty
+    print("Generating item difficulty plots...")
     item_difficulty.save_item_difficulty_distributions()
     item_difficulty.save_pbc_distribution_plots()
+    # item_difficulty.show_pbc_ranges() # Original code called this, keep it?
+    # It prints to console.
     item_difficulty.show_pbc_ranges()
 
-    #Save item summary frame
+    # Item Summary
+    print("Saving item summary...")
     item_summary_frame = item_summary.get_item_summary_frame()
-    item_summary_frame.to_excel("item_summary.xlsx", index = False)
+    item_summary_frame.to_excel("item_summary.xlsx", index=False)
 
-    #Save student summary frame
+    # Student Summary
+    print("Saving student summary...")
     student_summary_frame = student_summary.get_student_summary_frame()
     student_summary_frame.to_excel("student_summary.xlsx", index=False)
 
-    # Save 1PL and 3PL models
+    # Rasch Analysis (1PL and 3PL)
+    print("Running Rasch Analysis (this may take a while)...")
     rasch_analysis_dict = rasch_analysis.get_rasch_students_and_items_frames_as_dict()
 
     rasch_items_df = rasch_analysis_dict["rasch_items_df"]
-    rasch_analysis.save_rasch_distributions(1, 'items', rasch_df = rasch_items_df)
-    rasch_analysis.save_rasch_distributions(3, 'items', rasch_df = rasch_items_df)
+    rasch_analysis.save_rasch_distributions(1, 'items', rasch_df=rasch_items_df)
+    rasch_analysis.save_rasch_distributions(3, 'items', rasch_df=rasch_items_df)
 
     rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-    rasch_analysis.save_rasch_distributions(1, 'students', rasch_df = rasch_student_df)
-    rasch_analysis.save_rasch_distributions(3, 'students', rasch_df = rasch_student_df)
+    rasch_analysis.save_rasch_distributions(1, 'students', rasch_df=rasch_student_df)
+    rasch_analysis.save_rasch_distributions(3, 'students', rasch_df=rasch_student_df)
+
+    print("Analysis complete.")
+
+
+if __name__ == "__main__":
+    main()
+
