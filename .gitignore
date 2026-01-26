@@ -1,4 +1,6 @@
+#Excel files
 *.xlsx
+#Image files
 *.png
 *.svg
 
