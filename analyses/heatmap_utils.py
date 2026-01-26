@@ -5,8 +5,9 @@ import matplotlib
 import matplotlib as mpl
 
 
-def heatmap(data, row_labels, col_labels, ax=None,
-            cbar_kw=None, cbarlabel="", **kwargs):
+def heatmap(
+    data, row_labels, col_labels, ax=None, cbar_kw=None, cbarlabel="", **kwargs
+):
     """
     Create a heatmap from a numpy array and two lists of labels.
 
@@ -43,28 +44,37 @@ def heatmap(data, row_labels, col_labels, ax=None,
     cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
 
     # Show all ticks and label them with the respective list entries.
-    ax.set_xticks(range(data.shape[1]), labels=col_labels,
-                  rotation=-30, ha="right", rotation_mode="anchor")
+    ax.set_xticks(
+        range(data.shape[1]),
+        labels=col_labels,
+        rotation=-30,
+        ha="right",
+        rotation_mode="anchor",
+    )
     ax.set_yticks(range(data.shape[0]), labels=row_labels)
 
     # Let the horizontal axes labeling appear on top.
-    ax.tick_params(top=True, bottom=False,
-                   labeltop=True, labelbottom=False)
+    ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
 
     # Turn spines off and create white grid.
     ax.spines[:].set_visible(False)
 
-    ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
-    ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
-    ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
+    ax.set_xticks(np.arange(data.shape[1] + 1) - 0.5, minor=True)
+    ax.set_yticks(np.arange(data.shape[0] + 1) - 0.5, minor=True)
+    ax.grid(which="minor", color="w", linestyle="-", linewidth=3)
     ax.tick_params(which="minor", bottom=False, left=False)
 
     return im, cbar
 
 
-def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
-                     textcolors=("black", "white"),
-                     threshold=None, **textkw):
+def annotate_heatmap(
+    im,
+    data=None,
+    valfmt="{x:.2f}",
+    textcolors=("black", "white"),
+    threshold=None,
+    **textkw
+):
     """
     A function to annotate a heatmap.
 
@@ -97,12 +107,11 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
     if threshold is not None:
         threshold = im.norm(threshold)
     else:
-        threshold = im.norm(data.max())/2.
+        threshold = im.norm(data.max()) / 2.0
 
     # Set default alignment to center, but allow it to be
     # overwritten by textkw.
-    kw = dict(horizontalalignment="center",
-              verticalalignment="center")
+    kw = dict(horizontalalignment="center", verticalalignment="center")
     kw.update(textkw)
 
     # Get the formatter in case a string is supplied

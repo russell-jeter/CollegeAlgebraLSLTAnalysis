@@ -1,3 +1,6 @@
+*.xlsx
+*.png
+*.svg
 
 *__pycache__/
 

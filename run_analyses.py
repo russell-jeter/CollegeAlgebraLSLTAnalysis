@@ -1,12 +1,12 @@
 from analyses import (
-    exam_and_distractor_counts, 
-    effective_distractors_analysis, 
-    item_summary, 
-    student_summary, 
-    item_difficulty, 
-    kr_20_analysis, 
-    observed_score_statistics_and_distributions, 
-    rasch_analysis
+    exam_and_distractor_counts,
+    effective_distractors_analysis,
+    item_summary,
+    student_summary,
+    item_difficulty,
+    kr_20_analysis,
+    observed_score_statistics_and_distributions,
+    rasch_analysis,
 )
 
 
@@ -22,7 +22,7 @@ def main():
     observed_score_statistics_and_distributions.get_student_exam_taken_count()
     observed_score_statistics_and_distributions.export_observed_score_statistics()
     observed_score_statistics_and_distributions.save_os_distribution_plots()
-    
+
     # Exam and Distractor Counts
     print("Displaying exam and distractor counts...")
     exam_and_distractor_counts.show_question_counts()
@@ -60,16 +60,15 @@ def main():
     rasch_analysis_dict = rasch_analysis.get_rasch_students_and_items_frames_as_dict()
 
     rasch_items_df = rasch_analysis_dict["rasch_items_df"]
-    rasch_analysis.save_rasch_distributions(1, 'items', rasch_df=rasch_items_df)
-    rasch_analysis.save_rasch_distributions(3, 'items', rasch_df=rasch_items_df)
+    rasch_analysis.save_rasch_distributions(1, "items", rasch_df=rasch_items_df)
+    rasch_analysis.save_rasch_distributions(3, "items", rasch_df=rasch_items_df)
 
     rasch_student_df = rasch_analysis_dict["rasch_student_df"]
-    rasch_analysis.save_rasch_distributions(1, 'students', rasch_df=rasch_student_df)
-    rasch_analysis.save_rasch_distributions(3, 'students', rasch_df=rasch_student_df)
+    rasch_analysis.save_rasch_distributions(1, "students", rasch_df=rasch_student_df)
+    rasch_analysis.save_rasch_distributions(3, "students", rasch_df=rasch_student_df)
 
     print("Analysis complete.")
 
 
 if __name__ == "__main__":
     main()
-
