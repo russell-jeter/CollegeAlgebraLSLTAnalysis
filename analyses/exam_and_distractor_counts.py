@@ -1,7 +1,7 @@
 try:
-    from analyses import database_utils  # Absolute import (for direct execution)
+    from analyses import database_utils
 except ImportError:
-    import database_utils  # Relative import (for package context)
+    import database_utils
 
 import pandas as pd
 

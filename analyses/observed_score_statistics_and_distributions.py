@@ -1,7 +1,7 @@
 try:
-    from analyses import database_utils  # Absolute import (for direct execution)
+    from analyses import database_utils
 except ImportError:
-    import database_utils  # Relative import (for package context)
+    import database_utils
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -99,9 +99,11 @@ def add_os_subplot(exam_scores, axis, bins, exam_keys, title):
         # Determine color for this layer
         color = text_color[i % len(text_color)]
         
+        total_students = len(data_list[i])
         for rect in layer_patches:
             height = rect.get_height()
-            if height >= 10:  # Lowered threshold slightly to ensure visibility, user noted "white text never shows"
+            percentage = (height / total_students * 100) if total_students > 0 else 0
+            if percentage >= 25:  # Threshold for text visibility (25%)
                 x_center = rect.get_x() + rect.get_width() / 2
                 y_center = rect.get_y() + height / 2
                 

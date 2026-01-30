@@ -1,8 +1,8 @@
 try:
-    from analyses import database_utils  # Absolute import (for direct execution)
+    from analyses import database_utils
     from analyses.effective_distractors_analysis import get_distractor_counts_frame
 except ImportError:
-    import database_utils  # Relative import (for package context)
+    import database_utils
     from effective_distractors_analysis import get_distractor_counts_frame
 
 import numpy as np
@@ -445,6 +445,102 @@ def show_pbc_ranges(point_biserial_correlation_frame=None, use_arbitrary_binning
         df.to_excel("pbc_ranges.xlsx")
 
 
+def add_difficulty_category_subplot(item_difficulty_frame, axis, exam_keys, title):
+    labels = ["Ideal", "Acceptable", "Poor"]
+    # Colors: Ideal (Green-ish), Acceptable (Yellow-ish), Poor (Red-ish)
+    # Using palette colors or custom. Let's use custom for clarity or map to existing palette.
+    # Palette: ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
+    # Let's use: Ideal=#2f0f3e (Dark Purple - "Good"), Acceptable=#f29566 (Orange), Poor=#cf4456 (Red)
+    # Or maybe: Ideal=#831c64 (Purple), Acceptable=#f29566 (Orange), Poor=#cf4456 (Red)
+    colors = ["#831c64", "#f29566", "#cf4456"] 
+    
+    text_color = ["white", "black", "black"]
+    bar_bottoms = [0, 0, 0] # For 3 categories
+    bar_count = 0
+
+    for key in exam_keys:
+        exam_data = item_difficulty_frame[
+             item_difficulty_frame["exam_id"] == key
+        ]
+        
+        if exam_data.empty:
+             continue
+
+        difficulties = exam_data["item_difficulty"]
+        std_dev = difficulties.std()
+        target = 0.74
+        
+        ideal_count = 0
+        acceptable_count = 0
+        poor_count = 0
+        
+        for diff in difficulties:
+            deviation = abs(diff - target)
+            if deviation <= std_dev:
+                ideal_count += 1
+            elif deviation <= 2 * std_dev:
+                acceptable_count += 1
+            else:
+                poor_count += 1
+        
+        exam_bar_data = [ideal_count, acceptable_count, poor_count]
+        
+        # Convert to percentage
+        total = np.sum(exam_bar_data)
+        if total > 0:
+            exam_bar_data = np.array(exam_bar_data) / total * 100
+        else:
+            exam_bar_data = np.array([0, 0, 0])
+
+        axis.bar(labels, exam_bar_data, label=key, bottom=bar_bottoms)
+
+        for i in range(len(bar_bottoms)):
+            bar_bottoms[i] += exam_bar_data[i]
+        
+        # Add labels logic similar to previous
+        for j in range(len(exam_bar_data)):
+            y_position = bar_bottoms[j] - exam_bar_data[j] / 2
+            if exam_bar_data[j] >= 25: # Threshold for text visibility
+                 axis.text(labels[j], y_position, f"{exam_bar_data[j]:.1f}%", ha="center", va="center", color="white", fontsize=8)
+    
+    axis.legend(prop={"size": 10})
+    axis.set_xlabel("Item Difficulty Category")
+    axis.set_ylabel("Percent Questions")
+    axis.set_title(title)
+
+
+def save_item_difficulty_category_distributions(item_difficulty_frame=None, filename=None):
+    if item_difficulty_frame is None:
+        item_difficulty_frame = get_item_difficulty_frame()
+    if filename is None:
+        filename = "./figures/item_difficulty_category_distributions.png"
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+
+    add_difficulty_category_subplot(
+        item_difficulty_frame, ax0, ["1A", "1B"], "Exam 1"
+    )
+    add_difficulty_category_subplot(
+        item_difficulty_frame, ax1, ["2A", "2B", "2C"], "Exam 2"
+    )
+    add_difficulty_category_subplot(
+        item_difficulty_frame, ax2, ["3A", "3B", "3C"], "Exam 3"
+    )
+    add_difficulty_category_subplot(
+        item_difficulty_frame, ax3, ["4A", "4B", "4C"], "Exam 4"
+    )
+
+    fig.tight_layout()
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        if not filename.startswith("."):
+            filename = "." + filename
+        plt.savefig(filename)
+
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     # print(get_item_difficulty_frame())
     # save_item_difficulty_distributions()
@@ -453,3 +549,4 @@ if __name__ == "__main__":
     # save_pbc_distribution_plots()
     # show_pbc_ranges(point_biserial_correlation_frame=None, use_arbitrary_binning=True)
     save_pbc_distribution_plots_with_thresholds()
+    save_item_difficulty_category_distributions()
