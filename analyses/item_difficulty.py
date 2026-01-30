@@ -500,7 +500,7 @@ def add_difficulty_category_subplot(item_difficulty_frame, axis, exam_keys, titl
         # Add labels logic similar to previous
         for j in range(len(exam_bar_data)):
             y_position = bar_bottoms[j] - exam_bar_data[j] / 2
-            if exam_bar_data[j] >= 5: # Threshold for text visibility
+            if exam_bar_data[j] >= 25: # Threshold for text visibility
                  axis.text(labels[j], y_position, f"{exam_bar_data[j]:.1f}%", ha="center", va="center", color="white", fontsize=8)
     
     axis.legend(prop={"size": 10})
