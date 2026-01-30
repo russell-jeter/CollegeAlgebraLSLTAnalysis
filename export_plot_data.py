@@ -38,6 +38,90 @@ def get_histogram_df(df, value_col, bins, group_col='exam_id', label_prefix=""):
         
     return pd.DataFrame(result_data)
 
+def get_pbc_category_df(df, group_col='exam_id'):
+    """
+    Calculates counts for Poor, Acceptable, Good categories based on dynamic thresholds.
+    Matches logic in item_difficulty.py (add_pbc_subplot_with_dynamic_threshold).
+    """
+    # Categories
+    categories = ["Poor", "Acceptable", "Good"]
+    result_data = {"Category": categories}
+    
+    if group_col in df.columns:
+        groups = sorted(df[group_col].unique())
+    else:
+        groups = []
+
+    for group in groups:
+        subset = df[df[group_col] == group]
+        if subset.empty:
+             result_data[group] = [0, 0, 0]
+             continue
+            
+        # Thresholds are likely constant per exam, but safekeeping to row-wise if needed?
+        # In item_difficulty.py, it assumes constant per exam key.
+        # We can take the first row's thresholds for the group.
+        if "poor_threshold" not in subset.columns or "good_threshold" not in subset.columns:
+             # Fallback or error?
+             # If thresholds missing, cant categorize.
+             result_data[group] = [0, 0, 0]
+             continue
+
+        poor_thresh = subset["poor_threshold"].iloc[0]
+        good_thresh = subset["good_threshold"].iloc[0]
+        
+        # Count
+        count_poor = len(subset[subset["pbc"] <= poor_thresh])
+        count_good = len(subset[subset["pbc"] >= good_thresh])
+        count_acceptable = len(subset) - count_poor - count_good
+        
+        result_data[group] = [count_poor, count_acceptable, count_good]
+
+    return pd.DataFrame(result_data)
+
+def get_fit_category_df(df, col_name, group_col='exam_id'):
+    """
+    Calculates counts for Poor, Acceptable, Good categories for Fit Stats (Infit/Outfit).
+    Uses columns like 'is_good_infit_items_1PL', 'is_acceptable_infit_items_1PL', 'is_poor_infit_items_1PL'.
+    """
+    # Categories
+    categories = ["Poor", "Acceptable", "Good"]
+    result_data = {"Category": categories}
+    
+    if group_col in df.columns:
+        groups = sorted(df[group_col].unique())
+    else:
+        groups = []
+        
+    # Construct base column name for category flags
+    # col_name is like 'infit_items_1PL'
+    # Flag columns are: 'is_good_infit_items_1PL', etc.
+    
+    col_good = f"is_good_{col_name}"
+    col_acceptable = f"is_acceptable_{col_name}"
+    col_poor = f"is_poor_{col_name}"
+
+    for group in groups:
+        subset = df[df[group_col] == group]
+        if subset.empty:
+             result_data[group] = [0, 0, 0]
+             continue
+        
+        # Check if helper columns exist
+        if col_good not in subset.columns or col_acceptable not in subset.columns or col_poor not in subset.columns:
+             # If flags missing, return zeros or maybe try to calculate? 
+             # rasch_analysis.py should have added them.
+             result_data[group] = [0, 0, 0]
+             continue
+
+        count_poor = subset[col_poor].sum()
+        count_acceptable = subset[col_acceptable].sum()
+        count_good = subset[col_good].sum()
+        
+        result_data[group] = [count_poor, count_acceptable, count_good]
+
+    return pd.DataFrame(result_data)
+
 def export_plot_data(filename="plot_data.xlsx"):
     """
     Aggregates data used for all plots and exports it to a multi-sheet Excel file.
@@ -62,9 +146,7 @@ def export_plot_data(filename="plot_data.xlsx"):
     # 3. Point-Biserial Correlation (PBC)
     print(" - PBC (Histogram)")
     pbc_df = item_difficulty.get_point_biserial_coefficient_frame()
-    # Bins from item_difficulty.py: [-.5, -.25, 0, 0.25, 0.5, 0.75, 1]
-    pbc_bins = [-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
-    pbc_hist_df = get_histogram_df(pbc_df, "pbc", pbc_bins, group_col="exam_id")
+    pbc_hist_df = get_pbc_category_df(pbc_df)
 
     # 4. Effective Distractors (Counts per Question & Form)
     print(" - Effective Distractors (Aggregated)")
@@ -138,6 +220,24 @@ def export_plot_data(filename="plot_data.xlsx"):
         rasch_students_1pl_hist.to_excel(writer, sheet_name="Rasch Students 1PL", index=False)
         rasch_items_3pl_hist.to_excel(writer, sheet_name="Rasch Items 3PL", index=False)
         rasch_students_3pl_hist.to_excel(writer, sheet_name="Rasch Students 3PL", index=False)
+        
+        # Fit Stats Categories (Good, Acceptable, Poor)
+        
+        # Infit/Outfit Items 1PL
+        get_fit_category_df(rasch_items_df, "infit_1PL", group_col="exam_id").to_excel(writer, sheet_name="Infit Items 1PL", index=False)
+        get_fit_category_df(rasch_items_df, "outfit_1PL", group_col="exam_id").to_excel(writer, sheet_name="Outfit Items 1PL", index=False)
+        
+        # Infit/Outfit Items 3PL
+        get_fit_category_df(rasch_items_df, "infit_3PL", group_col="exam_id").to_excel(writer, sheet_name="Infit Items 3PL", index=False)
+        get_fit_category_df(rasch_items_df, "outfit_3PL", group_col="exam_id").to_excel(writer, sheet_name="Outfit Items 3PL", index=False)
+        
+        # Infit/Outfit Students 1PL
+        get_fit_category_df(rasch_students_df, "infit_1PL", group_col="exam_id").to_excel(writer, sheet_name="Infit Students 1PL", index=False)
+        get_fit_category_df(rasch_students_df, "outfit_1PL", group_col="exam_id").to_excel(writer, sheet_name="Outfit Students 1PL", index=False)
+
+        # Infit/Outfit Students 3PL
+        get_fit_category_df(rasch_students_df, "infit_3PL", group_col="exam_id").to_excel(writer, sheet_name="Infit Students 3PL", index=False)
+        get_fit_category_df(rasch_students_df, "outfit_3PL", group_col="exam_id").to_excel(writer, sheet_name="Outfit Students 3PL", index=False)
 
     print("Done.")
 
