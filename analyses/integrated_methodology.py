@@ -37,11 +37,15 @@ if __name__ == "__main__":
     item_summary_frame['is_good_infit'] = item_summary_frame['is_good_infit_3PL']
     item_summary_frame['is_acceptable_infit'] = item_summary_frame['is_acceptable_infit_3PL']
     item_summary_frame['is_poor_infit'] = item_summary_frame['is_poor_infit_3PL']
-    print(item_summary_frame.columns)
+    
     item_summary_frame = item_summary_frame.sort_values(
         by=["question_id"]
     ).reset_index()
     item_summary_frame = item_summary_frame.drop(columns=["index"])
+    # Ensure exam_id is present for calculation
+    if "exam_id" not in item_summary_frame.columns:
+        item_summary_frame["exam_id"] = item_summary_frame["question_id"].str[:2]
+
     item_summary_frame["is_good_estimated_item_difficulty"] = 0
     item_summary_frame["is_good_item_difficulty"] = 0
     item_summary_frame["is_good_pbc"] = 0
@@ -56,10 +60,21 @@ if __name__ == "__main__":
     item_summary_frame.loc[
         good_estimated_item_indices, "is_good_estimated_item_difficulty"
     ] = 1
-    good_item_difficulty_indices = item_summary_frame.query(
-        "item_difficulty <= .8 and item_difficulty >= .6"
-    ).index
-    item_summary_frame.loc[good_item_difficulty_indices, "is_good_item_difficulty"] = 1
+    item_summary_frame.loc[
+        good_estimated_item_indices, "is_good_estimated_item_difficulty"
+    ] = 1
+
+    # Calculate SD per exam for Item Difficulty
+    exam_stats = item_summary_frame.groupby("exam_id")["item_difficulty"].std().reset_index(name="std_dev")
+    item_summary_frame = pd.merge(item_summary_frame, exam_stats, on="exam_id", how="left")
+    
+    target_difficulty = 0.74
+    item_summary_frame["diff_deviation"] = (item_summary_frame["item_difficulty"] - target_difficulty).abs()
+    
+    # Ideal (Good): <= 1 SD
+    item_summary_frame["is_good_item_difficulty"] = (
+        item_summary_frame["diff_deviation"] <= item_summary_frame["std_dev"]
+    ).astype(int)
     good_pbc_indices = item_summary_frame.query("pbc >= good_threshold").index
     item_summary_frame.loc[good_pbc_indices, "is_good_pbc"] = 1
     good_effective_distractors_indices = item_summary_frame.query(
@@ -75,12 +90,16 @@ if __name__ == "__main__":
     item_summary_frame.loc[
         acceptable_estimated_item_indices, "is_acceptable_estimated_item_difficulty"
     ] = 1
-    acceptable_item_difficulty_indices = item_summary_frame.query(
-        "item_difficulty <= .9 and item_difficulty >= .5"
-    ).index
     item_summary_frame.loc[
-        acceptable_item_difficulty_indices, "is_acceptable_item_difficulty"
+        acceptable_estimated_item_indices, "is_acceptable_estimated_item_difficulty"
     ] = 1
+    
+    # Acceptable: <= 2 SD
+    # Note: Ideal items are also Acceptable by this definition, effectively contributing +1 to tier.
+    # The 'item_difficulty_tier' summation later handles this (Good + Acceptable = 2 if both true).
+    item_summary_frame["is_acceptable_item_difficulty"] = (
+        item_summary_frame["diff_deviation"] <= 2 * item_summary_frame["std_dev"]
+    ).astype(int)
     acceptable_pbc_indices = item_summary_frame.query("pbc >= poor_threshold").index
     item_summary_frame.loc[acceptable_pbc_indices, "is_acceptable_pbc"] = 1
     acceptable_effective_distractors_indices = item_summary_frame.query(
@@ -169,4 +188,4 @@ if __name__ == "__main__":
         # texts = heatmap_utils.annotate_heatmap(im, valfmt="{x:.2f}")
 
         fig.tight_layout()
-        plt.savefig(f"{exam_id}_heatmap.png")
+        plt.savefig(f"figures/{exam_id}_heatmap.png")
