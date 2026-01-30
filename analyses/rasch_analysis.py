@@ -763,6 +763,73 @@ if __name__ == "__main__":
     # save_rasch_distributions(1, 'items', rasch_df = rasch_items_df)
     # save_rasch_distributions(3, 'items', rasch_df = rasch_items_df)
 
-    rasch_student_df = rasch_analysis_dict["rasch_student_df"]
     # save_rasch_distributions(1, 'students', rasch_df = rasch_student_df)
     # save_rasch_distributions(3, 'students', rasch_df = rasch_student_df)
+
+
+def save_rasch_distributions_both_PL(variable_type, rasch_df=None):
+    """
+    Saves Rasch distributions for both 1PL and 3PL models.
+    """
+    save_rasch_distributions(1, variable_type, rasch_df=rasch_df)
+    save_rasch_distributions(3, variable_type, rasch_df=rasch_df)
+
+
+def add_fit_subplot(rasch_df, axis, bins, exam_keys, title, fit_type, variable_type, PL):
+    """
+    Helper to add fit statistic subplot.
+    """
+    data_list = []
+    for key in exam_keys:
+        subset = rasch_df[rasch_df["exam_id"].isin([key])]
+        col_name = f"{fit_type}_{variable_type}_{PL}PL"
+        
+        if col_name in subset:
+             data_list.append(subset[col_name].dropna().values)
+        else:
+             data_list.append([])
+
+    axis.hist(data_list, bins, histtype="bar", stacked=True, label=exam_keys)
+    axis.legend(prop={"size": 10})
+    
+    # Axis labels
+    xlabel = f"{fit_type.capitalize()} Mean Square for {variable_type[:-1].capitalize()} ({PL}PL)"
+    axis.set_xlabel(xlabel)
+    axis.set_ylabel("Frequency")
+    axis.set_title(title)
+
+
+def save_fit_plots(rasch_df, fit_type, variable_type):
+    """
+    Saves fit plots (Infit/Outfit) for items or students, for both 1PL and 3PL.
+    """
+    # Define bins - Fit stats usually center around 1. 
+    # Range 0 to 2 or 3 is typical.
+    bins = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0]
+    
+    # Ensure exam_id exists
+    if "exam_id" not in rasch_df.columns:
+        if variable_type == "items":
+            if rasch_df.index.name == "question_id":
+                rasch_df = rasch_df.reset_index()
+            if "question_id" in rasch_df.columns:
+                rasch_df["exam_id"] = rasch_df["question_id"].str[:2]
+
+    # Iterate for 1PL and 3PL
+    for PL in [1, 3]:
+        filename = f"./figures/rasch_{variable_type}_{fit_type}_{PL}PL.png"
+        
+        fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 6))
+
+        add_fit_subplot(rasch_df, ax0, bins, ["1A", "1B"], "Exam 1", fit_type, variable_type, PL)
+        add_fit_subplot(rasch_df, ax1, bins, ["2A", "2B", "2C"], "Exam 2", fit_type, variable_type, PL)
+        add_fit_subplot(rasch_df, ax2, bins, ["3A", "3B", "3C"], "Exam 3", fit_type, variable_type, PL)
+        add_fit_subplot(rasch_df, ax3, bins, ["4A", "4B", "4C"], "Exam 4", fit_type, variable_type, PL)
+
+        fig.tight_layout()
+        
+        try:
+            plt.savefig(filename)
+        except FileNotFoundError:
+             pass
+        plt.close(fig)

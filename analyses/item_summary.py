@@ -1,5 +1,4 @@
 try:
-    # Absolute import (for direct execution)
     from analyses import (
         database_utils,
         effective_distractors_analysis,
@@ -7,7 +6,6 @@ try:
         rasch_analysis,
     )
 except ImportError:
-    # Relative import (for package context)
     import database_utils
     import effective_distractors_analysis
     import item_difficulty
@@ -75,4 +73,6 @@ def get_item_summary_frame(dict_of_dfs=None):
 
 if __name__ == "__main__":
     item_summary_frame = get_item_summary_frame()
+    print(item_summary_frame)
+    item_summary_frame.to_pickle("item_summary.pkl")
     item_summary_frame.to_excel("item_summary.xlsx", index=False)

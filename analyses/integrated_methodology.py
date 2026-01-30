@@ -1,5 +1,4 @@
 try:
-    # Absolute import (for direct execution)
     from analyses import (
         database_utils,
         effective_distractors_analysis,
@@ -9,7 +8,6 @@ try:
         heatmap_utils,
     )
 except ImportError:
-    # Relative import (for package context)
     import database_utils
     import effective_distractors_analysis
     import item_difficulty
@@ -29,7 +27,16 @@ if __name__ == "__main__":
     else:
         item_summary_frame = item_summary.get_item_summary_frame()
         item_summary_frame.to_pickle(pickle_filename)
-
+    item_summary_frame['var_estimates_items'] = item_summary_frame['var_estimates_items_3PL']
+    item_summary_frame['outfit_items'] = item_summary_frame['outfit_items_3PL']
+    item_summary_frame['infit_items'] = item_summary_frame['infit_items_3PL']
+    item_summary_frame['q3_star_items'] = item_summary_frame['q3_star_items_3PL']
+    item_summary_frame['is_good_outfit'] = item_summary_frame['is_good_outfit_3PL']
+    item_summary_frame['is_acceptable_outfit'] = item_summary_frame['is_acceptable_outfit_3PL']
+    item_summary_frame['is_poor_outfit'] = item_summary_frame['is_poor_outfit_3PL']
+    item_summary_frame['is_good_infit'] = item_summary_frame['is_good_infit_3PL']
+    item_summary_frame['is_acceptable_infit'] = item_summary_frame['is_acceptable_infit_3PL']
+    item_summary_frame['is_poor_infit'] = item_summary_frame['is_poor_infit_3PL']
     print(item_summary_frame.columns)
     item_summary_frame = item_summary_frame.sort_values(
         by=["question_id"]
@@ -113,7 +120,6 @@ if __name__ == "__main__":
         question_ids = np.unique(exam_item_summary_frame["question_id"])
 
         columns_to_plot_data = [
-            "var_estimates_items",
             "outfit_items",
             "infit_items",
             "effective_distractors",
@@ -121,7 +127,6 @@ if __name__ == "__main__":
             "item_difficulty",
         ]
         columns_to_plot_colors = [
-            "estimated_item_difficulty_tier",
             "outfit_tier",
             "infit_tier",
             "effective_distractors_tier",
@@ -129,9 +134,8 @@ if __name__ == "__main__":
             "item_difficulty_tier",
         ]
         columns_to_display = [
-            "Estimated Item Difficulty",
-            "Outfit",
-            "Infit",
+            "Item Outfit",
+            "Item Infit",
             "Effective Distractors",
             "PBC",
             "Item Difficulty",

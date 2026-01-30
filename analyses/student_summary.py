@@ -1,8 +1,6 @@
 try:
-    # Absolute import (for direct execution)
     from analyses import database_utils, rasch_analysis
 except ImportError:
-    # Relative import (for package context)
     import database_utils
     import rasch_analysis
 
