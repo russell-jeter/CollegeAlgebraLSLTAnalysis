@@ -61,7 +61,6 @@ def get_distractor_counts_frame(dict_of_dfs=None):
     ].str[:2]
 
     # Calculate percent of question answers that a given option got.
-    # Vectorized approach: group by question and transform sum to get total answers per question
     total_counts = distractor_selection_counts.groupby("question_id")[
         "count"
     ].transform("sum")
