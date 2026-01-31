@@ -70,9 +70,11 @@ def get_item_summary_frame(dict_of_dfs=None):
 
     return item_summary_frame
 
+def save_item_summary(filename = "./results/item_summary"):
+    item_summary_frame = get_item_summary_frame()
+    item_summary_frame.to_pickle(f"{filename}.pkl")
+    item_summary_frame.to_excel(f"{filename}.xlsx", index=False)
+
 
 if __name__ == "__main__":
-    item_summary_frame = get_item_summary_frame()
-    print(item_summary_frame)
-    item_summary_frame.to_pickle("item_summary.pkl")
-    item_summary_frame.to_excel("item_summary.xlsx", index=False)
+    save_item_summary()
