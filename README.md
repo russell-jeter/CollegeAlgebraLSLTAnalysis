@@ -11,3 +11,7 @@ To use this methodology, do the following:
     - export_plot_data.py
     - generate_figures.py
     # TO DO: Add py file to generate heatmaps
+
+This repository is the companion for paper "Towards an Integrated Methodology for Assessing Item Discrimination."
+
+It is maintained by Russell Jeter: <https://sites.gsu.edu/rjeter>. If you have any concerns, please submit a Github issue, or email me at [mailto:rjeter@gsu.edu](rjeter@gsu.edu).
