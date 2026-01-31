@@ -122,7 +122,7 @@ def get_fit_category_df(df, col_name, group_col='exam_id'):
 
     return pd.DataFrame(result_data)
 
-def export_plot_data(filename="plot_data.xlsx"):
+def export_plot_data(filename="./results/plot_data.xlsx"):
     """
     Aggregates data used for all plots and exports it to a multi-sheet Excel file.
     Aggregates into histograms/counts to match the figures.

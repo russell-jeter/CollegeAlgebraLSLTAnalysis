@@ -217,7 +217,6 @@ def save_distractors_chosen_plots(exam_distractors_chosen_frame=None, filename=N
 
     fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 6))
 
-    print(exam_distractors_chosen_frame)
     add_distractors_chosen_subplot(
         exam_distractors_chosen_frame, ax0, ["1A", "1B"], "Exam 1"
     )
