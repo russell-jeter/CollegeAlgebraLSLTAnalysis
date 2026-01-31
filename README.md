@@ -6,6 +6,7 @@ To use this methodology, do the following:
 1. Place data in "data" folder.
 
 2. Run the following scripts in order:
+<<<<<<< HEAD
     - `run_analyses.py`: Main script to run analyses and generate results.
     - `generate_plots.py`: Generates all figures and plots, including heatmaps and distractor analysis.
     - `export_plot_data.py`: Exports data used for plotting.
@@ -23,3 +24,14 @@ To use this methodology, do the following:
 ├── export_plot_data.py       # Script to export data for plotting
 └── README.md                 # Project documentation
 ```
+=======
+    - run_analyses.py
+    - generate_plots.py
+    - export_plot_data.py
+    - generate_figures.py
+    # TO DO: Add py file to generate heatmaps
+
+This repository is the companion for paper "Towards an Integrated Methodology for Assessing Item Discrimination."
+
+It is maintained by Russell Jeter: <https://sites.gsu.edu/rjeter>. If you have any concerns, please submit a Github issue, or email me at [rjeter@gsu.edu](mailto:rjeter@gsu.edu).
+>>>>>>> 6c2e6e589e574f273a599e1391065540c1c35be2
