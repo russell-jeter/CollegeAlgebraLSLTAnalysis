@@ -62,7 +62,7 @@ def export_observed_score_statistics(exam_scores=None):
         right_on=["exam_id"],
     )
 
-    summary_frame.to_excel("observed_score_statistics.xlsx", index=False)
+    summary_frame.to_excel("./results/observed_score_statistics.xlsx", index=False)
 
 
 def add_os_subplot(exam_scores, axis, bins, exam_keys, title):

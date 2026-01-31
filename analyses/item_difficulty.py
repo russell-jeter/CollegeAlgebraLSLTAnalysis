@@ -446,7 +446,7 @@ def show_pbc_ranges(point_biserial_correlation_frame=None, use_arbitrary_binning
 
 
 def add_difficulty_category_subplot(item_difficulty_frame, axis, exam_keys, title):
-    labels = ["Ideal", "Acceptable", "Poor"]
+    labels = ["Poor", "Acceptable", "Ideal"]
     # Colors: Ideal (Green-ish), Acceptable (Yellow-ish), Poor (Red-ish)
     # Using palette colors or custom. Let's use custom for clarity or map to existing palette.
     # Palette: ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
@@ -483,7 +483,7 @@ def add_difficulty_category_subplot(item_difficulty_frame, axis, exam_keys, titl
             else:
                 poor_count += 1
         
-        exam_bar_data = [ideal_count, acceptable_count, poor_count]
+        exam_bar_data = [poor_count, acceptable_count, ideal_count]
         
         # Convert to percentage
         total = np.sum(exam_bar_data)
