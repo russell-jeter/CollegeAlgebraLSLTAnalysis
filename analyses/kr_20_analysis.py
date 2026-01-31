@@ -1,71 +1,89 @@
 try:
-    from analyses import database_utils  # Absolute import (for direct execution)
+    from analyses import database_utils
 except ImportError:
-    import database_utils  # Relative import (for package context)
-    
+    import database_utils
+
 import numpy as np
 import pandas as pd
 
 
-def get_kr_20_frame(student_responses_with_details = None, exam_scores = None):
-    if type(student_responses_with_details) == type(None):
-        student_responses_with_details = database_utils.get_student_responses_with_details()
+def get_kr_20_frame(student_responses_with_details=None, exam_scores=None):
+    """
+    Calculate the Kuder-Richardson Formula 20 (KR-20) reliability coefficient for exams.
 
-    if type(exam_scores) == type(None):
+    Args:
+        student_responses_with_details (pd.DataFrame, optional): DataFrame of student responses.
+            If None, fetches from database.
+        exam_scores (pd.DataFrame, optional): DataFrame of exam scores.
+            If None, fetches from database.
+
+    Returns:
+        pd.DataFrame: DataFrame containing KR-20 statistics (K, r, variance, exam_id).
+    """
+    if student_responses_with_details is None:
+        student_responses_with_details = (
+            database_utils.get_student_responses_with_details()
+        )
+
+    if exam_scores is None:
+        # Maintaining API compatibility.
         exam_scores = database_utils.get_exam_scores(student_responses_with_details)
 
-    question_id_list = np.unique(student_responses_with_details["question_id"].values)
-
-    # student_score_frame for calculating p and q
-    student_score_frame = student_responses_with_details[["question_id", "student_id", "is_distractor"]].copy()
+    # Prepare student score frame (0 for correct, 1 for distractor -> converted to score)
+    # The database says 'is_distractor' == 0 is correct.
+    student_score_frame = student_responses_with_details[
+        ["question_id", "student_id", "is_distractor"]
+    ].copy()
     student_score_frame["exam_id"] = student_score_frame["question_id"].str[:2]
-    student_score_frame.loc[:, "question_score"] = (student_score_frame.loc[:, "is_distractor"] == 0).astype(int)
 
+    # Calculate score: 1 if correct (is_distractor == 0), else 0
+    student_score_frame["question_score"] = (
+        student_score_frame["is_distractor"] == 0
+    ).astype(int)
     student_score_frame = student_score_frame.drop(columns=["is_distractor"])
 
-    student_score_frame["exam_score"] = student_score_frame.loc[:, "question_score"]
+    # Calculate p (proportion correct) and q (proportion incorrect) for each question
+    # Group by exam_id and question_id
+    question_stats = (
+        student_score_frame.groupby(["exam_id", "question_id"])["question_score"]
+        .agg(["sum", "count"])
+        .reset_index()
+    )
+    question_stats["p"] = question_stats["sum"] / question_stats["count"]
+    question_stats["q"] = 1.0 - question_stats["p"]
 
-    student_id_list = np.unique(student_score_frame["student_id"].values)
+    # Calculate pq for each question
+    question_stats["pq"] = question_stats["p"] * question_stats["q"]
 
-    for student_id in student_id_list:
-        student_exam_frame = student_score_frame[student_score_frame["student_id"].isin([student_id])]
-        exam_id_list = np.unique(student_exam_frame["exam_id"].values) 
-        for exam_id in exam_id_list:
-            student_score_frame_for_one_exam =  student_exam_frame[student_exam_frame["exam_id"].isin([exam_id])]
-            student_score_frame.loc[student_score_frame_for_one_exam.index.values, "exam_score"] = student_score_frame_for_one_exam["question_score"].sum()
+    # Sum pq per exam
+    sum_pq_per_exam = question_stats.groupby("exam_id")["pq"].sum()
 
-    # question_scores frame for calculating KR-20    
-    question_scores = student_score_frame[["exam_id", "question_id"]].copy()
-    question_scores = question_scores.groupby(by = ["exam_id", "question_id"]).count().reset_index()
-    question_scores["p"] = np.zeros(len(question_scores))
-    question_scores["q"] = np.zeros(len(question_scores))
-    for index, row in question_scores.iterrows():
-        question_id = row["question_id"]
-        exam_id = row["exam_id"]
-        question_scores_frame = student_score_frame[student_score_frame["question_id"].isin([question_id])]
-        p = question_scores_frame["question_score"].sum() / question_scores_frame["question_score"].count()
-        q = 1 - p
-        question_scores.loc[index, "p"] = p
-        question_scores.loc[index, "q"] = q
-    
-    # Create KR frame
-    kr_frame = pd.DataFrame(columns=["K", "r", "variance", "exam_id"])
-    kr_frame["exam_id"] = np.unique(exam_scores["exam_id"].values)
+    # Calculate K (number of questions) per exam
+    k_per_exam = question_stats.groupby("exam_id")["question_id"].count()
 
-    for index, row in kr_frame.iterrows():
-        exam_id = row["exam_id"]
-        exam_score_variance = 0
-        exam_score_frame = exam_scores[exam_scores["exam_id"].isin([exam_id])]
-        question_scores_frame = question_scores[question_scores["exam_id"].isin([exam_id])]
-        sum_term = (question_scores_frame["p"] * question_scores_frame["q"]).sum()
-        
-        exam_score_variance = exam_score_frame["exam_score"].var()
-        number_of_questions = sum(exam_id in string for string in question_id_list)
-        kr_frame.loc[index, "variance"] = exam_score_variance
-        kr_frame.loc[index, "K"] = number_of_questions
-        kr_frame.loc[index, "r"] = (number_of_questions/(number_of_questions - 1)) * (1 - sum_term/exam_score_variance)
+    # Calculate exam score variance
+    # We can use the pre-calculated exam_scores dataframe
+    variance_per_exam = exam_scores.groupby("exam_id")["exam_score"].var()
+
+    # Combine into KR frame
+    # We need shared index to compute
+    kr_data = pd.DataFrame(
+        {"K": k_per_exam, "sum_pq": sum_pq_per_exam, "variance": variance_per_exam}
+    )
+
+    # Calculate r (KR-20)
+    # formula: (K / (K - 1)) * (1 - (sum(p*q) / variance))
+    # Handle division by zero or K=1 if necessary, though typical exams have K > 1
+
+    kr_data["r"] = (kr_data["K"] / (kr_data["K"] - 1)) * (
+        1 - (kr_data["sum_pq"] / kr_data["variance"])
+    )
+
+    # Format output
+    kr_frame = kr_data.reset_index()[["K", "r", "variance", "exam_id"]]
 
     return kr_frame
+
 
 if __name__ == "__main__":
     print(get_kr_20_frame())
