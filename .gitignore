@@ -1,3 +1,6 @@
+# Pickle files
+*.pkl
+
 #Excel files
 *.xlsx
 #Image files

@@ -441,6 +441,156 @@ def save_effective_distractors_plots(distractor_counts_dict=None, filename=None)
     plt.close(fig)
 
 
+
+def get_effective_distractor_categories_by_form(distractor_counts_frame=None):
+    """
+    Get summary of effective distractor categories by form.
+    Categories:
+        Poor: 0 effective distractors
+        Ideal: All distractors are effective (num_effective == num_total)
+        Acceptable: Otherwise
+    """
+    if distractor_counts_frame is None:
+        distractor_counts_frame = get_distractor_counts_frame()
+
+    # Get distractors only
+    distractors_df = distractor_counts_frame[
+        distractor_counts_frame["is_distractor"] == 1
+    ].copy()
+
+    # Determine if effective (> 5%)
+    distractors_df["is_effective"] = distractors_df["percent"] > 0.05
+
+    # Group by question to get counts
+    question_stats = (
+        distractors_df.groupby(["question_id", "exam_id"])
+        .agg(
+            total_distractors=("is_distractor", "count"),
+            effective_distractors=("is_effective", "sum"),
+        )
+        .reset_index()
+    )
+
+    # Categorize
+    def categorize(row):
+        if row["effective_distractors"] == 0:
+            return "Poor"
+        elif row["effective_distractors"] == row["total_distractors"]:
+            return "Ideal"
+        else:
+            return "Acceptable"
+
+    question_stats["category"] = question_stats.apply(categorize, axis=1)
+
+    # Aggregate by exam_id
+    category_counts = (
+        question_stats.groupby(["exam_id", "category"]).size().unstack(fill_value=0)
+    )
+
+    # Ensure all columns exist
+    for col in ["Poor", "Acceptable", "Ideal"]:
+        if col not in category_counts.columns:
+            category_counts[col] = 0
+
+    # Calculate percentages
+    category_counts["Total"] = category_counts.sum(axis=1)
+    for col in ["Poor", "Acceptable", "Ideal"]:
+        category_counts[col + "_percent"] = (
+            category_counts[col] / category_counts["Total"]
+        )
+
+    return category_counts
+
+
+def add_effective_distractor_category_subplot(
+    category_counts, axis, exam_keys, title
+):
+    labels = ["Poor", "Acceptable", "Ideal"]
+    # Colors: Consistent with other plots if possible, or custom
+    # Poor (Red-ish), Acceptable (Orange-ish), Ideal (Purple-ish/Dark)
+    colors = ["#cf4456", "#f29566", "#831c64"]
+    text_color = ["black", "black", "white"]
+    bar_bottoms = [0, 0, 0]
+    bar_count = 0
+
+    for key in exam_keys:
+        if key not in category_counts.index:
+            continue
+
+        exam_data = category_counts.loc[key]
+        
+        # Data for stacking: Poor, Acceptable, Ideal
+        exam_bar_data = [
+            exam_data["Poor_percent"],
+            exam_data["Acceptable_percent"],
+            exam_data["Ideal_percent"],
+        ]
+        
+        # Convert to percentage (0-100)
+        exam_bar_data = np.array(exam_bar_data) * 100
+
+        axis.bar(labels, exam_bar_data, label=key, bottom=bar_bottoms)
+
+        for i in range(len(bar_bottoms)):
+            bar_bottoms[i] += exam_bar_data[i]
+
+        for j in range(len(exam_bar_data)):
+            y_position = bar_bottoms[j] - exam_bar_data[j] / 2
+            if exam_bar_data[j] >= 20: # Threshold for text
+                color = text_color[bar_count % len(text_color)]
+                axis.text(
+                    labels[j],
+                    y_position,
+                    f"{exam_bar_data[j]:.1f}%",
+                    color=color,
+                    ha="center",
+                    va="center",
+                    fontsize=10,
+                )
+        bar_count += 1
+
+    axis.legend(prop={"size": 10})
+    axis.set_xlabel("Effective Distractor Category")
+    axis.set_ylabel("Percent of Questions")
+    axis.set_title(title)
+
+
+def save_effective_distractor_category_plots(
+    category_counts=None, filename=None
+):
+    if category_counts is None:
+        category_counts = get_effective_distractor_categories_by_form()
+    
+    if filename is None:
+        filename = "./figures/effective_distractors_category_distributions.png"
+
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+
+    add_effective_distractor_category_subplot(
+        category_counts, ax0, ["1A", "1B"], "Exam 1"
+    )
+    add_effective_distractor_category_subplot(
+        category_counts, ax1, ["2A", "2B", "2C"], "Exam 2"
+    )
+    add_effective_distractor_category_subplot(
+        category_counts, ax2, ["3A", "3B", "3C"], "Exam 3"
+    )
+    add_effective_distractor_category_subplot(
+        category_counts, ax3, ["4A", "4B", "4C"], "Exam 4"
+    )
+
+    fig.tight_layout()
+
+    try:
+        plt.savefig(filename)
+    except FileNotFoundError:
+        if not filename.startswith("."):
+            filename = "." + filename
+        plt.savefig(filename)
+
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     dict_of_dfs = database_utils.load_database_to_dict_of_dfs()
 

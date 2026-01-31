@@ -1,17 +1,9 @@
 try:
     from analyses import (
-        database_utils,
-        effective_distractors_analysis,
-        item_difficulty,
-        rasch_analysis,
         item_summary,
         heatmap_utils,
     )
 except ImportError:
-    import database_utils
-    import effective_distractors_analysis
-    import item_difficulty
-    import rasch_analysis
     import item_summary
     import heatmap_utils
 
@@ -19,14 +11,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-if __name__ == "__main__":
-    load_item = True
-    pickle_filename = "item_summary.pkl"
-    if load_item:
+def generate_integrated_methodology_heatmaps():
+    pickle_filename = "./results/item_summary.pkl"
+    try:
         item_summary_frame = pd.read_pickle(pickle_filename)
-    else:
-        item_summary_frame = item_summary.get_item_summary_frame()
-        item_summary_frame.to_pickle(pickle_filename)
+    except FileNotFoundError:
+        item_summary.save_item_summary()
+        item_summary_frame = pd.read_pickle(pickle_filename)
+        
     item_summary_frame['var_estimates_items'] = item_summary_frame['var_estimates_items_3PL']
     item_summary_frame['outfit_items'] = item_summary_frame['outfit_items_3PL']
     item_summary_frame['infit_items'] = item_summary_frame['infit_items_3PL']
@@ -189,3 +181,7 @@ if __name__ == "__main__":
 
         fig.tight_layout()
         plt.savefig(f"figures/{exam_id}_heatmap.png")
+
+
+if __name__ == "__main__":
+    generate_integrated_methodology_heatmaps()
