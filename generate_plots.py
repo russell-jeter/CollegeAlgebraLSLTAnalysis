@@ -15,6 +15,7 @@ if __name__ == "__main__":
     # Save item difficulty plots
     print("Generating Item Difficulty plots...")
     item_difficulty.save_item_difficulty_distributions()
+    item_difficulty.save_item_difficulty_category_distributions()
     item_difficulty.save_pbc_distribution_plots_with_thresholds()
 
     # Save 1PL and 3PL models
@@ -31,6 +32,8 @@ if __name__ == "__main__":
     print("Generating Fit plots...")
     rasch_analysis.save_fit_plots(rasch_items_df, 'infit', 'items')
     rasch_analysis.save_fit_plots(rasch_items_df, 'outfit', 'items')
+    rasch_analysis.save_fit_distributions_both_PL('infit', rasch_df=rasch_items_df)
+    rasch_analysis.save_fit_distributions_both_PL('outfit', rasch_df=rasch_items_df)
 
     # Distractors 
     print("Generating Distractor plots...")

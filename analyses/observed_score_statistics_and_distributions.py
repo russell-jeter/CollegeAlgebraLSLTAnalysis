@@ -10,6 +10,7 @@ import numpy as np
 # Color palette for plots
 CUSTOM_PALETTE = ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
 plt.rcParams["axes.prop_cycle"] = plt.cycler("color", CUSTOM_PALETTE)
+plt.rcParams['font.family'] = 'sans-serif'
 
 
 def get_student_exam_taken_count(exam_scores=None):
@@ -105,14 +106,14 @@ def add_os_subplot(exam_scores, axis, bins, exam_keys, title):
             percentage = (height / total_students * 100) if total_students > 0 else 0
             if percentage >= 25:  # Threshold for text visibility (25%)
                 x_center = rect.get_x() + rect.get_width() / 2
-                y_center = rect.get_y() + height / 2
+                y_center = rect.get_y()
                 
                 axis.text(
                     x_center,
                     y_center,
                     f"{height:.0f}",
                     ha="center",
-                    va="center", # Reverted to center because using exact rect center
+                    va="bottom", # Reverted to center because using exact rect center
                     color=color,
                     fontsize=10,
                 )
@@ -152,11 +153,13 @@ def save_os_distribution_plots(exam_scores=None, filename=None):
 
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         # Fallback if directory doesn't exist or running from wrong cwd
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 

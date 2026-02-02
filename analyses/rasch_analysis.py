@@ -14,6 +14,7 @@ import matplotlib
 # Color palette for plots
 CUSTOM_PALETTE = ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
 plt.rcParams["axes.prop_cycle"] = plt.cycler("color", CUSTOM_PALETTE)
+plt.rcParams['font.family'] = 'sans-serif'
 
 
 def exam_num_ver_df(num_and_ver, df):
@@ -685,19 +686,20 @@ def add_rasch_subplot(rasch_df, axis, bins, exam_keys, title, PL, variable_type)
             data_list.append([])
 
     axis.hist(data_list, bins, histtype="bar", stacked=True, label=exam_keys)
-    axis.legend(prop={"size": 10})
+    axis.legend(prop={"size": 14})
 
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
     axis.xaxis.set_major_formatter(fmt)
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
     axis.yaxis.set_major_formatter(fmt)
     if variable_type == 'items':
-        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\beta$")
-        axis.set_ylabel("Number of Questions")
+        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\beta$", fontsize=14)
+        axis.set_ylabel("Number of Questions", fontsize=14)
     elif variable_type == 'students':
-        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\theta$")
-        axis.set_ylabel("Number of Students")
-    axis.set_title(title)
+        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\theta$", fontsize=14)
+        axis.set_ylabel("Number of Students", fontsize=14)
+    axis.set_title(title, fontsize=16)
+    axis.tick_params(labelsize=14)
 
 def save_rasch_distributions_by_PL(PL, variable_type, rasch_df = None, filename = None):
     if type(rasch_df) == type(None):
@@ -747,6 +749,7 @@ def save_rasch_distributions_by_PL(PL, variable_type, rasch_df = None, filename 
 
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         # Should be handled by makedirs, but just in case
         pass
@@ -771,11 +774,11 @@ def save_rasch_distributions_both_PL(variable_type, rasch_df = None, filename = 
         rasch_df["exam_id"] = rasch_df["question_id"].str[0:2]
     # rasch_df["exam_id"] already defined for students
 
-    plt.rcParams['text.usetex'] = True
+    # plt.rcParams['text.usetex'] = True
 
     bins = [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
 
-    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(10, 6), sharey=True)
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(12, 10), sharey=True)
 
     add_rasch_subplot(rasch_df, ax00, bins, ["1A", "1B"], "Exam 1", '1', variable_type)
     add_rasch_subplot(rasch_df, ax10, bins, ["2A", "2B", "2C"], "Exam 2", '1', variable_type)
@@ -821,7 +824,7 @@ def create_fit_dict(fit_type, df):
 def add_fit_subplot(df, exam_keys, fit_type, PL, axis, title):
     fit_dict = create_fit_dict(fit_type, df)
 
-    labels = ["Poor", "Acceptable", "Good"]
+    labels = ["Poor", "Acceptable", "Ideal"]
     text_color = ["black", "black", "white"]
     bar_bottoms = [0, 0, 0]
     bar_count = 0
@@ -834,15 +837,16 @@ def add_fit_subplot(df, exam_keys, fit_type, PL, axis, title):
         for i in range(len(bar_bottoms)):
             bar_bottoms[i] += exam_bar_data[i]
         for j in range(len(exam_bar_data)):
-            y_position = (bar_bottoms[j] - exam_bar_data[j]/2)
-            if exam_bar_data[j] >= 25:
-                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 10)
+            y_position = (bar_bottoms[j] - exam_bar_data[j])
+            if exam_bar_data[j] >= 40:
+                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 14)
         bar_count += 1
     
-    axis.legend(prop={'size': 10})
-    axis.set_xlabel(f"{fit_type} categories")
-    axis.set_ylabel("Percent of fit")
-    axis.set_title(title)
+    axis.legend(prop={'size': 14})
+    axis.set_xlabel(f"{fit_type.capitalize()} Categories", fontsize=14)
+    axis.set_ylabel("Percent of fit", fontsize=14)
+    axis.set_title(title, fontsize=16)
+    axis.tick_params(labelsize=14)
     custom_palette = ['#cf4456', '#f29566', '#831c64']
     plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
 
@@ -852,7 +856,7 @@ def save_fit_plots(rasch_df, fit_type, variable_type, filename = None):
             filename = f"./figures/items_{fit_type}_all.png"
         elif variable_type == 'students':
             filename = f"./figures/students_{fit_type}_all.png"
-    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(7, 9), sharey=True)
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(12, 10), sharey=True)
 
     add_fit_subplot(df=rasch_df, axis=ax00, exam_keys=["1A", "1B"], title="Exam 1", fit_type=fit_type, PL='1')
     add_fit_subplot(df=rasch_df, axis=ax10, exam_keys=["2A", "2B", "2C"], title="Exam 2", fit_type=fit_type, PL='1')
@@ -868,7 +872,90 @@ def save_fit_plots(rasch_df, fit_type, variable_type, filename = None):
     
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
+    plt.close(fig)
+
+def add_fit_histogram_subplot(rasch_df, axis, exam_keys, title, fit_type, PL):
+    """
+    Adds a histogram subplot for raw fit statistics (Infit or Outfit).
+    """
+    data_list = []
+    
+    # Determine column name based on fit_type and PL
+    # e.g. infit_items_1PL or outfit_items_3PL
+    # We are plotting items fit generally.
+    col_name = f"{fit_type}_items_{PL}PL"
+    
+    for key in exam_keys:
+        subset = rasch_df[rasch_df["exam_id"].isin([key])]
+        if col_name in subset:
+            data_list.append(subset[col_name].values)
+        else:
+            data_list.append([])
+
+    # Bins for Fit Statistics: usually centered around 1.
+    # Let's use 0 to 2 with 0.1 steps, or something similar.
+    # Typical range is 0.5 to 1.5 for good fit.
+    bins = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 3.0]
+    # Or just standard numpy auto binning? No, stacked needs explicit bins usually.
+    
+    axis.hist(data_list, bins, histtype="bar", stacked=True, label=exam_keys)
+    axis.legend(prop={"size": 14})
+    
+    axis.set_xlabel(f"{fit_type.capitalize()} (MNSQ)", fontsize=14)
+    axis.set_ylabel("Number of Items", fontsize=14)
+    axis.set_title(title, fontsize=16)
+    axis.tick_params(labelsize=14)
+
+
+def save_fit_distributions_both_PL(fit_type, rasch_df=None, filename=None):
+    """
+    Saves a 4x2 figure of raw fit statistic histograms for both 1PL and 3PL.
+    """
+    if rasch_df is None:
+        rasch_analysis_dict = get_rasch_students_and_items_frames_as_dict()
+        rasch_df = rasch_analysis_dict["rasch_items_df"]
+        
+    if filename is None:
+        filename = f"./figures/items_{fit_type}_distributions_all.png"
+
+    # Ensure exam_id
+    if "exam_id" not in rasch_df.columns:
+        if rasch_df.index.name == "question_id":
+            rasch_df = rasch_df.reset_index()
+        if "question_id" in rasch_df.columns:
+            rasch_df["exam_id"] = rasch_df["question_id"].str[:2]
+
+    # 4 rows (Exams), 2 cols (1PL, 3PL)
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(
+        nrows=4, ncols=2, figsize=(12, 10), sharey=True
+    )
+
+    # 1PL (Left Column)
+    add_fit_histogram_subplot(rasch_df, ax00, ["1A", "1B"], "Exam 1 (1PL)", fit_type, "1")
+    add_fit_histogram_subplot(rasch_df, ax10, ["2A", "2B", "2C"], "Exam 2 (1PL)", fit_type, "1")
+    add_fit_histogram_subplot(rasch_df, ax20, ["3A", "3B", "3C"], "Exam 3 (1PL)", fit_type, "1")
+    add_fit_histogram_subplot(rasch_df, ax30, ["4A", "4B", "4C"], "Exam 4 (1PL)", fit_type, "1")
+
+    # 3PL (Right Column)
+    add_fit_histogram_subplot(rasch_df, ax01, ["1A", "1B"], "Exam 1 (3PL)", fit_type, "3")
+    add_fit_histogram_subplot(rasch_df, ax11, ["2A", "2B", "2C"], "Exam 2 (3PL)", fit_type, "3")
+    add_fit_histogram_subplot(rasch_df, ax21, ["3A", "3B", "3C"], "Exam 3 (3PL)", fit_type, "3")
+    add_fit_histogram_subplot(rasch_df, ax31, ["4A", "4B", "4C"], "Exam 4 (3PL)", fit_type, "3")
+
+    fig.tight_layout()
+
+    try:
+        plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
+    except FileNotFoundError:
+        if not filename.startswith("."):
+            filename = "." + filename
+        plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
+    
     plt.close(fig)

@@ -11,6 +11,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# 2. Set Font
+plt.rcParams['font.family'] = 'sans-serif'
+
 def generate_integrated_methodology_heatmaps():
     pickle_filename = "./results/item_summary.pkl"
     try:
@@ -181,6 +185,7 @@ def generate_integrated_methodology_heatmaps():
 
         fig.tight_layout()
         plt.savefig(f"figures/{exam_id}_heatmap.png")
+        plt.savefig(f"figures/{exam_id}_heatmap.svg")
 
 
 if __name__ == "__main__":

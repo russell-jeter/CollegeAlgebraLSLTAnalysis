@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 # Color palette for plots
 CUSTOM_PALETTE = ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
 plt.rcParams["axes.prop_cycle"] = plt.cycler("color", CUSTOM_PALETTE)
+plt.rcParams['font.family'] = 'sans-serif'
 
 
 def get_distractor_counts_frame_wrapper():
@@ -250,10 +251,12 @@ def save_item_difficulty_distributions(item_difficulty_frame=None, filename=None
     fig.tight_layout()
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 
@@ -303,7 +306,7 @@ def add_pbc_subplot_with_dynamic_threshold(
             bar_bottoms[i] += exam_bar_data[i]
 
         for j in range(len(exam_bar_data)):
-            y_position = bar_bottoms[j] - exam_bar_data[j] / 2
+            y_position = bar_bottoms[j] - exam_bar_data[j]
             if exam_bar_data[j] >= 25:
                 # Cycle text color if needed
                 # bar_count increments per key (exam)
@@ -352,10 +355,12 @@ def save_pbc_distribution_plots_with_thresholds(
 
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 
@@ -397,10 +402,12 @@ def save_pbc_distribution_plots(point_biserial_correlation_frame=None, filename=
     fig.tight_layout()
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 
@@ -451,10 +458,9 @@ def add_difficulty_category_subplot(item_difficulty_frame, axis, exam_keys, titl
     # Using palette colors or custom. Let's use custom for clarity or map to existing palette.
     # Palette: ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
     # Let's use: Ideal=#2f0f3e (Dark Purple - "Good"), Acceptable=#f29566 (Orange), Poor=#cf4456 (Red)
-    # Or maybe: Ideal=#831c64 (Purple), Acceptable=#f29566 (Orange), Poor=#cf4456 (Red)
     colors = ["#831c64", "#f29566", "#cf4456"] 
     
-    text_color = ["white", "black", "black"]
+    text_color = ["black", "black", "white"]
     bar_bottoms = [0, 0, 0] # For 3 categories
     bar_count = 0
 
@@ -499,9 +505,11 @@ def add_difficulty_category_subplot(item_difficulty_frame, axis, exam_keys, titl
         
         # Add labels logic similar to previous
         for j in range(len(exam_bar_data)):
-            y_position = bar_bottoms[j] - exam_bar_data[j] / 2
+            y_position = bar_bottoms[j] - exam_bar_data[j]
             if exam_bar_data[j] >= 25: # Threshold for text visibility
-                 axis.text(labels[j], y_position, f"{exam_bar_data[j]:.1f}%", ha="center", va="center", color="white", fontsize=8)
+                 color = text_color[bar_count % len(text_color)]
+                 axis.text(labels[j], y_position, f"{exam_bar_data[j]:.1f}", ha="center", va="bottom", color=color, fontsize=10)
+        bar_count += 1
     
     axis.legend(prop={"size": 10})
     axis.set_xlabel("Item Difficulty Category")
@@ -533,10 +541,12 @@ def save_item_difficulty_category_distributions(item_difficulty_frame=None, file
     fig.tight_layout()
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 

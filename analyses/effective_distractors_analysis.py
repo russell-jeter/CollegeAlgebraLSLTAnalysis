@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 # Color palette for plots
 CUSTOM_PALETTE = ["#cf4456", "#f29566", "#831c64", "#2f0f3e", "#feedb0"]
 plt.rcParams["axes.prop_cycle"] = plt.cycler("color", CUSTOM_PALETTE)
+plt.rcParams['font.family'] = 'sans-serif'
 
 
 def get_distractor_counts_frame(dict_of_dfs=None):
@@ -187,7 +188,7 @@ def add_distractors_chosen_subplot(
 
         # Add text labels
         for j in range(len(exam_bar_data)):
-            y_position = bar_bottoms[j] - exam_bar_data[j] / 2
+            y_position = bar_bottoms[j] - exam_bar_data[j]
             if exam_bar_data[j] >= 25:
                 # Cycle colors based on bar_count if needed, here mimicking logic
                 color = text_color[bar_count % len(text_color)]
@@ -234,10 +235,12 @@ def save_distractors_chosen_plots(exam_distractors_chosen_frame=None, filename=N
 
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 
@@ -388,7 +391,7 @@ def add_effective_distractors_subplot(distractor_counts_dict, axis, exam_keys, t
             bar_bottoms[i] += exam_effective_distractor_percents[i]
 
         for j in range(len(exam_effective_distractor_percents)):
-            y_position = bar_bottoms[j] - exam_effective_distractor_percents[j] / 2
+            y_position = bar_bottoms[j] - exam_effective_distractor_percents[j]
             if exam_effective_distractor_percents[j] >= 20:
                 color = text_color[bar_count % len(text_color)]
                 axis.text(
@@ -433,10 +436,12 @@ def save_effective_distractors_plots(distractor_counts_dict=None, filename=None)
 
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 
@@ -535,16 +540,16 @@ def add_effective_distractor_category_subplot(
             bar_bottoms[i] += exam_bar_data[i]
 
         for j in range(len(exam_bar_data)):
-            y_position = bar_bottoms[j] - exam_bar_data[j] / 2
+            y_position = bar_bottoms[j] - exam_bar_data[j]
             if exam_bar_data[j] >= 20: # Threshold for text
                 color = text_color[bar_count % len(text_color)]
                 axis.text(
                     labels[j],
                     y_position,
-                    f"{exam_bar_data[j]:.1f}%",
+                    f"{exam_bar_data[j]:.1f}",
                     color=color,
                     ha="center",
-                    va="center",
+                    va="bottom",
                     fontsize=10,
                 )
         bar_count += 1
@@ -583,10 +588,12 @@ def save_effective_distractor_category_plots(
 
     try:
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
     except FileNotFoundError:
         if not filename.startswith("."):
             filename = "." + filename
         plt.savefig(filename)
+        plt.savefig(filename.replace(".png", ".svg"))
 
     plt.close(fig)
 
