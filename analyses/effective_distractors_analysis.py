@@ -564,7 +564,7 @@ def save_effective_distractor_category_plots(
     if filename is None:
         filename = "./figures/effective_distractors_category_distributions.png"
 
-    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 6))
 
     add_effective_distractor_category_subplot(
         category_counts, ax0, ["1A", "1B"], "Exam 1"

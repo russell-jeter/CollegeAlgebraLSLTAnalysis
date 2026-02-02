@@ -775,7 +775,7 @@ def save_rasch_distributions_both_PL(variable_type, rasch_df = None, filename = 
 
     bins = [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
 
-    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(7, 9), sharey=True)
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21), (ax30, ax31)) = plt.subplots(nrows=4, ncols=2, figsize=(10, 6), sharey=True)
 
     add_rasch_subplot(rasch_df, ax00, bins, ["1A", "1B"], "Exam 1", '1', variable_type)
     add_rasch_subplot(rasch_df, ax10, bins, ["2A", "2B", "2C"], "Exam 2", '1', variable_type)

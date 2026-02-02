@@ -515,7 +515,7 @@ def save_item_difficulty_category_distributions(item_difficulty_frame=None, file
     if filename is None:
         filename = "./figures/item_difficulty_category_distributions.png"
 
-    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+    fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 6))
 
     add_difficulty_category_subplot(
         item_difficulty_frame, ax0, ["1A", "1B"], "Exam 1"
