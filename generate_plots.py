@@ -40,7 +40,7 @@ if __name__ == "__main__":
     distractor_counts_dict = effective_distractors_analysis.get_effective_distractors_by_form()
     effective_distractors_analysis.save_effective_distractors_plots(distractor_counts_dict, filename=None)
 
-    effective_distractors_analysis.save_effective_distractor_category_plots(distractor_counts_dict, filename=None)
+    effective_distractors_analysis.save_effective_distractor_category_plots(filename=None)
 
     print("Generating integrated methodology heatmaps.")
     integrated_methodology.generate_integrated_methodology_heatmaps()
