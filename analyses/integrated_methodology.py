@@ -71,10 +71,11 @@ def generate_integrated_methodology_heatmaps():
     item_summary_frame["is_good_item_difficulty"] = (
         item_summary_frame["diff_deviation"] <= item_summary_frame["std_dev"]
     ).astype(int)
+
     good_pbc_indices = item_summary_frame.query("pbc >= good_threshold").index
     item_summary_frame.loc[good_pbc_indices, "is_good_pbc"] = 1
     good_effective_distractors_indices = item_summary_frame.query(
-        "effective_distractors >= 2"
+        "effective_distractors == total_distractors"
     ).index
     item_summary_frame.loc[
         good_effective_distractors_indices, "is_good_effective_distractors"
@@ -99,7 +100,7 @@ def generate_integrated_methodology_heatmaps():
     acceptable_pbc_indices = item_summary_frame.query("pbc >= poor_threshold").index
     item_summary_frame.loc[acceptable_pbc_indices, "is_acceptable_pbc"] = 1
     acceptable_effective_distractors_indices = item_summary_frame.query(
-        "effective_distractors >= 1"
+        "effective_distractors > 0"
     ).index
     item_summary_frame.loc[
         acceptable_effective_distractors_indices, "is_acceptable_effective_distractors"

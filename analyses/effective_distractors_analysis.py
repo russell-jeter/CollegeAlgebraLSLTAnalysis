@@ -356,8 +356,19 @@ def get_effective_distractors_per_question(distractor_counts_frame=None):
     effective_distractors_frame = pd.merge(
         full_df, counts, on="question_id", how="left"
     ).fillna(0)
+    
+    # Calculate total distractors per question
+    total_distractors = distractor_counts_frame[distractor_counts_frame["is_distractor"] > 0].groupby("question_id").size().reset_index(name="total_distractors")
+    
+    effective_distractors_frame = pd.merge(
+        effective_distractors_frame, total_distractors, on="question_id", how="left"
+    ).fillna(0)
+
     effective_distractors_frame["effective_distractors"] = effective_distractors_frame[
         "effective_distractors"
+    ].astype(int)
+    effective_distractors_frame["total_distractors"] = effective_distractors_frame[
+        "total_distractors"
     ].astype(int)
 
     return effective_distractors_frame
