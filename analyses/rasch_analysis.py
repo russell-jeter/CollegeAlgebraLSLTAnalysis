@@ -686,20 +686,20 @@ def add_rasch_subplot(rasch_df, axis, bins, exam_keys, title, PL, variable_type)
             data_list.append([])
 
     axis.hist(data_list, bins, histtype="bar", stacked=True, label=exam_keys)
-    axis.legend(prop={"size": 14})
+    axis.legend(prop={"size": 13})
 
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.1f}")
     axis.xaxis.set_major_formatter(fmt)
     fmt = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
     axis.yaxis.set_major_formatter(fmt)
     if variable_type == 'items':
-        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\beta$", fontsize=14)
-        axis.set_ylabel("Number of Questions", fontsize=14)
+        axis.set_xlabel(f"Estimated Item Difficulty for {PL}PL Model, " + r"$\beta$", fontsize=13)
+        axis.set_ylabel("Number of Questions", fontsize=13)
     elif variable_type == 'students':
-        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\theta$", fontsize=14)
-        axis.set_ylabel("Number of Students", fontsize=14)
-    axis.set_title(title, fontsize=16)
-    axis.tick_params(labelsize=14)
+        axis.set_xlabel(f"Estimated Student Ability for {PL}PL Model, " + r"$\theta$", fontsize=13)
+        axis.set_ylabel("Number of Students", fontsize=13)
+    axis.set_title(title, fontsize=15)
+    axis.tick_params(labelsize=13)
 
 def save_rasch_distributions_by_PL(PL, variable_type, rasch_df = None, filename = None):
     if type(rasch_df) == type(None):
@@ -839,14 +839,14 @@ def add_fit_subplot(df, exam_keys, fit_type, PL, axis, title):
         for j in range(len(exam_bar_data)):
             y_position = (bar_bottoms[j] - exam_bar_data[j])
             if exam_bar_data[j] >= 40:
-                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 14)
+                axis.text(labels[j], y_position, f"{exam_bar_data[j]:.2f}", color = text_color[bar_count], ha='center', va='bottom', fontsize = 13)
         bar_count += 1
     
-    axis.legend(prop={'size': 14})
-    axis.set_xlabel(f"{fit_type.capitalize()} Categories", fontsize=14)
-    axis.set_ylabel("Percent of fit", fontsize=14)
-    axis.set_title(title, fontsize=16)
-    axis.tick_params(labelsize=14)
+    axis.legend(prop={'size': 13})
+    axis.set_xlabel(f"{fit_type.capitalize()} Categories", fontsize=13)
+    axis.set_ylabel("Percent of fit", fontsize=13)
+    axis.set_title(title, fontsize=15)
+    axis.tick_params(labelsize=13)
     custom_palette = ['#cf4456', '#f29566', '#831c64']
     plt.rcParams['axes.prop_cycle'] = plt.cycler('color', custom_palette)
 
@@ -904,12 +904,12 @@ def add_fit_histogram_subplot(rasch_df, axis, exam_keys, title, fit_type, PL):
     # Or just standard numpy auto binning? No, stacked needs explicit bins usually.
     
     axis.hist(data_list, bins, histtype="bar", stacked=True, label=exam_keys)
-    axis.legend(prop={"size": 14})
+    axis.legend(prop={"size": 13})
     
-    axis.set_xlabel(f"{fit_type.capitalize()} (MNSQ)", fontsize=14)
-    axis.set_ylabel("Number of Items", fontsize=14)
-    axis.set_title(title, fontsize=16)
-    axis.tick_params(labelsize=14)
+    axis.set_xlabel(f"{fit_type.capitalize()} (MNSQ)", fontsize=13)
+    axis.set_ylabel("Number of Items", fontsize=13)
+    axis.set_title(title, fontsize=15)
+    axis.tick_params(labelsize=13)
 
 
 def save_fit_distributions_both_PL(fit_type, rasch_df=None, filename=None):
