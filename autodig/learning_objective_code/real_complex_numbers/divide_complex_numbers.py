@@ -120,26 +120,32 @@ def generateProblemCoefficientsAndSolution():
     return [coefficients, solution_dict]
 
 def divide_complex_numbers_function(response_type):
-    coefficients, solution_dict = generateProblemCoefficientsAndSolution()
-    distractor_dicts = generate_distractors_and_feedback(coefficients)
-    # In the future, I need to do something to check if the distractors are far enough apart.
+    run_without_error = 0
+    while run_without_error == 0:
+        try:
+            coefficients, solution_dict = generateProblemCoefficientsAndSolution()
+            distractor_dicts = generate_distractors_and_feedback(coefficients)
+            # In the future, I need to do something to check if the distractors are far enough apart.
 
-    ### CREATE INTERVAL OPTIONS ###
-    option_value_list = [solution_dict['values_for_interval_generation']]
-    for temp_dict in distractor_dicts:
-        option_value_list.append(temp_dict['values_for_interval_generation'])
+            ### CREATE INTERVAL OPTIONS ###
+            option_value_list = [solution_dict['values_for_interval_generation']]
+            for temp_dict in distractor_dicts:
+                option_value_list.append(temp_dict['values_for_interval_generation'])
 
-    interval_options = interval_masking_method.createIntervalOptions(option_value_list, 1, 0.5)
-    # interval_options returns 5 groups of 2 pairs of interval endings
+            interval_options = interval_masking_method.createIntervalOptions(option_value_list, 1, 0.5)
+            # interval_options returns 5 groups of 2 pairs of interval endings
+            run_without_error = 1
+        except:
+            pass
 
     list_of_dicts = [solution_dict] + distractor_dicts
     index_counter = 0
     for dict in list_of_dicts:
         temp_choice_interval_pairs = interval_options[index_counter]
         temp_interval_1 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
-        temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
+        temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
         dict[f'choice_presentation'] = "a \\in %s \\text{ and } b \\in %s", (temp_interval_1, temp_interval_2)
-        index_counter+=1
+        index_counter += 1
 
     presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']
     random.shuffle(presentation_order)

@@ -1,24 +1,8 @@
-import sys
 import random
 from math import gcd
+import pandas as pd
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
 
 ### DEFINITIONS ###
 def generateRationalFromSubgroupReal():
@@ -27,6 +11,7 @@ def generateRationalFromSubgroupReal():
     while (gcd(numerator, denominator) > 1): # Checks to make sure we get a non-Whole, Rational number
         denominator = random.randint(5, 25)
     return [numerator**2, denominator**2]
+
 def generateIrrationalFromSubgroupReal():
     discriminantbase = random.randint(9, 18)
     irrationalmaker = random.choice([5, 7, 11, 13]) #The number we will use to make sure we get an irrational number
@@ -36,20 +21,24 @@ def generateIrrationalFromSubgroupReal():
     numerator = discriminantbase * irrationalmaker * maskirrational
     denominator = maskirrational
     return [numerator, denominator]
+
 def generateNonRealFromSubgroupReal():
     numerator = random.randint(5, 25)
     denominator = 0
     return [numerator, denominator]
+
 def generateComplexFromSubgroupReal():
     discrim = random.randint(9, 18)
     irrationalmaker = random.choice([5, 7, 11, 13]) #The number we will use to make sure we get an irrational number
     maskirrational = random.randint(5, 15)
-    while math.gcd(discrim, irrationalmaker) > 1:
+    while gcd(discrim, irrationalmaker) > 1:
         irrationalmaker = random.randint(9, 18)
     numerator = - discrim * irrationalmaker * maskirrational
     denominator = maskirrational
     return [numerator, denominator]
-def generateRationalNumber():
+
+# Generate different display_problem types
+def generateRationalNumber(): # Question Type 1 generates Rational number with possible i^2 term
     numerator = random.randint(2, 20)*(-1)**random.randint(0, 1)
     denominator = random.randint(2, 20)*(-1)**random.randint(0, 1)
     b = random.randint(2, 10)**2
@@ -66,7 +55,8 @@ def generateRationalNumber():
         else:
             displayProblem =  '\\sqrt{\\frac{%d}{%d}} + %di^2' %(numerator, denominator, b)
     return displayProblem
-def generateIrrationalNumber(): #Question Type 1 generates Irrational numbers of the form a + 0i
+
+def generateIrrationalNumber(): #Question Type 2 generates Irrational numbers of the form a + 0i
     discriminantbase = random.randint(9, 18) # Base of the number under the square root
     irrationalmaker = random.choice([5, 7, 11, 13]) #The number we will use to make sure we get an irrational number
     while gcd(discriminantbase, irrationalmaker) > 1: # Makes sure the product is not a perfect square
@@ -87,7 +77,8 @@ def generateIrrationalNumber(): #Question Type 1 generates Irrational numbers of
         else:
             displayProblem =  '\\sqrt{\\frac{%d}{%d}}+%di^2' %(numerator, denominator, b)
     return displayProblem
-def generateNonRealComplexNumber(): #Question Type 2 generates Nonreal Complex numbers of the form a + bi
+
+def generateNonRealComplexNumber(): #Question Type 3 generates Nonreal Complex numbers of the form a + bi
     numerator = random.randint(5, 25)*(-1)**random.randint(0, 1)
     denominator = random.randint(5, 25)
     while gcd(numerator, denominator) == denominator:
@@ -114,7 +105,8 @@ def generateNonRealComplexNumber(): #Question Type 2 generates Nonreal Complex n
         numerator, denominator = generateComplexFromSubgroupReal()
         displayProblem = '\\sqrt{\\frac{%d}{%d}} i+\\sqrt{%d}i' %(numerator, denominator, inside)
     return displayProblem
-def generatePureImaginaryNumber(): #Question Type 3 generates Pure Imaginary numbers of the form 0 + bi
+
+def generatePureImaginaryNumber(): #Question Type 4 generates Pure Imaginary numbers of the form 0 + bi
     denominator = random.randint(2, 20)*(-1)**random.randint(0, 1)
     b = int(random.randint(2, 10))
     randomChoice=random.randint(0, 3)
@@ -130,7 +122,8 @@ def generatePureImaginaryNumber(): #Question Type 3 generates Pure Imaginary num
         numerator, denominator = generateComplexFromSubgroupReal()
         displayProblem = '\\sqrt{\\frac{%d}{%d}}+\\sqrt{0}i' %(numerator, denominator)
     return displayProblem
-def generateNonNumber(): #Question Type 4 generates Non-Complex numbers (dividing by 0)
+
+def generateNonNumber(): #Question Type 5 generates Non-Complex numbers (dividing by 0)
     numerator = random.randint(5, 25)*(-1)**random.randint(0, 1)
     denominator = random.randint(5, 25)
     while gcd(numerator, denominator) == denominator:
@@ -160,64 +153,172 @@ def generateNonNumber(): #Question Type 4 generates Non-Complex numbers (dividin
         numerator, denominator = generateComplexFromSubgroupReal()
         displayProblem = '\\sqrt{\\frac{%d}{0}} i+\\sqrt{%d}i' %(numerator, inside)
     return displayProblem
-### VARIABLE DECLARATIONS ###
-types = ["Rational", "Irrational", "NonrealComplex", "PureImaginary", "NotComplex"]
-questionType = random.choice(types)
 
-### DEFINE ANSWERLIST AND DISPLAYSOLUTION ###
-option0 = ['\\text{Rational}', "These are numbers that can be written as fraction of Integers (e.g., -2/3 + 5)", 0]
-option1 = ['\\text{Irrational}', "These cannot be written as a fraction of Integers. Remember: $\\pi$ is not an Integer!", 0]
-option2 = ['\\text{Nonreal Complex}', "This is a Complex number $(a+bi)$ that is not Real (has $i$ as part of the number).", 0]
-option3 = ['\\text{Pure Imaginary}', "This is a Complex number $(a+bi)$ that \\textbf{only} has an imaginary part like $2i$.", 0]
-option4 = ['\\text{Not a Complex Number}', "This is not a number. The only non-Complex number we know is dividing by 0 as this is not a number!", 0]
 
-if questionType == "Rational":
-    displayProblem = generateRationalNumber()
-    displaySolution = option0[0]
-    option0[1]="* This is the correct option!"
-    option0[2]=1
-elif questionType == "Irrational":
-    displayProblem = generateIrrationalNumber()
-    displaySolution = option1[0]
-    option1[1]="* This is the correct option!"
-    option1[2]=1
-elif questionType == "NonrealComplex":
-    displayProblem = generateNonRealComplexNumber()
-    displaySolution = option2[0]
-    option2[1]="* This is the correct option!"
-    option2[2]=1
-elif questionType == "PureImaginary":
-    displayProblem = generatePureImaginaryNumber()
-    displaySolution = option3[0]
-    option3[1]="* This is the correct option!"
-    option3[2]=1
-else:
-    displayProblem = generateNonNumber()
-    displaySolution = option4[0]
-    option4[1]="* This is the correct option!"
-    option4[2]=1
+def subgroup_complex_numbers_function(response_type):
+    option_0_feedback = " These are numbers that can be written as fraction of Integers (e.g., -2/3 + 5)"
+    option_0_dict = commonly_used_functions.value_and_feedback_to_dict(
+        'subgroup_complex_numbers',
+        'option_0', # to be replaced later
+        'distractor_0 description', # to be replaced later
+        'Rational', 
+        'Rational',
+        option_0_feedback, 
+        0 # may be assigned as answer later
+    )
 
-answerList = [option0, option1, option2, option3, option4]
-random.shuffle(answerList)
+    option_1_feedback = " These cannot be written as a fraction of Integers. Remember: $\\pi$ is not an Integer!"
+    option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        'subgroup_complex_numbers',
+        'option_1', # to be replaced later
+        'distractor_1 description', # to be replaced later
+        'Irrational', 
+        'Irrational',
+        option_1_feedback, 
+        0 # may be assigned as answer later
+    )
 
-### DEFINE STEM, PROBLEM, GENERAL COMMENT ###
-if response_type=="Multiple-Choice":
-    displayStem = 'Choose the \\textbf{smallest} set of Complex numbers that the number below belongs to.'
-else:
-    displayStem = 'What is the \\textbf{smallest} set of Complex numbers that the number below belongs to?'
-# displayProblem was defined previously
-generalComment = "Be sure to simplify $i^2 = -1$. This may remove the imaginary portion for your number. If you are having trouble, you may want to look at the \\textit{Subgroups of the Real Numbers} section."
+    option_2_feedback = " This is a Complex number $(a+bi)$ that is not Real (has $i$ as part of the number)."
+    option_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        'subgroup_complex_numbers',
+        'option_2', # to be replaced later
+        'distractor_2 description', # to be replaced later
+        'Nonreal Complex', 
+        'Nonreal Complex',
+        option_2_feedback, 
+        0 # may be assigned as answer later
+    )
 
-### DEFINE CHOICES, CHOICE COMMENTS, AND ANSWER LETTER ###
-choices = [answerList[0][0], answerList[1][0], answerList[2][0], answerList[3][0], answerList[4][0]]
-choiceComments = [answerList[0][1], answerList[1][1], answerList[2][1], answerList[3][1], answerList[4][1]]
-answerLetterIndicators = [answerList[0][2], answerList[1][2], answerList[2][2], answerList[3][2], answerList[4][2]]
-answerLetter = identifyAnswerLetter(answerLetterIndicators)
+    option_3_feedback = " This is a Complex number $(a+bi)$ that \\textbf{only} has an imaginary part like $2i$."
+    option_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        'subgroup_complex_numbers',
+        'option_3', # to be replaced later
+        'distractor_3 description', # to be replaced later
+        'Pure Imaginary', 
+        'Pure Imaginary',
+        option_3_feedback, 
+        0 # may be assigned as answer later
+    )
 
-displayStemType="String"
-displayProblemType="Math Mode"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+    option_4_feedback = " This is not a number. The only non-Complex number we know is dividing by 0 as this is not a number!"
+    option_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        'subgroup_complex_numbers',
+        'option_4', # to be replaced later
+        'distractor_4 description', # to be replaced later
+        'Not a Complex Number', 
+        'Not a Complex Number',
+        option_4_feedback, 
+        0 # may be assigned as answer later
+    )
+
+    types = ["Rational", "Irrational", "NonrealComplex", "PureImaginary", "NotComplex"]
+    questionType = random.choice(types)
+
+    if questionType == "Rational":
+        display_problem = generateRationalNumber()
+        solution_dict = option_0_dict
+
+        option_0_dict['name'] = 'solution'
+        option_0_dict['short_description'] = 'Expected solution'
+        option_0_dict['feedback'] = "* This is the correct option!"
+        option_0_dict['solution'] = 1
+
+        option_1_dict['short_description'] = 'Chose irrational when rational, maybe due to seeing square root of a number?'
+        option_2_dict['short_description'] = 'Chose Nonreal Complex when rational, likely due to seeing i'
+        option_3_dict['short_description'] = 'Chose Pure Imaginary when rational, likely due to seeing i'
+        option_4_dict['short_description'] = 'Chose Not a Complex when rational, maybe due to seeing i or square root of a number?'
+
+    elif questionType == "Irrational":
+        display_problem = generateIrrationalNumber()
+        solution_dict = option_1_dict
+
+        option_1_dict['name'] = 'solution'
+        option_1_dict['short_description'] = 'Expected solution'
+        option_1_dict['feedback'] = "* This is the correct option!"
+        option_1_dict['solution'] = 1
+
+        option_0_dict['short_description'] = 'Chose rational when irrational, maybe due to seeing a rational solution and assuming structure to answer?'
+        option_2_dict['short_description'] = 'Chose Nonreal Complex when irrational, likely due to seeing i'
+        option_3_dict['short_description'] = 'Chose Pure Imaginary when irrational, likely due to seeing i'
+        option_4_dict['short_description'] = 'Chose Not a Complex when irrational, maybe due to seeing i or square root of a number?'
+
+    elif questionType == "NonrealComplex":
+        display_problem = generateNonRealComplexNumber()
+        solution_dict = option_2_dict
+
+        option_2_dict['name'] = 'solution'
+        option_2_dict['short_description'] = 'Expected solution'
+        option_2_dict['feedback'] = "* This is the correct option!"
+        option_2_dict['solution'] = 1
+
+        option_0_dict['short_description'] = 'Chose Rational when Nonreal Complex, unclear why'
+        option_1_dict['short_description'] = 'Chose Irrational when Nonreal Complex, likely due conceptualizing irrational as not rational'
+        option_3_dict['short_description'] = 'Chose Pure Imaginary when Nonreal Complex, likely due to seeing i'
+        option_4_dict['short_description'] = 'Chose Not a Complex when Nonreal Complex, unclear why'
+
+    elif questionType == "PureImaginary":
+        display_problem = generatePureImaginaryNumber()
+        solution_dict = option_3_dict
+
+        option_3_dict['name'] = 'solution'
+        option_3_dict['short_description'] = 'Expected solution'
+        option_3_dict['feedback'] = "* This is the correct option!"
+        option_3_dict['solution'] = 1
+
+        option_0_dict['short_description'] = 'Chose Rational when Pure Imaginary, unclear why'
+        option_1_dict['short_description'] = 'Chose Irrational when Pure Imaginary, unclear why'
+        option_2_dict['short_description'] = 'Chose Nonreal Complex when Pure Imaginary, unclear why'
+        option_4_dict['short_description'] = 'Chose Not a Complex when Pure Imaginary, unclear why'
+
+    else:
+        display_problem = generateNonNumber()
+        solution_dict = option_4_dict
+
+        option_4_dict['name'] = 'solution'
+        option_4_dict['short_description'] = 'Expected solution'
+        option_4_dict['feedback'] = "* This is the correct option!"
+        option_4_dict['solution'] = 1
+
+        option_0_dict['short_description'] = 'Chose Rational when Not a Complex, unclear why'
+        option_1_dict['short_description'] = 'Chose Irrational when Not a Complex, unclear why'
+        option_2_dict['short_description'] = 'Chose Nonreal Complex Not a Complex, unclear why'
+        option_3_dict['short_description'] = 'Chose Pure Imaginary when Not a Complex, unclear why'
+
+    solution_dicts_list = [option_0_dict, option_1_dict, option_2_dict, option_3_dict, option_4_dict]
+    presentation_order = []
+    for temp_dict in solution_dicts_list:
+        presentation_order.append(temp_dict['name'])
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(solution_dicts_list)
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)   
+
+    ### DEFINE STEM, PROBLEM, GENERAL COMMENT ###
+    if response_type=="Multiple-Choice":
+        display_stem = 'Choose the \\textbf{smallest} set of Complex numbers that the number below belongs to.'
+    else:
+        display_stem = 'What is the \\textbf{smallest} set of Complex numbers that the number below belongs to?'
+    # displayProblem was already defined
+    general_comment =  "Be sure to simplify $i^2 = -1$. This may remove the imaginary portion for your number. If you are having trouble, you may want to look at the \\textit{Subgroups of the Real Numbers} section."
+
+    display_stem_type="String"
+    display_problem_type="Math Mode"
+    display_options_type="String"
+
+    question_dict = {
+        'code_name': 'subgroup_complex_numbers',
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+
+    return [question_dict, options_df] 

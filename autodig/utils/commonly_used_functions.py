@@ -27,7 +27,7 @@ def value_and_feedback_to_dict(code_name, name, short_description, values_for_in
     temp_dict = {
         'code_name': code_name,
         'name': name,
-        'short description': short_description,
+        'short_description': short_description,
         'values_for_interval_generation': values_for_intervals,
         'value': value, 
         'feedback': feedback,

@@ -33,7 +33,7 @@ def simplifyFraction(numerator, denominator):
         raise TypeError("One of the numbers you passed is not an integer.")
     if(denominator == 0):
         raise ValueError("Divide by zero error when dividing %d/%d" %(numerator, denominator))
-    gcd = greatestCommonDenominator(numerator, denominator)
+    gcd = math.gcd(numerator, denominator)
     return [numerator/gcd, denominator/gcd]
 def createInterval(solution, intervalRange, precision = None):
     if(precision == None):
