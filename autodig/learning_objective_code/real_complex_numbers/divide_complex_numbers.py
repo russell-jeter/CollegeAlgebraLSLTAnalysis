@@ -144,7 +144,8 @@ def divide_complex_numbers_function(response_type):
         temp_choice_interval_pairs = interval_options[index_counter]
         temp_interval_1 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
         temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
-        dict[f'choice_presentation'] = "a \\in %s \\text{ and } b \\in %s", (temp_interval_1, temp_interval_2)
+        dict[f'choice_presentation'] = "a \\in %s \\text{ and } b \\in %s" %(temp_interval_1, temp_interval_2)
+        print(dict[f'choice_presentation'])
         index_counter += 1
 
     presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']

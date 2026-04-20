@@ -94,6 +94,7 @@ def subgroup_real_numbers_function(response_type):
         option_0_feedback,
         0 # may be assigned as answer later
     )
+    option_0_dict['choice_presentation'] = 'Whole'
 
     option_1_feedback = " These are the negative and positive counting numbers (..., -3, -2, -1, 0, 1, 2, 3, ...)"
     option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -105,6 +106,7 @@ def subgroup_real_numbers_function(response_type):
         option_1_feedback, 
         0 # may be assigned as answer later
     )
+    option_1_dict['choice_presentation'] = 'Integer'
 
     option_2_feedback = " These are numbers that can be written as fraction of Integers (e.g., -2/3)"
     option_2_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -116,6 +118,7 @@ def subgroup_real_numbers_function(response_type):
         option_2_feedback, 
         0 # may be assigned as answer later
     )
+    option_2_dict['choice_presentation'] = 'Rational'
 
     option_3_feedback = " These cannot be written as a fraction of Integers."
     option_3_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -127,6 +130,7 @@ def subgroup_real_numbers_function(response_type):
         option_3_feedback, 
         0 # may be assigned as answer later
     )
+    option_3_dict['choice_presentation'] = 'Irrational'
 
     option_4_feedback = "These are Nonreal Complex numbers \\textbf{OR} things that are not numbers (e.g., dividing by 0)."
     option_4_dict = commonly_used_functions.value_and_feedback_to_dict(    
@@ -138,6 +142,7 @@ def subgroup_real_numbers_function(response_type):
         option_4_feedback, 
         0 # may be assigned as answer later
     )
+    option_4_dict['choice_presentation'] = 'Not a Real Number'
 
     ### VARIABLE DECLARATIONS ###
     types = ["Whole", "Integer", "Rational", "Irrational", "Nonreal"]

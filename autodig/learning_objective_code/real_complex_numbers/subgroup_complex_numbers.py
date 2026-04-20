@@ -166,6 +166,7 @@ def subgroup_complex_numbers_function(response_type):
         option_0_feedback, 
         0 # may be assigned as answer later
     )
+    option_0_dict['choice_presentation'] = 'Rational'
 
     option_1_feedback = " These cannot be written as a fraction of Integers. Remember: $\\pi$ is not an Integer!"
     option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -177,6 +178,7 @@ def subgroup_complex_numbers_function(response_type):
         option_1_feedback, 
         0 # may be assigned as answer later
     )
+    option_1_dict['choice_presentation'] = 'Irrational'
 
     option_2_feedback = " This is a Complex number $(a+bi)$ that is not Real (has $i$ as part of the number)."
     option_2_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -188,6 +190,7 @@ def subgroup_complex_numbers_function(response_type):
         option_2_feedback, 
         0 # may be assigned as answer later
     )
+    option_2_dict['choice_presentation'] = 'Nonreal Compelx'
 
     option_3_feedback = " This is a Complex number $(a+bi)$ that \\textbf{only} has an imaginary part like $2i$."
     option_3_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -199,6 +202,7 @@ def subgroup_complex_numbers_function(response_type):
         option_3_feedback, 
         0 # may be assigned as answer later
     )
+    option_3_dict['choice_presentation'] = 'Pure Imaginary'
 
     option_4_feedback = " This is not a number. The only non-Complex number we know is dividing by 0 as this is not a number!"
     option_4_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -210,6 +214,7 @@ def subgroup_complex_numbers_function(response_type):
         option_4_feedback, 
         0 # may be assigned as answer later
     )
+    option_4_dict['choice_presentation'] = 'Not a Complex Number'
 
     types = ["Rational", "Irrational", "NonrealComplex", "PureImaginary", "NotComplex"]
     questionType = random.choice(types)

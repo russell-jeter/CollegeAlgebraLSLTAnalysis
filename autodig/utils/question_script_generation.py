@@ -1,11 +1,13 @@
+import os
+
 # Build script to run questions
 def line_break_for_script(file_name):
     with open(f'{file_name}.py', 'a') as script:
         script.write('\n')
         script.close()
 
-def open_and_write(file_name, list_of_lines_to_add):
-    with open(f'{file_name}.py', 'a') as script:
+def open_and_write(file_name, list_of_lines_to_add, write_or_append='a'):
+    with open(f'{file_name}.py', write_or_append) as script:
         for line_to_add in list_of_lines_to_add:
             script.write(f"{line_to_add}\n")
         script.close()
@@ -15,7 +17,7 @@ def add_initial_import_statements(file_name):
         'import pandas as pd',
         'import os'
     ]
-    open_and_write(file_name, lines_to_add)
+    open_and_write(file_name, lines_to_add, write_or_append='w')
 
 def add_code_import_statement(row, file_name):
     import_statement = f'from learning_objective_code.{row["folder_name"]} import {row["code_name"]}'
@@ -31,7 +33,7 @@ def add_dict_and_df_for_question(row, file_name):
 def add_load_questions_df(file_name):
     lines_to_add = [
         "base_dir = os.getcwd()",
-        "save_questions_df_file_path = os.path.join(base_dir, 'temp_files', 'questions_to_create_df.xlsx')",
+        "save_questions_df_file_path = os.path.join(base_dir, 'temp_files', 'build_exams', 'questions_to_create_df.xlsx')",
         "questions_to_create_df = pd.read_excel(save_questions_df_file_path)"
     ]
     open_and_write(file_name, lines_to_add)
@@ -86,3 +88,19 @@ def generate_question_running_script(file_name, questions_to_create_df):
 
     # Combines into single workbook
     add_combine_dfs_as_sheets(file_name)
+
+def move_files(file_name):
+    temp_file_path_location = os.path.join(os.path.dirname(file_name), 'temp_files', 'build_exams')
+    try:
+        final_py_location = os.path.join(temp_file_path_location, f'{os.path.basename(file_name)}.py')
+        os.rename(f'{file_name}.py', final_py_location)
+    except: 
+        os.remove(final_py_location)
+        os.rename(f'{file_name}.py', final_py_location)
+    
+    try: 
+        final_xlsx_location = os.path.join(temp_file_path_location, f'{os.path.basename(file_name)}.xlsx')
+        os.rename(f'{file_name}.xlsx', final_xlsx_location)
+    except:
+        os.remove(final_xlsx_location)
+        os.rename(f'{file_name}.xlsx', final_xlsx_location)

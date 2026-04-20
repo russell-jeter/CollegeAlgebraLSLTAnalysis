@@ -1,10 +1,9 @@
 from pathlib import Path # To touch files within python
 import os
 
-# file_name should be student last name
-def createFeedbackFile(file_name, exam_name, footnote_left, footnote_right, version, DIR):
-    Path('/' + str(DIR) + '/Feedback/feedback' + str(file_name) + '.tex').touch()
-    feedbackFile = open('/' + str(DIR) + '/Feedback/feedback' + str(file_name) + '.tex', 'a')
+def create_feedback_file(file_name, exam_name, footnote_left, footnote_right, version, DIR):
+    feedback_path = os.path.join(DIR, 'temp_files', 'build_exams', 'feedback', f'feedback_{file_name}_{version}.tex')
+    feedbackFile = open(feedback_path, 'w') # Opening with write clears any previous version
     feedbackFile.write(r"""\documentclass{extbook}[14pt]
 \usepackage{multicol, enumerate, enumitem, hyperref, color, soul, setspace, parskip, fancyhdr, amssymb, amsthm, amsmath, latexsym, units, mathtools}
 \everymath{\displaystyle}
@@ -28,9 +27,9 @@ def createFeedbackFile(file_name, exam_name, footnote_left, footnote_right, vers
 \begin{enumerate}""" %(exam_name, version, footnote_left, footnote_right)   )
     feedbackFile.close()
 
-def createKeyFile(file_name, exam_name, footnote_left, footnote_right, version, DIR):
-    Path('/' + str(DIR) + '/Keys/key' + str(file_name) + str(version)+ '.tex').touch()
-    keyFile = open('/' + str(DIR) + '/Keys/key' + str(file_name) + str(version)+ '.tex', 'a')
+def create_key_file(file_name, exam_name, footnote_left, footnote_right, version, DIR):
+    key_path = os.path.join(DIR, 'temp_files', 'build_exams', 'key', f'key_{file_name}_{version}.tex')
+    keyFile = open(key_path, 'w')
     keyFile.write(r"""\documentclass{extbook}[14pt]
 \usepackage{multicol, enumerate, enumitem, hyperref, color, soul, setspace, parskip, fancyhdr, amssymb, amsthm, amsmath, latexsym, units, mathtools}
 \everymath{\displaystyle}
@@ -58,9 +57,9 @@ def createKeyFile(file_name, exam_name, footnote_left, footnote_right, version, 
 \begin{enumerate}""" %(exam_name, version, footnote_left, footnote_right)   )
     keyFile.close()
 
-def createExamFile(file_name, exam_name, footnote_left, footnote_right, version, DIR):
-    Path('/' + str(DIR) + '/BuildExams/' + str(file_name) + str(version)+ '.tex').touch()
-    examFile = open('/' + str(DIR) + '/BuildExams/' + str(file_name) + str(version)+ '.tex', 'a')
+def create_exam_file(file_name, exam_name, footnote_left, footnote_right, version, DIR):
+    exam_path = os.path.join(DIR, 'temp_files', 'build_exams', 'administer_version', f'exam_{file_name}_{version}.tex')
+    examFile = open(exam_path, 'w')
     examFile.write(r"""\documentclass[14pt]{extbook}
 \usepackage{multicol, enumerate, enumitem, hyperref, color, soul, setspace, parskip, fancyhdr} %%General Packages
 \usepackage{amssymb, amsthm, amsmath, latexsym, units, mathtools} %%Math Packages
@@ -82,21 +81,39 @@ def createExamFile(file_name, exam_name, footnote_left, footnote_right, version,
 \begin{enumerate}
 """ %(exam_name, version, footnote_left, footnote_right))
     examFile.close()
-def finishKeyFile(file_name, version, DIR):
-    keyFile = open('/' + str(DIR) + '/Keys/key' + str(file_name) + str(version)+ '.tex', 'a')
+
+def start_all_latex_files(file_name, exam_name, footnote_left, footnote_right, version, DIR):
+    # Individual student feedback is depreciated for now
+    # create_feedback_file(file_name, exam_name, footnote_left, footnote_right, version, DIR)
+    create_exam_file(file_name, exam_name, footnote_left, footnote_right, version, DIR)
+    create_key_file(file_name, exam_name, footnote_left, footnote_right, version, DIR)
+
+def finish_key_file(file_name, version, DIR):
+    key_path = os.path.join(DIR, 'temp_files', 'build_exams', 'key', f'key_{file_name}_{version}.tex')
+    keyFile = open(key_path, 'a')
     keyFile.write(r"""\end{enumerate}
 
 \end{document}""")
     keyFile.close()
-def finishExamFile(file_name, version, DIR):
-    examFile = open('/' + str(DIR) + '/BuildExams/' + str(file_name) + str(version)+ '.tex', 'a')
+
+def finish_exam_file(file_name, version, DIR):
+    exam_path = os.path.join(DIR, 'temp_files', 'build_exams', 'administer_version', f'exam_{file_name}_{version}.tex')
+    examFile = open(exam_path, 'a')
     examFile.write(r"""\end{enumerate}
 
 \end{document}""")
     examFile.close()
-def finishFeedbackFile(file_name, DIR):
-    feedbackFile = open('/' + str(DIR) + '/Feedback/feedback' + str(file_name) + '.tex', 'a')
+
+def finish_feedback_file(file_name, version, DIR):
+    feedback_path = os.path.join(DIR, 'temp_files', 'build_exams', 'feedback', f'feedback_{file_name}_{version}.tex')
+    feedbackFile = open(feedback_path, 'a')
     feedbackFile.write(r"""\end{enumerate}
 
 \end{document}""")
     feedbackFile.close()
+
+def end_all_latex_files(file_name, version, DIR):
+    # Individual student feedback is depreciated for now
+    #finish_feedback_file(file_name, version, DIR)
+    finish_exam_file(file_name, version, DIR)
+    finish_key_file(file_name, version, DIR)
