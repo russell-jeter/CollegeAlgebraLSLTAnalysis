@@ -1,161 +1,249 @@
-import sys
-import numpy
-import random
+import numpy as np
+import pandas as pd
+import random 
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
 
-def createAllCoefficientsAndEndpoints():
-    c0 = maybeMakeNegative(random.randint(3, 9))
-    c1 = maybeMakeNegative(random.randint(3, 9))
-    c3 = maybeMakeNegative(random.randint(3, 9))
-    c4 = random.randint(3, 9)
-    c5 = maybeMakeNegative(random.randint(3, 9))
-    c6 = maybeMakeNegative(random.randint(3, 9))
-    # Need 1, 4, and 6 set before 2
-    c2 = (max(c1, c6)*c4) + random.randint(2, 5) # This flips the inequalities
-    smallerEndpoint = float((-c0*c4-c3) / (c1*c4-c2))
-    largerEndpoint = float((c4*c5+c3) / (c2-c4*c6))
-    # Makes sure we get a solution interval
-    while  (largerEndpoint <= smallerEndpoint):
-        c0 = maybeMakeNegative(random.randint(3, 9))
-        c1 = maybeMakeNegative(random.randint(3, 9))
-        c3 = maybeMakeNegative(random.randint(3, 9))
+code_name = 'solve_compound_and'
+
+def create_coefficients_and_endpoints():
+    c0, c1, c2, c3, c4, c5, c6 = [0, 0, 0, 0, 0, 0, 0]
+    smaller_endpoint = 0
+    larger_endpoint = 0
+
+    while  (larger_endpoint <= smaller_endpoint):
+        c0 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+        c1 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+        c3 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
         c4 = random.randint(3, 9)
-        c5 = maybeMakeNegative(random.randint(3, 9))
-        c6 = maybeMakeNegative(random.randint(3, 9))
+        c5 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+        c6 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
         # Need 1, 4, and 6 set before 2
         c2 = (max(c1, c6)*c4) + random.randint(2, 5) # This flips the inequalities
-        smallerEndpoint = float((-c0*c4-c3) / (c1*c4-c2))
-        largerEndpoint = float((c4*c5+c3) / (c2-c4*c6))
-    coefficients=[c0, c1, c2, c3, c4, c5, c6]
-    solutionEndpoints = [smallerEndpoint, largerEndpoint]
-    return [coefficients, solutionEndpoints]
 
-coefficients, solutionEndpoints = createAllCoefficientsAndEndpoints()
-while (abs(solutionEndpoints[0])==abs(solutionEndpoints[1]) or abs(solutionEndpoints[0])<1 or abs(solutionEndpoints[1])<1 or abs(abs(solutionEndpoints[0])-abs(solutionEndpoints[1])) < 1 ):
-    coefficients, solutionEndpoints = createAllCoefficientsAndEndpoints()
+        smaller_endpoint = float((-c0*c4-c3) / (c1*c4-c2))
+        larger_endpoint = float((c4*c5+c3) / (c2-c4*c6))
+       
+    coefficients = [c0, c1, c2, c3, c4, c5, c6]
+    endpoints = [smaller_endpoint, larger_endpoint]
+    return [coefficients, endpoints]
 
-c0, c1, c2, c3, c4, c5, c6 = coefficients
+def present_choice_intervals(string_presentation, interval_options):
+    option_interval_a = f'[{interval_options[0][0]}, {interval_options[0][1]}]'
+    option_interval_b = f'[{interval_options[1][0]}, {interval_options[1][1]}]'
+    choice_presentation = '%s, \\text{ where } a \\in %s \\text{ and } b \\in %s' %(string_presentation, option_interval_a, option_interval_b)
+    return choice_presentation
 
-if c1 < 0:
-    AndInequalityLeft = "%s - %s x" %(c0, -c1)
-else:
-    AndInequalityLeft = "%s + %s x" %(c0, c1)
+def solve_compound_and_function(response_type):
+    coefficients = [0, 0, 0, 0, 0, 0, 0]
+    endpoints = [0, 0]
+    while (
+        abs(endpoints[0]) == abs(endpoints[1]) or
+        abs(endpoints[0]) < 1 or 
+        abs(endpoints[1]) < 1 or
+        abs(abs(endpoints[0]) - abs(endpoints[1])) < 1 
+    ):
+        coefficients, endpoints = create_coefficients_and_endpoints()
 
-if c3 < 0:
-    AndInequalityMiddle = "\\frac{%s x + %s}{%s}" %(c2, -c3, c4)
-else:
-    AndInequalityMiddle = "\\frac{%s x - %s}{%s}" %(c2, c3, c4)
+    c0, c1, c2, c3, c4, c5, c6 = coefficients
+    if c1 < 0:
+        AndInequalityLeft = "%s - %s x" %(c0, -c1)
+    else:
+        AndInequalityLeft = "%s + %s x" %(c0, c1)
 
-if c6 < 0:
-    AndInequalityRight = "%s - %s x" %(c5, -c6)
-else:
-    AndInequalityRight = "%s + %s x" %(c5, c6)
+    if c3 < 0:
+        AndInequalityMiddle = "\\frac{%s x + %s}{%s}" %(c2, -c3, c4)
+    else:
+        AndInequalityMiddle = "\\frac{%s x - %s}{%s}" %(c2, c3, c4)
 
-precision = 0.75
-solutionAndNegative = [ [round(solutionEndpoints[0], 3), round(solutionEndpoints[1], 3)], [-round(solutionEndpoints[0], 3), -round(solutionEndpoints[1], 3)] ]
-intervalOptions1 = createIntervalOptions(solutionAndNegative, 4, precision)
-intervalOptions2 = createIntervalOptions(solutionAndNegative, 4, precision)
-intervalOptions3 = createIntervalOptions(solutionAndNegative, 4, precision)
-intervalOptions4 = createIntervalOptions(solutionAndNegative, 4, precision)
+    if c6 < 0:
+        AndInequalityRight = "%s - %s x" %(c5, -c6)
+    else:
+        AndInequalityRight = "%s + %s x" %(c5, c6)
 
-if response_type=="Multiple-Choice":
-    displayStem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
-else:
-    displayStem = 'Solve the linear inequality below.'
-problemType = random.randint(0,3)
+    problem_type = random.randint(0,3) # 0-1 uses correct values, 2-3 uses negative values
 
-if problemType == 0:
-    displayProblem = '%s < %s \\leq %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
-    solution = ["(a, b]", "* $(%.2f, %.2f]$, which is the correct option." %(solutionEndpoints[0], solutionEndpoints[1]), 1]
-    displaySolution =  "(%.2f, %.2f]" %(solutionEndpoints[0], solutionEndpoints[1])
-    distractor1 = ["[a, b)", "$[%.2f, %.2f)$, which corresponds to flipping the inequality." %(solutionEndpoints[0], solutionEndpoints[1]), 0]
-    distractor2 = ["(-\\infty, a) \\cup [b, \\infty)", "$(-\\infty, %.2f) \\cup [%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality." %(solutionEndpoints[0], solutionEndpoints[1]), 0]
-    distractor3 = ["(-\\infty, a] \\cup (b, \\infty)", "$(-\\infty, %.2f] \\cup (%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality." %(solutionEndpoints[0], solutionEndpoints[1]), 0]
-    distractor4 = ["\\text{None of the above.}", "", "This corresponds to thinking that the values were not correct.", 0]
-    answerList = [solution, distractor1, distractor2, distractor3]
-    random.shuffle(answerList)
-    answerList.append(distractor4)
-elif problemType == 1:
-    displayProblem = '%s \\leq %s < %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
-    solution = ["[a, b)", "$[%.2f, %.2f)$, which is the correct option." %(solutionEndpoints[0], solutionEndpoints[1]), 1]
-    displaySolution =  "[%.2f, %.2f)" %(solutionEndpoints[0], solutionEndpoints[1])
-    distractor1 = ["(a, b]", "$(%.2f, %.2f]$, which corresponds to flipping the inequality." %(solutionEndpoints[0], solutionEndpoints[1]), 0]
-    distractor2 = ["(-\\infty, a] \\cup (b, \\infty)", "$(-\\infty, %.2f] \\cup (%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality." %(solutionEndpoints[0], solutionEndpoints[1]), 0]
-    distractor3 = ["(-\\infty, a) \\cup [b, \\infty)", "$(-\\infty, %.2f) \\cup [%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality." %(solutionEndpoints[0], solutionEndpoints[1]), 0]
-    distractor4 = ["\\text{None of the above.}", "", "This corresponds to thinking that the values were not correct.", 0]
-    answerList = [solution, distractor1, distractor2, distractor3]
-    random.shuffle(answerList)
-    answerList.append(distractor4)
-elif problemType == 2:
-    displayProblem = '%s < %s \\leq %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
-    distractor4 = ["(a, b]", "$(%.2f, %.2f]$, which is the correct interval but negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    distractor1 = ["[a, b)", "$[%.2f, %.2f)$, which corresponds to flipping the inequality and getting negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    distractor2 = ["(-\\infty, a) \\cup [b, \\infty)", "$(-\\infty, %.2f) \\cup [%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    distractor3 = ["(-\\infty, a] \\cup (b, \\infty)", "$(-\\infty, %.2f] \\cup (%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    solution = ["\\text{None of the above.}", "* This is correct as the answer should be $(%.2f, %.2f]$." %(solutionEndpoints[0], solutionEndpoints[1]), 1]
-    displaySolution = solution[0]
-    answerList = [distractor4, distractor1, distractor2, distractor3]
-    random.shuffle(answerList)
-    answerList.append(solution)
-else:
-    displayProblem = '%s \\leq %s < %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
-    distractor4 = ["[a, b)", "$[%.2f, %.2f)$, which is the correct interval but negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    distractor1 = ["(a, b]", "$(%.2f, %.2f]$, which corresponds to flipping the inequality and getting negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    distractor2 = ["(-\\infty, a] \\cup (b, \\infty)", "$(-\\infty, %.2f] \\cup (%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    distractor3 = ["(-\\infty, a) \\cup [b, \\infty)", "$(-\\infty, %.2f) \\cup [%.2f, \\infty)$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints." %(-solutionEndpoints[0], -solutionEndpoints[1]), 0]
-    solution = ["\\text{None of the above.}", "* This is correct as the answer should be $[%.2f, %.2f)$." %(solutionEndpoints[0], solutionEndpoints[1]), 1]
-    displaySolution = solution[0]
-    answerList = [distractor4, distractor1, distractor2, distractor3]
-    random.shuffle(answerList)
-    answerList.append(solution)
+    # Intervals are created for each option since the display of the options are all different
+    modified_endpoints = [endpoint*(-1)**problem_type for endpoint in endpoints]
+    interval_options_1 = interval_masking_method.createIntervalOptions(modified_endpoints, 4, 0.75)
+    interval_options_2 = interval_masking_method.createIntervalOptions(modified_endpoints, 4, 0.75)
+    interval_options_3 = interval_masking_method.createIntervalOptions(modified_endpoints, 4, 0.75)
+    interval_options_4 = interval_masking_method.createIntervalOptions(modified_endpoints, 4, 0.75)
 
-generalComment = "To solve, you will need to break up the compound inequality into two inequalities. Be sure to keep track of the inequality! It may be best to draw a number line and graph your solution."
+    option_1_string_presentation = '(a, b]'
+    option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'option_1',
+        'Placeholder distractor short_description', # short_description
+        modified_endpoints, 
+        f'({modified_endpoints[0]}, {modified_endpoints[1]}]',
+        'Placeholder student feedback', # feedback
+        0
+    )
+    option_1_dict['choice_presentation'] = present_choice_intervals(option_1_string_presentation, interval_options_1)
 
-if problemType == 0 or problemType == 1:
-    c0 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[0][0], intervalOptions1[0][0][0], intervalOptions1[0][0][1], intervalOptions1[0][1][0], intervalOptions1[0][1][1])
-    c1 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[1][0], intervalOptions2[0][0][0], intervalOptions2[0][0][1], intervalOptions2[0][1][0], intervalOptions2[0][1][1])
-    c2 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[2][0], intervalOptions3[0][0][0], intervalOptions3[0][0][1], intervalOptions3[0][1][0], intervalOptions3[0][1][1])
-    c3 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[3][0], intervalOptions4[0][0][0], intervalOptions4[0][0][1], intervalOptions4[0][1][0], intervalOptions4[0][1][1])
-    c4 = "%s" %answerList[4][0]
-else:
-    c0 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[0][0], intervalOptions1[1][0][0], intervalOptions1[1][0][1], intervalOptions1[1][1][0], intervalOptions1[1][1][1])
-    c1 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[1][0], intervalOptions2[1][0][0], intervalOptions2[1][0][1], intervalOptions2[1][1][0], intervalOptions2[1][1][1])
-    c2 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[2][0], intervalOptions3[1][0][0], intervalOptions3[1][0][1], intervalOptions3[1][1][0], intervalOptions3[1][1][1])
-    c3 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[3][0], intervalOptions4[1][0][0], intervalOptions4[1][0][1], intervalOptions4[1][1][0], intervalOptions4[1][1][1])
-    c4 = "%s" %answerList[4][0]
+    option_2_string_presentation = '[a, b)'
+    option_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'option_2',
+        'Placeholder distractor short_description', # short_description
+        modified_endpoints, 
+        f'[{modified_endpoints[0]}, {modified_endpoints[1]})',
+        'Placeholder student feedback', # feedback
+        0
+    )
+    option_2_dict['choice_presentation'] = present_choice_intervals(option_2_string_presentation, interval_options_2)
 
-choices = [c0, c1, c2, c3, c4]
-choiceComments = [answerList[0][1], answerList[1][1], answerList[2][1], answerList[3][1], answerList[4][1]]
+    option_3_string_presentation = '(-\\infty, a) \\cup [b, \\infty)'
+    option_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'option_3',
+        'Placeholder distractor short_description', # short_description
+        modified_endpoints, 
+        f'(-\\infty, {modified_endpoints[0]}) \\cup [{modified_endpoints[1]}, \\infty)',
+        'Placeholder student feedback', # feedback
+        0
+    )
+    option_3_dict['choice_presentation'] = present_choice_intervals(option_3_string_presentation, interval_options_3)
 
-answerIndex = 0
-letters = ["A", "B", "C", "D", "E"]
-for checkLetter in letters:
-    if answerList[answerIndex][2] == 1:
-        answerLetter = letters[answerIndex]
-        break
-    answerIndex = answerIndex+1
+    option_4_string_presentation = '(-\\infty, a] \\cup (b, \\infty)'
+    option_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'option_4',
+        'Placeholder distractor short_description', # short_description
+        modified_endpoints, 
+        f'(-\\infty, {modified_endpoints[0]}] \\cup ({modified_endpoints[1]}, \\infty)',
+        'Placeholder student feedback', # feedback
+        0
+    )
+    option_4_dict['choice_presentation'] = present_choice_intervals(option_4_string_presentation, interval_options_4)
 
-displayStemType="String"
-displayProblemType="Math Mode"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+    option_5_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'option_5',
+        'Placeholder distractor short_description', # short_description
+        'None of the above.', 
+        '\\text{None of the above.}', 
+        'Placeholder student feedback', # feedback
+        0
+    )
+    option_5_dict['choice_presentation'] = '\\text{None of the above.}'
+
+
+    if problem_type == 0: # left < middle \leq right
+        display_problem = '%s < %s \\leq %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
+        option_1_dict['name'] = 'solution'
+        option_1_dict['short_description'] = 'Expected solution'
+        option_1_dict['feedback'] = '* This is the correct option!'
+        option_1_dict['solution'] = 1
+        solution_dict = option_1_dict
+
+        option_2_dict['short_description'] = "Misconception - flipping final inequality"
+        option_2_dict['feedback'] = f" {option_2_dict['value']}, which corresponds to flipping the inequality."
+
+        option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality"
+        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality."
+
+        option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality"
+        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality."
+
+        option_5_dict['short_description'] = "Catch-all none of the above response"
+        option_5_dict['feedback'] = "This corresponds to thinking that the values were not correct."
+
+    elif problem_type == 1: # left < middle \leq right with negatives of correct endpoints 
+        display_problem = '%s < %s \\leq %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
+        option_5_dict['name'] = 'solution'
+        option_5_dict['short_description'] = 'Expected solution'
+        option_5_dict['feedback'] = '* This is the correct option!'
+        option_5_dict['solution'] = 1
+        solution_dict = option_5_dict
+
+        option_1_dict['short_description'] = "Arithmetic - Values are negative of what they should be"
+        option_1_dict['feedback'] = f" {option_1_dict['value']}, which is the correct interval but negatives of the actual endpoints."
+
+        option_2_dict['short_description'] = "Misconception - flipping final inequality and negatives"
+        option_2_dict['feedback'] = f" {option_2_dict['value']}, which corresponds to flipping the inequality and getting negatives of the actual endpoints."
+
+        option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality and negatives"
+        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints."
+
+        option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality AND negatives"
+        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints."
+
+    elif problem_type == 2: # left \leq middle < right
+        display_problem = '%s \\leq %s < %s'%(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
+        option_2_dict['name'] = 'solution'
+        option_2_dict['short_description'] = 'Expected solution'
+        option_2_dict['feedback'] = '* This is the correct option!'
+        option_2_dict['solution'] = 1
+        solution_dict = option_2_dict
+
+        option_1_dict['short_description'] = "Misconception - flipping final inequality"
+        option_1_dict['feedback'] = f" {option_1_dict['value']}, which corresponds to flipping the inequality."
+
+        option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality"
+        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality."
+
+        option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality"
+        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality."
+
+        option_5_dict['short_description'] = "Catch-all none of the above response"
+        option_5_dict['feedback'] = "This corresponds to thinking that the values were not correct."
+
+    elif problem_type == 3: # left \leq middle < right with negatives of correct endpoints
+        displayProblem = '%s \\leq %s < %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
+        option_5_dict['name'] = 'solution'
+        option_5_dict['short_description'] = 'Expected solution'
+        option_5_dict['feedback'] = '* This is the correct option!'
+        option_5_dict['solution'] = 1
+        solution_dict = option_5_dict
+
+        option_1_dict['short_description'] = "Misconception - flipping final inequality and negatives"
+        option_1_dict['feedback'] = f" {option_1_dict['value']}, which corresponds to flipping the inequality and getting negatives of the actual endpoints."
+
+        option_2_dict['short_description'] = "Arithmetic - Values are negative of what they should be"
+        option_2_dict['feedback'] = f" {option_2_dict['value']}, which is the correct interval but negatives of the actual endpoints."
+
+        option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality AND negatives"
+        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints."
+
+        option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality and negatives"
+        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints."
+
+    solution_dicts_list = [option_1_dict, option_2_dict, option_3_dict, option_4_dict, option_5_dict]
+    presentation_order = []
+    for temp_dict in solution_dicts_list:
+        presentation_order.append(temp_dict['name'])
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(solution_dicts_list)
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)   
+
+    if response_type=="Multiple-Choice":
+        display_stem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
+    else:
+        display_stem = 'Solve the linear inequality below.'
+    general_comment = "To solve, you will need to break up the compound inequality into two inequalities. Be sure to keep track of the inequality! It may be best to draw a number line and graph your solution."
+
+    display_stem_type="String"
+    display_problem_type="Math Mode"
+    display_options_type="Math Mode"
+
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+
+    return [question_dict, options_df]
+

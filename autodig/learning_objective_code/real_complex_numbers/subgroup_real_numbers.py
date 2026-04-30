@@ -150,12 +150,12 @@ def subgroup_real_numbers_function(response_type):
 
     if questionType == "Whole":
         display_problem, simplifiedNumber = generateWhole()
-        solution_dict = option_0_dict
 
         option_0_dict['name'] = 'solution'
         option_0_dict['short_description'] = 'Expected solution'
         option_0_dict['feedback'] = "* This is the correct option!"
         option_0_dict['solution'] = 1
+        solution_dict = option_0_dict
 
         option_1_dict['short_description'] = 'Chose Integer when Whole, unclear why'
         option_2_dict['short_description'] = 'Chose Rational when Whole, likely due to seeing a fraction'
@@ -164,12 +164,12 @@ def subgroup_real_numbers_function(response_type):
 
     elif questionType == "Integer":
         display_problem, simplifiedNumber = generateInteger()
-        solution_dict = option_1_dict
 
         option_1_dict['name'] = 'solution'
         option_1_dict['short_description'] = 'Expected solution'
         option_1_dict['feedback'] = "* This is the correct option!"
         option_1_dict['solution'] = 1
+        solution_dict = option_1_dict
 
         option_0_dict['short_description'] = 'Chose Whole when Integer, unclear why'
         option_2_dict['short_description'] = 'Chose Rational when Integer, likely due to seeing a fraction'
@@ -178,12 +178,12 @@ def subgroup_real_numbers_function(response_type):
 
     elif questionType == "Rational":
         display_problem, simplifiedNumber = generateRational()
-        solution_dict = option_2_dict
 
         option_2_dict['name'] = 'solution'
         option_2_dict['short_description'] = 'Expected solution'
         option_2_dict['feedback'] = "* This is the correct option!"
         option_2_dict['solution'] = 1
+        solution_dict = option_2_dict
 
         option_0_dict['short_description'] = 'Chose Whole when Rational, unclear why'
         option_1_dict['short_description'] = 'Chose Integer when Rational, unclear why'
@@ -192,12 +192,12 @@ def subgroup_real_numbers_function(response_type):
 
     elif questionType == "Irrational":
         display_problem, simplifiedNumber = generateIrrational()
-        solution_dict = option_3_dict
 
         option_3_dict['name'] = 'solution'
         option_3_dict['short_description'] = 'Expected solution'
         option_3_dict['feedback'] = "* This is the correct option!"
         option_3_dict['solution'] = 1
+        solution_dict = option_3_dict
 
         option_0_dict['short_description'] = 'Chose Whole when Irrational, unclear why'
         option_1_dict['short_description'] = 'Chose Integer when Irrational, unclear why'
@@ -206,12 +206,12 @@ def subgroup_real_numbers_function(response_type):
 
     else:
         display_problem, simplifiedNumber = generateNonReal()
-        solution_dict = option_4_dict
 
         option_4_dict['name'] = 'solution'
         option_4_dict['short_description'] = 'Expected solution'
         option_4_dict['feedback'] = "* This is the correct option!"
         option_4_dict['solution'] = 1
+        solution_dict = option_4_dict
 
         option_0_dict['short_description'] = 'Chose Whole when Not a Real, unclear why'
         option_1_dict['short_description'] = 'Chose Integer when Not a Real, unclear why'

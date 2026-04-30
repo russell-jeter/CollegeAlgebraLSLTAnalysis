@@ -4,6 +4,8 @@ import pandas as pd
 
 from utils import commonly_used_functions, interval_masking_method
 
+code_name = 'subgroup_complex_numbers'
+
 ### DEFINITIONS ###
 def generateRationalFromSubgroupReal():
     numerator = random.randint(5, 25)
@@ -221,12 +223,12 @@ def subgroup_complex_numbers_function(response_type):
 
     if questionType == "Rational":
         display_problem = generateRationalNumber()
-        solution_dict = option_0_dict
 
         option_0_dict['name'] = 'solution'
         option_0_dict['short_description'] = 'Expected solution'
         option_0_dict['feedback'] = "* This is the correct option!"
         option_0_dict['solution'] = 1
+        solution_dict = option_0_dict
 
         option_1_dict['short_description'] = 'Chose irrational when rational, maybe due to seeing square root of a number?'
         option_2_dict['short_description'] = 'Chose Nonreal Complex when rational, likely due to seeing i'
@@ -235,12 +237,12 @@ def subgroup_complex_numbers_function(response_type):
 
     elif questionType == "Irrational":
         display_problem = generateIrrationalNumber()
-        solution_dict = option_1_dict
 
         option_1_dict['name'] = 'solution'
         option_1_dict['short_description'] = 'Expected solution'
         option_1_dict['feedback'] = "* This is the correct option!"
         option_1_dict['solution'] = 1
+        solution_dict = option_1_dict
 
         option_0_dict['short_description'] = 'Chose rational when irrational, maybe due to seeing a rational solution and assuming structure to answer?'
         option_2_dict['short_description'] = 'Chose Nonreal Complex when irrational, likely due to seeing i'
@@ -249,12 +251,12 @@ def subgroup_complex_numbers_function(response_type):
 
     elif questionType == "NonrealComplex":
         display_problem = generateNonRealComplexNumber()
-        solution_dict = option_2_dict
 
         option_2_dict['name'] = 'solution'
         option_2_dict['short_description'] = 'Expected solution'
         option_2_dict['feedback'] = "* This is the correct option!"
         option_2_dict['solution'] = 1
+        solution_dict = option_2_dict
 
         option_0_dict['short_description'] = 'Chose Rational when Nonreal Complex, unclear why'
         option_1_dict['short_description'] = 'Chose Irrational when Nonreal Complex, likely due conceptualizing irrational as not rational'
@@ -263,12 +265,12 @@ def subgroup_complex_numbers_function(response_type):
 
     elif questionType == "PureImaginary":
         display_problem = generatePureImaginaryNumber()
-        solution_dict = option_3_dict
 
         option_3_dict['name'] = 'solution'
         option_3_dict['short_description'] = 'Expected solution'
         option_3_dict['feedback'] = "* This is the correct option!"
         option_3_dict['solution'] = 1
+        solution_dict = option_3_dict
 
         option_0_dict['short_description'] = 'Chose Rational when Pure Imaginary, unclear why'
         option_1_dict['short_description'] = 'Chose Irrational when Pure Imaginary, unclear why'
@@ -277,12 +279,12 @@ def subgroup_complex_numbers_function(response_type):
 
     else:
         display_problem = generateNonNumber()
-        solution_dict = option_4_dict
 
         option_4_dict['name'] = 'solution'
         option_4_dict['short_description'] = 'Expected solution'
         option_4_dict['feedback'] = "* This is the correct option!"
         option_4_dict['solution'] = 1
+        solution_dict = option_4_dict
 
         option_0_dict['short_description'] = 'Chose Rational when Not a Complex, unclear why'
         option_1_dict['short_description'] = 'Chose Irrational when Not a Complex, unclear why'
@@ -312,7 +314,7 @@ def subgroup_complex_numbers_function(response_type):
     display_options_type="String"
 
     question_dict = {
-        'code_name': 'subgroup_complex_numbers',
+        'code_name': code_name,
         'Response Type': response_type, # Included as argument in function
         'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
         'Display Stem': display_stem,
