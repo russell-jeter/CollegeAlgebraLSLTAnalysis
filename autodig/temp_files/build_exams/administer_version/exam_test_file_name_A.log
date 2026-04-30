@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  20 APR 2026 16:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  30 APR 2026 14:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -637,14 +637,19 @@ Overfull \hbox (6.79684pt too wide) in paragraph at lines 28--37
  []
 
 
-Overfull \hbox (6.79684pt too wide) in paragraph at lines 37--46
+Overfull \hbox (6.79684pt too wide) in paragraph at lines 37--50
 | [] 
  []
 
+<../figures/linear_graph_to_standard_form_A.png, id=3, 452.4102pt x 353.4003pt>
 
-Overfull \hbox (6.79684pt too wide) in paragraph at lines 46--55
-| [] 
- []
+File: ../figures/linear_graph_to_standard_form_A.png Graphic file (type png)
+<use ../figures/linear_graph_to_standard_form_A.png>
+Package pdftex.def Info: ../figures/linear_graph_to_standard_form_A.png  used o
+n input line 50.
+(pdftex.def)             Requested size: 234.8775pt x 183.47261pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
@@ -659,12 +664,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [1{C:/Users/dcham/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}
 
 ]
-Overfull \hbox (6.79684pt too wide) in paragraph at lines 55--64
+Overfull \hbox (6.79684pt too wide) in paragraph at lines 50--59
 | [] 
  []
 
 
-Overfull \hbox (6.79684pt too wide) in paragraph at lines 64--65
+Overfull \hbox (6.79684pt too wide) in paragraph at lines 59--68
 | [] 
  []
 
@@ -678,7 +683,22 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-5.0pt}.
 
-[2] (exam_test_file_name_A.aux)
+[2 <../figures/linear_graph_to_standard_form_A.png>]
+Overfull \hbox (6.79684pt too wide) in paragraph at lines 68--69
+| [] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 17.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{17.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-5.0pt}.
+
+[3] (exam_test_file_name_A.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-09-10>
@@ -687,22 +707,20 @@ Package rerunfilecheck Info: File `exam_test_file_name_A.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 12617 strings out of 473899
- 200559 string characters out of 5726499
- 613754 words of memory out of 5000000
- 35270 multiletter control sequences out of 15000+600000
- 561606 words of font info for 52 fonts, out of 8000000 for 9000
+ 12625 strings out of 473899
+ 200968 string characters out of 5726499
+ 610754 words of memory out of 5000000
+ 35278 multiletter control sequences out of 15000+600000
+ 561299 words of font info for 51 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,11n,80p,596b,566s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,80p,596b,682s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
-cmbx12.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmex10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/p
-ublic/amsfonts/cm/cmmi12.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/font
-s/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
-TeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on exam_test_file_name_A.pdf (2 pages, 64165 bytes).
+cmmi12.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/cm/cmr12.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/pu
+blic/amsfonts/cm/cmsy10.pfb>
+Output written on exam_test_file_name_A.pdf (3 pages, 64941 bytes).
 PDF statistics:
- 76 PDF objects out of 1000 (max. 8388607)
- 33 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 73 PDF objects out of 1000 (max. 8388607)
+ 34 named destinations out of 1000 (max. 500000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

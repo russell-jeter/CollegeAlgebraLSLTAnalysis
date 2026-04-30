@@ -19,7 +19,7 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
     elif display_stem_type=="Graph":
         examFile.write(r"""
 \begin{center}
-    \includegraphics[width=0.5\textwidth]{../figures/%s%s.png}
+    \includegraphics[width=0.5\textwidth]{../figures/%s_%s.png}
 \end{center}
 """ %(question_dict['code_name'], question_dict['version']))
 #    else:
@@ -38,7 +38,7 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
     elif display_problem_type=="Graph":
         examFile.write(r"""
 \begin{center}
-    \includegraphics[width=0.5\textwidth]{../figures/%s%s.png}
+    \includegraphics[width=0.5\textwidth]{../figures/%s_%s.png}
 \end{center}
 """ %(question_dict['code_name'], question_dict['version']))
     elif display_problem_type=="Table":
@@ -89,7 +89,7 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
             examFile.write(r"\begin{multicols}{2}")
             for i in range(len(choices)):
                 options=["A", "B", "C", "D", "E", "F", "G", "H"]
-                examFile.write(r"\item \includegraphics[width = 0.3\textwidth]{../figures/%s%s%s.png}" %(question_dict['code_name'], options[i], question_dict['version']))
+                examFile.write(r"\item \includegraphics[width = 0.3\textwidth]{../figures/%s_%s_%s.png}" %(question_dict['code_name'], options[i], question_dict['version']))
             examFile.write(r"\end{multicols}")
             examFile.write(r"\item None of the above.")
         examFile.write('\n')
@@ -118,7 +118,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
     elif display_stem_type=="Graph":
         keyFile.write(r"""
 \begin{center}
-    \includegraphics[width=0.5\textwidth]{../figures/%s%s.png}
+    \includegraphics[width=0.5\textwidth]{../figures/%s_%s.png}
 \end{center}
 """ %(code_name, version))
     keyFile.write('\n')
@@ -137,7 +137,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
     elif display_problem_type=="Graph":
         keyFile.write(r"""
 \begin{center}
-    \includegraphics[width=0.5\textwidth]{../figures/%s%s.png}
+    \includegraphics[width=0.5\textwidth]{../figures/%s_%s.png}
 \end{center}
 """ %(code_name, version))
         keyFile.write('\n\n')
@@ -209,7 +209,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
         elif display_options_type=="Graph":
             keyFile.write(r"""The solution is the graph below, which is option %s.
     \begin{center}
-        \includegraphics[width=0.3\textwidth]{../figures/%s%s%s.png}
+        \includegraphics[width=0.3\textwidth]{../figures/%s_%s_%s.png}
     \end{center}""" %(answer_letter, code_name, answer_letter, version) )
             keyFile.write(r"\begin{enumerate}[label=\Alph*.]")
             keyFile.write('\n')
@@ -217,7 +217,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
             keyFile.write('\n')
             for i in range(len(choices)):
                 options=["A", "B", "C", "D", "E", "F", "G", "H"]
-                keyFile.write(r"\item \includegraphics[width = 0.3\textwidth]{../figures/%s%s%s.png}" %(code_name, options[i], version))
+                keyFile.write(r"\item \includegraphics[width = 0.3\textwidth]{../figures/%s_%s_%s.png}" %(code_name, options[i], version))
                 keyFile.write('\n')
             keyFile.write(r"\end{multicols}")
             keyFile.write(r"\item None of the above.")

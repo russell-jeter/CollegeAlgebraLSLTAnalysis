@@ -1,26 +1,13 @@
-import sys
 import random
-import numpy
+import numpy as np
+import pandas as pd
 import math
 import matplotlib.pyplot as plt
+import os
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
+
+code_name = 'linear_graph_to_standard_form'
 
 ### DEFINITIONS ###
 def simplifySolution(A, B, C):
@@ -37,12 +24,13 @@ def simplifySolution(A, B, C):
         GCD_B_C = math.gcd(B, C)
         mixed_GCD = math.gcd(GCD_A_B, GCD_B_C)
     return [A, B, C]
+
 def generateProblemAndSolution(numeratorMax, interceptMax):
-    numeratorSlope = maybeMakeNegative(random.randint(2, numeratorMax))
+    numeratorSlope = commonly_used_functions.maybeMakeNegative(random.randint(2, numeratorMax))
     denominatorSlope = random.randint(2, numeratorMax)
     # Makes sure slope is rational
     while math.gcd(numeratorSlope, denominatorSlope) > 1:
-        numeratorSlope = maybeMakeNegative(random.randint(2, numeratorMax))
+        numeratorSlope = commonly_used_functions.maybeMakeNegative(random.randint(2, numeratorMax))
         denominatorSlope = random.randint(2, numeratorMax)
     slopeGraph = float(numeratorSlope)/float(denominatorSlope)
     yInt = random.randint(-interceptMax, interceptMax)
@@ -58,23 +46,88 @@ def generateProblemAndSolution(numeratorMax, interceptMax):
         bOfGraph = -denominatorSlope
         cOfGraph = -denominatorSlope*yInt
     return [simplifySolution(aOfGraph, bOfGraph, cOfGraph), [slopeGraph, yInt], point2, point3]
-def generateDistractors(solution):
-    A, B, C = solution
-    distractor1 = [-A, -B, -C]
-    distractor2 = [A, -B, -C]
-    distractor3 = [round(float(A/B), 3), 1, round(float(C)/float(B), 3)]
-    distractor4 =  [round(float(A/B), 3), -1, round(-float(C)/float(B), 3)]
-    return [distractor1, distractor2, distractor3, distractor4]
-def displayStandardForm(coefficients):
+
+def clean_display_of_equation(coefficients):
     A, B, C = coefficients
     if B < 0:
         standardForm = "%sx - %sy = %s" %(A, -B, C)
     else:
         standardForm = "%sx + %sy = %s" %(A, B, C)
     return standardForm
+
+def generate_all_option_dicts(solution):
+    A, B, C = solution
+
+    display_solution = clean_display_of_equation(solution)
+    solution_feedback = f"* ${display_solution}$, which is the correct option."
+    solution_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'solution',
+        'Expected solution',
+        solution, 
+        display_solution,
+        solution_feedback,
+        1
+    )
+
+    distractor_1 = [-A, -B, -C]
+    display_distractor_1 = clean_display_of_equation(distractor_1)
+    distractor_1_feedback = f" ${display_distractor_1}$, which corresponds to not making $A$ positive (by multiplying the equation by $-1$)."
+    distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_1',
+        'Mechanical - A is not made positive',
+        distractor_1,
+        display_distractor_1,
+        distractor_1_feedback,
+        0
+    )
+
+    distractor_2 = [A, -B, -C]
+    display_distractor_2 = clean_display_of_equation(distractor_2)
+    distractor_2_feedback = f" ${display_distractor_2}$, which corresponds to using the opposite (negative) slope of the graph, but did everything else correctly."
+    distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_2', 
+        'Arithmetic error - Negative slope',
+        distractor_2,
+        display_distractor_2,
+        distractor_2_feedback, 
+        0
+    ) 
+
+    distractor_3 = [round(float(A/B), 3), 1, round(float(C)/float(B), 3)]
+    display_distractor_3 = clean_display_of_equation(distractor_3)
+    distractor_3_feedback = f" ${display_distractor_3}$, which corresponds to not removing rational values for Standard Form."
+    distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_3',
+        'Conceptual error - does not remove rational values for Standard Form',
+        distractor_3, 
+        display_distractor_3, 
+        distractor_3_feedback,
+        0
+    )
+
+    distractor_4 =  [round(float(A/B), 3), -1, round(-float(C)/float(B), 3)]
+    display_distractor_4 = clean_display_of_equation(distractor_4)
+    distractor_4_feedback = f" ${display_distractor_4}$, which corresponds to using the opposite (negative) slope of the graph and not removing rational values."
+    distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_4', 
+        'Arithmetic error - Negative slope; Conceptual error - does not remove rational values for Standard Form',
+        distractor_4, 
+        display_distractor_4,
+        distractor_4_feedback,
+        0
+    )
+
+    list_of_dicts = [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
+    return list_of_dicts
+
 #########################
-def plotGraph(slopeGraph, yInt, point2, point3):
-    graphX = numpy.arange(-5.0, 5.0, 0.01)
+def plotGraph(slopeGraph, yInt, point2, point3, version):
+    graphX = np.arange(-5.0, 5.0, 0.01)
     graphY = slopeGraph*graphX + yInt
     SMALL_SIZE = 24
     MEDIUM_SIZE = 28
@@ -102,49 +155,76 @@ def plotGraph(slopeGraph, yInt, point2, point3):
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.savefig('/' + str(DIR) + '/Figures/' + str(thisQuestion) + str(version) + '.png', bbox_inches='tight')
+
+    base_dir = os.getcwd()
+    figure_path = os.path.join(base_dir, 'temp_files', 'build_exams', 'figures', f'{code_name}_{version}.png')
+    plt.savefig(figure_path, bbox_inches='tight')
     plt.close()
     return
-### VARIABLE DECLARATIONS ###
-numeratorMax = 5
-interceptMax = 5
-solution, slopeInt, point2, point3 = generateProblemAndSolution(numeratorMax, interceptMax)
-plotGraph(slopeInt[0], slopeInt[1], point2, point3)
-### CREATE INTERVAL OPTIONS ###
-distractor1, distractor2, distractor3, distractor4 = generateDistractors(solution)
-solutionList = [solution, distractor1, distractor2, distractor3, distractor4]
-intervalOptions = createIntervalOptions(solutionList, 5, 1)
-### DEFINE ANSWER LIST, DISPLAY SOLUTION
-c0 = "A \\in [%s, %s], \\hspace{3mm} B \\in [%s, %s], \\text{ and } \\hspace{3mm} C \\in [%s, %s]" %(intervalOptions[0][0][0], intervalOptions[0][0][1], intervalOptions[0][1][0], intervalOptions[0][1][1], intervalOptions[0][2][0], intervalOptions[0][2][1])
-c1 = "A \\in [%s, %s], \\hspace{3mm} B \\in [%s, %s], \\text{ and } \\hspace{3mm} C \\in [%s, %s]" %(intervalOptions[1][0][0], intervalOptions[1][0][1], intervalOptions[1][1][0], intervalOptions[1][1][1], intervalOptions[1][2][0], intervalOptions[1][2][1])
-c2 = "A \\in [%s, %s], \\hspace{3mm} B \\in [%s, %s], \\text{ and } \\hspace{3mm} C \\in [%s, %s]" %(intervalOptions[2][0][0], intervalOptions[2][0][1], intervalOptions[2][1][0], intervalOptions[2][1][1], intervalOptions[2][2][0], intervalOptions[2][2][1])
-c3 = "A \\in [%s, %s], \\hspace{3mm} B \\in [%s, %s], \\text{ and } \\hspace{3mm} C \\in [%s, %s]" %(intervalOptions[3][0][0], intervalOptions[3][0][1], intervalOptions[3][1][0], intervalOptions[3][1][1], intervalOptions[3][2][0], intervalOptions[3][2][1])
-c4 = "A \\in [%s, %s], \\hspace{3mm} B \\in [%s, %s], \\text{ and } \\hspace{3mm} C \\in [%s, %s]" %(intervalOptions[4][0][0], intervalOptions[4][0][1], intervalOptions[4][1][0], intervalOptions[4][1][1], intervalOptions[4][2][0], intervalOptions[4][2][1])
-displaySolution = displayStandardForm(solution)
-option1 = [c0, "* $%s$, which is the correct option." %displaySolution, 1]
-option2 = [c1, " $%s$, which corresponds to not making $A$ positive (by multiplying the equation by $-1$)." %displayStandardForm(distractor1), 0]
-option3 = [c2, " $%s$, which corresponds to using the opposite (negative) slope of the graph, but did everything else correctly." %displayStandardForm(distractor2), 0]
-option4 = [c3, " $%s$, which corresponds to not removing rational values for Standard Form." %displayStandardForm(distractor3), 0]
-option5 = [c4, " $%s$, which corresponds to using the opposite (negative) slope of the graph and not removing rational values." %displayStandardForm(distractor4), 0]
-answerList = [option1, option2, option3, option4, option5]
-random.shuffle(answerList)
-### DEFINE CHOICES, CHOICE COMMENTS, ANSWER LETTER
-choices = [answerList[0][0], answerList[1][0], answerList[2][0], answerList[3][0], answerList[4][0]]
-choiceComments = [answerList[0][1], answerList[1][1], answerList[2][1], answerList[3][1], answerList[4][1]]
-answerLetterIndicators = [answerList[0][2], answerList[1][2], answerList[2][2], answerList[3][2], answerList[4][2]]
-answerLetter = identifyAnswerLetter(answerLetterIndicators)
-### DEFINE STEM, PROBLEM, GENERAL COMMENT AS STRINGS
-if response_type=="Multiple-Choice":
-    displayStem = 'Write the equation of the line in the graph below in Standard Form $Ax+By=C$. Then, choose the intervals that contain $A, B, \\text{ and } C$.'
-else:
-    displayStem = "Write the equation of the line in the graph below in Standard Form $Ax+By=C$."
-displayProblem = "\\text{Equation that was graphed:} f(x)= %s" %generatePolynomialDisplay(slopeInt)
-generalComment = "Standard form is supposed to have $A > 0$ and all fractions removed."
 
-displayStemType="String"
-displayProblemType="Graph"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+def linear_graph_to_standard_form_function(response_type, version):
+    run_without_error = 0
+    while run_without_error == 0:
+        try:
+            numeratorMax = 5
+            interceptMax = 5
+            solution, slopeInt, point2, point3 = generateProblemAndSolution(numeratorMax, interceptMax)
+            plotGraph(slopeInt[0], slopeInt[1], point2, point3, version)
+
+            distractor_dicts = generate_all_option_dicts(solution)
+
+            option_value_list = []
+            for temp_dict in distractor_dicts:
+                option_value_list.append(temp_dict['values_for_interval_generation'])
+
+            interval_options = interval_masking_method.createIntervalOptions(option_value_list, 1, 0.5)
+            # interval_options returns 5 groups of 2 pairs of interval endings
+
+            run_without_error = 1
+        except:
+            pass
+
+    index_counter = 0
+    solution_dict = distractor_dicts[0]
+    for temp_dict in distractor_dicts:
+        temp_choice_interval_pairs = interval_options[index_counter]
+        temp_interval_1 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
+        temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
+        temp_interval_3 = commonly_used_functions.display_interval(temp_choice_interval_pairs[2])
+        temp_dict[f'choice_presentation'] = "A \\in %s, \\hspace{3mm} B \\in %s, \\text{ and } \\hspace{3mm} C \\in %s" %(temp_interval_1, temp_interval_2, temp_interval_3)
+        index_counter += 1
+
+    presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(distractor_dicts)
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
+
+    ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
+    if response_type=="Multiple-Choice":
+        display_stem = 'Write the equation of the line in the graph below in Standard Form $Ax+By=C$. Then, choose the intervals that contain $A, B, \\text{ and } C$.'
+    else:
+        display_stem = "Write the equation of the line in the graph below in Standard Form $Ax+By=C$."
+    display_problem = "\\text{Equation that was graphed:} f(x)= %s" %commonly_used_functions.generatePolynomialDisplay(slopeInt)
+    general_comment = "Standard form is supposed to have $A > 0$ and all fractions removed."
+
+    display_stem_type="String"
+    display_problem_type="Graph"
+    display_options_type="Math Mode"
+
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+    return [question_dict, options_df]

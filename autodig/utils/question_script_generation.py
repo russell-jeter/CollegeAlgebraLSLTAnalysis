@@ -27,7 +27,11 @@ def add_dict_and_df_for_question(row, file_name):
     question_number = row['question_number']
     code_name = row['code_name']
     response_type = row['response_type']
-    run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}")'
+    version = row['version']
+    if row['need_version'] == 0: 
+        run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}")'
+    else: # Graphs currently need version
+        run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}", "{version}")'
     open_and_write(file_name, [run_line])
 
 def add_load_questions_df(file_name):
@@ -91,6 +95,7 @@ def generate_question_running_script(file_name, questions_to_create_df):
 
 def move_files(file_name):
     temp_file_path_location = os.path.join(os.path.dirname(file_name), 'temp_files', 'build_exams')
+    
     try:
         final_py_location = os.path.join(temp_file_path_location, f'{os.path.basename(file_name)}.py')
         os.rename(f'{file_name}.py', final_py_location)

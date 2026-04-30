@@ -17,13 +17,15 @@ def assign_option_letters(presentation_order, options_df):
 
 
 def value_and_feedback_to_dict(code_name, name, short_description, values_for_intervals, value, feedback, truth_value):
-    '''
+    """Quickly define option dict by passing values in order. 
+
+    Keyword arguements: 
     name: Unique name for solution or distractor
     short_description: If distractor, short description of misconception/error
     value: Associated value
     feedback: Feedback presented to students
     truth_value: 0 if distractor, 1 if solution
-    '''
+    """
     temp_dict = {
         'code_name': code_name,
         'name': name,

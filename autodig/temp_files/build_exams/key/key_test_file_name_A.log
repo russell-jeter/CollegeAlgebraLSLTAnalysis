@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  20 APR 2026 16:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  30 APR 2026 14:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -626,14 +626,26 @@ Package fancyhdr Warning: \headheight is too small (0.0pt):
 [1{C:/Users/dcham/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}
 
 ]
-Overfull \hbox (25.00003pt too wide) in paragraph at lines 68--90
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 68--96
 [][] 
  []
 
 
-Overfull \hbox (25.00003pt too wide) in paragraph at lines 90--121
-[][] 
- []
+LaTeX Warning: File `../figures/linear_graph_to_standard_formA.png' not found o
+n input line 96.
+
+
+! Package pdftex.def Error: File `../figures/linear_graph_to_standard_formA.png
+' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.96 }
+      
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
 
 
 
@@ -646,12 +658,12 @@ Package fancyhdr Warning: \headheight is too small (0.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
 
 [2]
-Overfull \hbox (25.00003pt too wide) in paragraph at lines 121--146
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 96--118
 [][] 
  []
 
 
-Overfull \hbox (25.00003pt too wide) in paragraph at lines 146--147
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 118--140
 [][] 
  []
 
@@ -665,7 +677,22 @@ Package fancyhdr Warning: \headheight is too small (0.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
 
-[3] (key_test_file_name_A.aux)
+[3]
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 140--141
+[][] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[4] (key_test_file_name_A.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-09-10>
@@ -674,24 +701,23 @@ Package rerunfilecheck Info: File `key_test_file_name_A.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 12127 strings out of 473899
- 192934 string characters out of 5726499
- 601008 words of memory out of 5000000
- 34788 multiletter control sequences out of 15000+600000
- 561053 words of font info for 50 fonts, out of 8000000 for 9000
+ 12161 strings out of 473899
+ 194570 string characters out of 5726499
+ 600008 words of memory out of 5000000
+ 34820 multiletter control sequences out of 15000+600000
+ 561221 words of font info for 51 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,559b,687s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,559b,686s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmex10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/p
-ublic/amsfonts/cm/cmmi10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/font
-s/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
-TeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/dcham/AppData/Local/Progr
-ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/dcham/AppData/Lo
-cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on key_test_file_name_A.pdf (3 pages, 109792 bytes).
+fonts/cm/cmmi10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/p
+ublic/amsfonts/cm/cmr10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts
+/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
+TeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Users/dcham/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on key_test_file_name_A.pdf (4 pages, 105228 bytes).
 PDF statistics:
- 93 PDF objects out of 1000 (max. 8388607)
- 34 named destinations out of 1000 (max. 500000)
+ 92 PDF objects out of 1000 (max. 8388607)
+ 35 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

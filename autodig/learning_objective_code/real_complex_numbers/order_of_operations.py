@@ -182,7 +182,7 @@ def order_of_operations_function(response_type):
                     option_value_list.append(temp_dict['values_for_interval_generation'])
 
             interval_options = interval_masking_method.createIntervalOptions(option_value_list, 5, 1)
-            run_without_error += 1
+            run_without_error = 1
         except Exception as e: 
             print(e)
             pass
