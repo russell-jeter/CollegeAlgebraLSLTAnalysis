@@ -191,7 +191,7 @@ def solve_compound_and_function(response_type):
         option_5_dict['feedback'] = "This corresponds to thinking that the values were not correct."
 
     elif problem_type == 3: # left \leq middle < right with negatives of correct endpoints
-        displayProblem = '%s \\leq %s < %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
+        display_problem = '%s \\leq %s < %s' %(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
         option_5_dict['name'] = 'solution'
         option_5_dict['short_description'] = 'Expected solution'
         option_5_dict['feedback'] = '* This is the correct option!'

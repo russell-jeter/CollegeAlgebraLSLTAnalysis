@@ -103,7 +103,6 @@ def generate_all_option_dicts(coefficients):
         0
     )
 
-
     return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
 def solve_linear_integer_coefficients_function(response_type):

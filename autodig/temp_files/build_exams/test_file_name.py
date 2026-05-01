@@ -1,17 +1,27 @@
 import pandas as pd
 import os
 
+from learning_objective_code.real_complex_numbers import divide_complex_numbers
+from learning_objective_code.real_complex_numbers import multiply_complex_numbers
+from learning_objective_code.real_complex_numbers import order_of_operations
+from learning_objective_code.real_complex_numbers import subgroup_real_numbers
+from learning_objective_code.real_complex_numbers import subgroup_complex_numbers
 from learning_objective_code.linear_functions import solve_linear_integer_coefficients
 from learning_objective_code.linear_functions import solve_linear_rational_coefficients
 from learning_objective_code.linear_functions import linear_graph_to_standard_form
 from learning_objective_code.linear_functions import build_linear_from_two_points
 from learning_objective_code.linear_functions import build_parallel_or_perpendicular_line
 
-dict_0, df_0 = solve_linear_integer_coefficients.solve_linear_integer_coefficients_function("Multiple-Choice")
-dict_1, df_1 = solve_linear_rational_coefficients.solve_linear_rational_coefficients_function("Multiple-Choice")
-dict_2, df_2 = linear_graph_to_standard_form.linear_graph_to_standard_form_function("Multiple-Choice", "A")
-dict_3, df_3 = build_linear_from_two_points.build_linear_from_two_points_function("Multiple-Choice")
-dict_4, df_4 = build_parallel_or_perpendicular_line.build_parallel_or_perpendicular_line_function("Multiple-Choice")
+dict_0, df_0 = divide_complex_numbers.divide_complex_numbers_function("Multiple-Choice")
+dict_1, df_1 = multiply_complex_numbers.multiply_complex_numbers_function("Multiple-Choice")
+dict_2, df_2 = order_of_operations.order_of_operations_function("Multiple-Choice")
+dict_3, df_3 = subgroup_real_numbers.subgroup_real_numbers_function("Multiple-Choice")
+dict_4, df_4 = subgroup_complex_numbers.subgroup_complex_numbers_function("Multiple-Choice")
+dict_5, df_5 = solve_linear_integer_coefficients.solve_linear_integer_coefficients_function("Multiple-Choice")
+dict_6, df_6 = solve_linear_rational_coefficients.solve_linear_rational_coefficients_function("Multiple-Choice")
+dict_7, df_7 = linear_graph_to_standard_form.linear_graph_to_standard_form_function("Multiple-Choice", "A")
+dict_8, df_8 = build_linear_from_two_points.build_linear_from_two_points_function("Multiple-Choice")
+dict_9, df_9 = build_parallel_or_perpendicular_line.build_parallel_or_perpendicular_line_function("Multiple-Choice")
 
 base_dir = os.getcwd()
 save_questions_df_file_path = os.path.join(base_dir, 'temp_files', 'build_exams', 'questions_to_create_df.xlsx')

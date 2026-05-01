@@ -1,41 +1,27 @@
-import sys
-import numpy
+import numpy as np
+import pandas as pd
 import random
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
+
+code_name = 'solve_compound_or'
 
 def createAllCoefficients():
-    c0 = maybeMakeNegative(random.randint(3, 9))
-    c1 = maybeMakeNegative(random.randint(3, 9))
+    c0 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+    c1 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
     c2 = abs(c1) + random.randint(1, 3)
-    c3 = maybeMakeNegative(random.randint(3, 9))
-    c4 = maybeMakeNegative(random.randint(3, 9))
+    c3 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+    c4 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
     c5 = abs(c4) + random.randint(1, 3)
     coefficients = [c0, c1, c2, c3, c4, c5]
     smallerEndpoint = float(-c0/(c1-c2))
     largerEndpoint = float(-c3/(c4-c5))
     while (largerEndpoint <= smallerEndpoint):
-        c0 = maybeMakeNegative(random.randint(3, 9))
-        c1 = maybeMakeNegative(random.randint(3, 9))
+        c0 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+        c1 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
         c2 = abs(c1) + random.randint(1, 3)
-        c3 = maybeMakeNegative(random.randint(3, 9))
-        c4 = maybeMakeNegative(random.randint(3, 9))
+        c3 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
+        c4 = commonly_used_functions.maybeMakeNegative(random.randint(3, 9))
         c5 = abs(c4) + random.randint(1, 3)
         coefficients = [c0, c1, c2, c3, c4, c5]
         smallerEndpoint = float(-c0/(c1-c2))
@@ -44,16 +30,16 @@ def createAllCoefficients():
 
 def createIntervalFromGreaterThanInequality(coefficients):
     a, b, c = coefficients
-    left = numpy.poly1d([b, a])
-    right = numpy.poly1d([c, 0])
+    left = np.poly1d([b, a])
+    right = np.poly1d([c, 0])
     diff_of_left_right= left-right
     endpoint = diff_of_left_right.r
     return [0, endpoint[0]]
 
 def createIntervalFromLessThanInequality(coefficients):
     a, b, c = coefficients
-    left = numpy.poly1d([b, a])
-    right = numpy.poly1d([c, 0])
+    left = np.poly1d([b, a])
+    right = np.poly1d([c, 0])
     diff_of_left_right= left-right
     endpoint = diff_of_left_right.r
     return [endpoint[0], 0]
@@ -77,84 +63,166 @@ def extractValue(solutionInterval):
     else:
         return a
 
-# Type 1 - "or"
-# block[0] + block[1]*x > block[2]*x "or" block[3] + block[4]*x < block[5]*x
+def generate_all_option_dicts(solution_endpoints):
+    a, b = solution_endpoints
+    display_solution = "(-\\infty, %s) \\text{ or } (%s, \\infty)" %(round(a, 3), round(b, 3))
+    solution_feedback = "* %s, which is the correct option." %display_solution
+    solution_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'solution', 
+        'Expected solution', 
+        solution_endpoints, 
+        display_solution, 
+        solution_feedback, 
+        1
+    )
+    
+    distractor_1_endpoints = [-b, -a]
+    display_distractor_1 = "(-\\infty, %s) \\text{ or } (%s, \\infty)" %(round(-b, 3), round(-a, 3))
+    distractor_1_feedback = " %s, which corresponds to inverting the inequality and negating the solution." %display_distractor_1
+    distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_1',
+        'Arithmetic error - negative of true solution',
+        distractor_1_endpoints, 
+        display_distractor_1, 
+        distractor_1_feedback,
+        0
+    )
 
-allCoefficients = createAllCoefficients()
-factor1Coefficients = [allCoefficients[0], allCoefficients[1], allCoefficients[2]]
-factor2Coefficients = [allCoefficients[3], allCoefficients[4], allCoefficients[5]]
-intervalLeft = createIntervalFromGreaterThanInequality(factor1Coefficients)
-intervalRight = createIntervalFromLessThanInequality(factor2Coefficients)
-endpointLeft = extractValue(intervalLeft)
-endpointRight = extractValue(intervalRight)
-solution = [float(endpointLeft), float(endpointRight)]
+    distractor_2_endpoints = [a, b]
+    display_distractor_2 = "(-\\infty, %s] \\text{ or } [%s, \\infty)" %(round(a, 3), round(b, 3))
+    distractor_2_feedback = " %s, which corresponds to including the endpoints (when they should be excluded)." %display_distractor_2
+    distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_2', 
+        'Misconception - including endpoints when they should be excluded',
+        distractor_2_endpoints,
+        display_distractor_2,
+        distractor_2_feedback, 
+        0
+    )
 
-while (abs(solution[0])==abs(solution[1]) or abs(solution[0])<1 or abs(solution[1])<1 or abs(abs(solution[0])-abs(solution[1])) < 1 ):
-    allCoefficients = createAllCoefficients()
-    factor1Coefficients = [allCoefficients[0], allCoefficients[1], allCoefficients[2]]
-    factor2Coefficients = [allCoefficients[3], allCoefficients[4], allCoefficients[5]]
-    intervalLeft = createIntervalFromGreaterThanInequality(factor1Coefficients)
-    intervalRight = createIntervalFromLessThanInequality(factor2Coefficients)
-    endpointLeft = extractValue(intervalLeft)
-    endpointRight = extractValue(intervalRight)
-    solution = [float(endpointLeft), float(endpointRight)]
+    distractor_3_endpoints = [-b, -a]
+    display_distractor_3 = "(-\\infty, %s] \\text{ or } [%s, \\infty)" %(round(-b, 3), round(-a, 3))
+    distractor_3_feedback = " %s, which corresponds to including the endpoints (when they should be excluded) and inverting the inequality and negating the solution." %display_distractor_3
+    distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_3',
+        'Misconception and Arithmetic - including endpoints when they should be excluded and negative of true solution',
+        distractor_3_endpoints, 
+        display_distractor_3, 
+        distractor_3_feedback,
+        0
+    )
 
-if factor1Coefficients[1] < 0:
-    displayLeftFactor = "%s - %s x > %s x" %(factor1Coefficients[0], -factor1Coefficients[1], factor1Coefficients[2])
-else:
-    displayLeftFactor = "%s + %s x > %s x" %(factor1Coefficients[0], factor1Coefficients[1], factor1Coefficients[2])
+    display_distractor_4 = "(-\\infty, \\infty)"
+    distractor_4_feedback = f" ${display_distractor_4}$, which corresponds to the variable canceling and does not happen in this instance."
+    distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_4', 
+        'Catch all distractor - all real numbers',
+        display_distractor_4, 
+        display_distractor_4,
+        distractor_4_feedback,
+        0
+    )
 
-if factor2Coefficients[1] < 0:
-    displayRightFactor = "%s - %s x < %s x" %(factor2Coefficients[0], -factor2Coefficients[1], factor2Coefficients[2])
-else:
-    displayRightFactor = "%s + %s x < %s x" %(factor2Coefficients[0], factor2Coefficients[1], factor2Coefficients[2])
+    return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-distractor1 = distractorNegateAndInverseDomain(solution)
-distractor2 = solution
-distractor3 = distractorNegateAndInverseDomain(solution)
+def solve_compound_or_function(response_type):
+    run_without_error = 0
+    while run_without_error == 0:
+        try:
+            # block[0] + block[1]*x > block[2]*x "or" block[3] + block[4]*x < block[5]*x
+            solution_endpoints = [0,0]
+            while (abs(solution_endpoints[0])==abs(solution_endpoints[1]) or abs(solution_endpoints[0])<1 or abs(solution_endpoints[1])<1 or abs(abs(solution_endpoints[0])-abs(solution_endpoints[1])) < 1 ):
+                allCoefficients = createAllCoefficients()
+                factor1Coefficients = [allCoefficients[0], allCoefficients[1], allCoefficients[2]]
+                factor2Coefficients = [allCoefficients[3], allCoefficients[4], allCoefficients[5]]
+                intervalLeft = createIntervalFromGreaterThanInequality(factor1Coefficients)
+                intervalRight = createIntervalFromLessThanInequality(factor2Coefficients)
+                endpointLeft = extractValue(intervalLeft)
+                endpointRight = extractValue(intervalRight)
+                solution_endpoints = [float(endpointLeft), float(endpointRight)]
+            solution_dict, option_1_dict, option_2_dict, option_3_dict, option_4_dict = generate_all_option_dicts(solution_endpoints)
 
-solutionListA = [solution, distractor1]
-solutionListB = [distractor2, distractor3]
-intervalOptionsA = createIntervalOptions(solutionListA, 4, 0.75)
-intervalOptionsB = createIntervalOptions(solutionListB, 4, 0.75)
+            a, b = solution_endpoints
 
-solutionInterval = [intervalCupExclusive(solution), intervalOptionsA[0], ' * Correct option.', 1]
-distractor1Interval = [intervalCupExclusive(solution), intervalOptionsA[1], "Corresponds to inverting the inequality and negating the solution.", 0]
-distractor2Interval = [intervalCupInclusive(solution), intervalOptionsB[0], "Corresponds to including the endpoints (when they should be excluded).", 0]
-distractor3Interval = [intervalCupInclusive(solution), intervalOptionsB[1], "Corresponds to including the endpoints AND negating.", 0]
-# Distractor4Interval is all real numbers. "(-\\infty, \\infty)"
-if response_type=="Multiple-Choice":
-    displayStem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
-else:
-    displayStem = 'Solve the linear inequality below.'
-displayProblem = '%s \\text{ or } %s' %(displayLeftFactor, displayRightFactor)
-displaySolution = "(-\\infty, %s) \\text{ or } (%s, \\infty)" %(round(solution[0], 3), round(solution[1], 3))
-generalComment = "When multiplying or dividing by a negative, flip the sign."
+            # Four intervals for options 0 (solution) and 1
+            interval_options_0_1 = interval_masking_method.createIntervalOptions([ [a,b], [-b,a] ], 1, 0.5)
+            solution_interval_0 = commonly_used_functions.display_interval(interval_options_0_1[0][0])
+            solution_interval_1 = commonly_used_functions.display_interval(interval_options_0_1[0][1])
+            option_1_interval_0 = commonly_used_functions.display_interval(interval_options_0_1[1][0])
+            option_1_interval_1 = commonly_used_functions.display_interval(interval_options_0_1[1][1])
 
-answerList = [solutionInterval, distractor1Interval, distractor2Interval, distractor3Interval]
-random.shuffle(answerList)
-answerList.append(["(-\\infty, \\infty)", "Corresponds to the variable canceling, which does not happen in this instance.", 0, 0])
+            # Four intervals for options 2 and 3
+            interval_options_2_3 = interval_masking_method.createIntervalOptions([ [a,b], [-b,a] ], 1, 0.5)
+            option_2_interval_0 = commonly_used_functions.display_interval(interval_options_2_3[0][0])
+            option_2_interval_1 = commonly_used_functions.display_interval(interval_options_2_3[0][1])
+            option_3_interval_0 = commonly_used_functions.display_interval(interval_options_2_3[1][0])
+            option_3_interval_1 = commonly_used_functions.display_interval(interval_options_2_3[1][1])
 
-c0 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[0][0], answerList[0][1][0][0], answerList[0][1][0][1], answerList[0][1][1][0], answerList[0][1][1][1])
-c1 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[1][0], answerList[1][1][0][0], answerList[1][1][0][1], answerList[1][1][1][0], answerList[1][1][1][1])
-c2 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[2][0], answerList[2][1][0][0], answerList[2][1][0][1], answerList[2][1][1][0], answerList[2][1][1][1])
-c3 = "%s, \\text{ where } a \\in [%s, %s] \\text{ and } b \\in [%s, %s]" %(answerList[3][0], answerList[3][1][0][0], answerList[3][1][0][1], answerList[3][1][1][0], answerList[3][1][1][1])
-c4 = "%s" %answerList[4][0]
-choices = [c0, c1, c2, c3, c4]
-choiceComments = [answerList[0][2], answerList[1][2], answerList[2][2], answerList[3][2], answerList[4][1]]
+            run_without_error = 1
+        except Exception as e:
+            print(e)
+            pass
 
-answerIndex = 0
-letters = ["A", "B", "C", "D", "E"]
-for checkLetter in letters:
-    if answerList[answerIndex][3] == 1:
-        answerLetter = letters[answerIndex]
-        break
-    answerIndex = answerIndex+1
+    solution_format = '(-\\infty, a) \\text{ or } (b, \\infty)'
+    solution_dict['choice_presentation'] = "%s, \\text{ where } a \\in %s \\text{ and } b \\in %s" %(solution_format, solution_interval_0, solution_interval_1)
 
-displayStemType="String"
-displayProblemType="Math Mode"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+    option_1_format = solution_format
+    option_1_dict['choice_presentation'] = "%s, \\text{ where } a \\in %s \\text{ and } b \\in %s" %(option_1_format, option_1_interval_0, option_1_interval_1)
+
+    option_2_format = '(-\\infty, a] \\text{ or } [b, \\infty)'
+    option_2_dict['choice_presentation'] = "%s, \\text{ where } a \\in %s \\text{ and } b \\in %s" %(option_2_format, option_2_interval_0, option_2_interval_1)
+
+    option_3_format = option_2_format
+    option_3_dict['choice_presentation'] = "%s, \\text{ where } a \\in %s \\text{ and } b \\in %s" %(option_3_format, option_3_interval_0, option_3_interval_1)
+
+    option_4_dict['choice_presentation'] = option_4_dict['value']
+
+    presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame([solution_dict, option_1_dict, option_2_dict, option_3_dict, option_4_dict])
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
+
+    if factor1Coefficients[1] < 0:
+        displayLeftFactor = "%s - %s x > %s x" %(factor1Coefficients[0], -factor1Coefficients[1], factor1Coefficients[2])
+    else:
+        displayLeftFactor = "%s + %s x > %s x" %(factor1Coefficients[0], factor1Coefficients[1], factor1Coefficients[2])
+
+    if factor2Coefficients[1] < 0:
+        displayRightFactor = "%s - %s x < %s x" %(factor2Coefficients[0], -factor2Coefficients[1], factor2Coefficients[2])
+    else:
+        displayRightFactor = "%s + %s x < %s x" %(factor2Coefficients[0], factor2Coefficients[1], factor2Coefficients[2])
+
+    if response_type=="Multiple-Choice":
+        display_stem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
+    else:
+        display_stem = 'Solve the linear inequality below.'
+    display_problem = '%s \\text{ or } %s' %(displayLeftFactor, displayRightFactor)
+    general_comment = "When multiplying or dividing by a negative, flip the sign."
+
+    display_stem_type="String"
+    display_problem_type="Math Mode"
+    display_options_type="Math Mode"
+
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+
+    return [question_dict, options_df]
