@@ -1,49 +1,35 @@
-import sys
-import numpy
+import numpy as np
+import pandas as pd
 import random
 import math
 from sympy import primerange
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
 
-def generateFactors(minimumPrime, maximumPrime, numberOfFactors):
+code_name = 'factor_trinomial_with_a_over_1'
+
+def generate_factors(minimumPrime, maximumPrime, numberOfFactors):
     listPrimes = list(primerange(minimumPrime, maximumPrime))
     aFactors = [random.sample(listPrimes, 1) for i in range(numberOfFactors)]
     cFactors = [random.sample(listPrimes, 1) for i in range(numberOfFactors)]
     return [aFactors, cFactors]
 
-def generateSolution(minimum, maximum, factors):
-    aFactors = factors[0]
-    cFactors = factors[1]
-    a = numpy.prod(aFactors)
-    c = numpy.prod(cFactors)
-    b = maybeMakeNegative(random.randint(minimum, maximum))
-    d = maybeMakeNegative(random.randint(minimum, maximum))
+def display_factored_form(solution):
+    f1, f2, f3, f4 = solution
+    first_factor = commonly_used_functions.generatePolynomialDisplay([f1, f2])
+    second_factor = commonly_used_functions.generatePolynomialDisplay([f3, f4])
+    factored_form = "(%s)(%s)" %(first_factor, second_factor)
+    return factored_form 
 
+def generate_solution(minimum, maximum, factors):
+    a, b, c, d = [1, 1, 1, -1]
     # This makes sure we can't factor out a constant and the middle coefficient doesn't cancel.
-    while ((math.gcd(a, b)*math.gcd(c, d)>1) or (a==c and b==-d) or (a*d+b*c==0)):
-        aFactors = factors[0]
-        cFactors = factors[1]
-        a = numpy.prod(aFactors)
-        c = numpy.prod(cFactors)
-        b = maybeMakeNegative(random.randint(minimum, maximum))
-        d = maybeMakeNegative(random.randint(minimum, maximum))
+    while ((math.gcd(a, abs(b))*math.gcd(c, abs(d))>1) or (a==c and b==-d) or (a*d+b*c==0)):
+        aFactors, cFactors = factors
+        a = np.prod(aFactors)
+        c = np.prod(cFactors)
+        b = commonly_used_functions.maybeMakeNegative(random.randint(minimum, maximum))
+        d = commonly_used_functions.maybeMakeNegative(random.randint(minimum, maximum))
 
     #This will guarantee that we always generate solutions with b <= d
     if(b <= d):
@@ -51,18 +37,19 @@ def generateSolution(minimum, maximum, factors):
     else:
         return[c, d, a, b]
 
-def generateProblem(solution):
+def generate_quadratic_coefficients(solution):
     a, b, c, d = solution
     return [a*c, a*d + b*c, b*d]
 
-def distractorA1(solution):
+def generate_distractor_1_coefficients(solution):
     a, b, c, d = solution
     if a*d < b*c:
-        return [1, a*d, 1, b*c]
+        distractor_1_coeffs = [1, a*d, 1, b*c]
     else:
-        return [1, b*c, 1, a*d]
+        distractor_1_coeffs = [1, b*c, 1, a*d]
+    return distractor_1_coeffs
 
-def distractorLumpedCFactors(solution, factors):
+def generate_distractor_2_coefficients(solution, factors):
     aFactors = factors[0]
     cFactors = factors[1]
     a, b, c, d = solution
@@ -74,7 +61,8 @@ def distractorLumpedCFactors(solution, factors):
         return [a, b, c, d]
     else:
         return [c, d, a, b]
-def distractorLumpedAFactors(solution, factors):
+
+def generate_distractor_3_coefficients(solution, factors):
     aFactors = factors[0]
     cFactors = factors[1]
     a, b, c, d = solution
@@ -86,73 +74,156 @@ def distractorLumpedAFactors(solution, factors):
     else:
         return [c, d, a, b]
 
-# Type 3 - a and c are fairly composite (ac has at least 6 factors)
-intervalRange = 5
-minimum = 2
-maximum = 5
-numberOfFactors = 2
+def generate_all_option_dicts(solution, factors):
+    a, b, c, d = solution
+    c0, c1, c2 = generate_quadratic_coefficients(solution)
 
-factors = generateFactors(minimum, maximum, numberOfFactors)
-solution = generateSolution(minimum, maximum, factors)
-distractor1 = distractorA1(solution)
-distractor2 = distractorLumpedCFactors(solution, factors)
-distractor3 = distractorLumpedAFactors(solution, factors)
-solutionList = [solution, distractor1, distractor2, distractor3]
+    display_solution = display_factored_form(solution)
+    solution_feedback = "* $%s$, which is the correct option." %display_solution
+    solution_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'solution',
+        'Expected solution',
+        solution, 
+        display_solution,
+        solution_feedback,
+        1
+    )
 
-while (solutionList[0]==solutionList[1] or solutionList[0]==solutionList[2] or solutionList[0]==solutionList[3] or solutionList[1]==solutionList[2] or solutionList[1]==solutionList[3] or solutionList[2]==solutionList[3]):
-    factors = generateFactors(minimum, maximum, numberOfFactors)
-    solution = generateSolution(minimum, maximum, factors)
-    distractor1 = distractorA1(solution)
-    distractor2 = distractorLumpedCFactors(solution, factors)
-    distractor3 = distractorLumpedAFactors(solution, factors)
-    solutionList = [solution, distractor1, distractor2, distractor3]
+    distractor_1_coeffs = generate_distractor_1_coefficients(solution)
+    display_distractor_1 = display_factored_form(distractor_1_coeffs)
+    distractor_1_quadratic = commonly_used_functions.generatePolynomialDisplay(generate_quadratic_coefficients(distractor_1_coeffs))
+    distractor_1_feedback = " $%s$, which corresponds to factoring $%s$." %(display_distractor_1, distractor_1_quadratic)
+    distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_1',
+        f'Misconception - Made a=1 and factored $f(x) = {distractor_1_quadratic}$',
+        distractor_1_coeffs,
+        display_distractor_1,
+        distractor_1_feedback,
+        0
+    )
 
-precision = 1
-intervalOptions = createIntervalOptions(solutionList, intervalRange, precision)
-problem = generateProblem(solution)
-if response_type=="Multiple-Choice":
-    displayStem = 'Factor the quadratic below. Then, choose the intervals that contain the constants in the form $(ax+b)(cx+d); b \\leq d.$'
-else:
-    displayStem = 'Factor the quadratic below into the form $(ax+b)(cx+d)$.'
+    distractor_2_coeffs = generate_distractor_2_coefficients(solution, factors)
+    display_distractor_2 = display_factored_form(distractor_2_coeffs)
+    distractor_2_quadratic = commonly_used_functions.generatePolynomialDisplay(generate_quadratic_coefficients(distractor_2_coeffs))
+    distractor_2_feedback = " $%s$, which corresponds to associating some factor of c to a." %display_distractor_2
+    distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_2',
+        f'Misconception - Associated some factors of c to a and factored $f(x) = {distractor_2_quadratic}$',
+        distractor_2_coeffs,
+        display_distractor_2,
+        distractor_2_feedback,
+        0
+    )
 
-displayProblem = generatePolynomialDisplay(problem)
+    distractor_3_coeffs = generate_distractor_3_coefficients(solution, factors)
+    display_distractor_3 = display_factored_form(distractor_3_coeffs)
+    distractor_3_quadratic = commonly_used_functions.generatePolynomialDisplay(generate_quadratic_coefficients(distractor_3_coeffs))
+    distractor_3_feedback = " $%s$, which corresponds to associating some factor of a to c." %display_distractor_3
+    distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_3',
+        f'Misconception - Associated some factors of a to c and factored $f(x) = {distractor_3_quadratic}$',
+        distractor_3_coeffs,
+        display_distractor_3,
+        distractor_3_feedback,
+        0
+    )   
 
-displaySolution = '(%s)(%s)' %(generatePolynomialDisplay([solution[0], solution[1]]), generatePolynomialDisplay([solution[2], solution[3]]))
-displayDistractor1 = '(%s)(%s)' %(generatePolynomialDisplay([distractor1[0], distractor1[1]]), generatePolynomialDisplay([distractor1[2], distractor1[3]]))
-displayDistractor2 = '(%s)(%s)' %(generatePolynomialDisplay([distractor2[0], distractor2[1]]), generatePolynomialDisplay([distractor2[2], distractor2[3]]))
-displayDistractor3 = '(%s)(%s)' %(generatePolynomialDisplay([distractor3[0], distractor3[1]]), generatePolynomialDisplay([distractor3[2], distractor3[3]]))
+    distractor_4_feedback = " None of the above, which corresponds to a different factoring than any of the predicted options. If you get this, please let the coordinator know so they can work with you to figure out what went wrong with your factoring."
+    distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_4',
+        f'Catch all - None of the above',
+        'None of the above',
+        '\\text{None of the above.}',
+        distractor_4_feedback,
+        0
+    ) 
+    distractor_4_dict['choice_presentation'] = '\\text{None of the above.}'
 
-generalComment = "$ac$ had many factors in this problem. It is best to list out the possible pairs in order to make sure you don't miss any."
+    return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-solutionInterval = [intervalOptions[0], "* $%s$, which is the correct option." %displaySolution, 1]
-distractor1Interval = [intervalOptions[1], " $%s$, which corresponds to factoring $%s$." %(displayDistractor1, generatePolynomialDisplay([1, problem[1], problem[0]*problem[2]])), 0]
-distractor2Interval = [intervalOptions[2], " $%s$, which corresponds to associating some factor of c to a." %displayDistractor2, 0]
-distractor3Interval = [intervalOptions[3], " $%s$, which corresponds to associating some factor of a to c." %displayDistractor3, 0]
-distractor4Interval = ["", " Corresponds to a different factoring than any of the predicted options. If you get this, please let the coordinator know so they can work with you to figure out what went wrong with your factoring.", 0]
+def factor_trinomial_with_a_over_1_function(response_type):
+    run_without_error = 0
+    while run_without_error == 0:
+        try:
+            option_value_list = [0, 0, 0, 0]
+            while (
+                option_value_list[0]==option_value_list[1] or 
+                option_value_list[0]==option_value_list[2] or 
+                option_value_list[0]==option_value_list[3] or 
+                option_value_list[1]==option_value_list[2] or 
+                option_value_list[1]==option_value_list[3] or 
+                option_value_list[2]==option_value_list[3]
+            ):
+                minimum = 2
+                maximum = 7
+                numberOfFactors = 2
 
-answerList = [solutionInterval, distractor1Interval, distractor2Interval, distractor3Interval]
-random.shuffle(answerList)
+                factors = generate_factors(minimum, maximum, numberOfFactors)
+                solution = generate_solution(minimum, maximum, factors)
+                list_of_dicts = generate_all_option_dicts(solution, factors)
 
-c0 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\hspace*{5mm} c \\in [%s, %s], \\text{ and } \\hspace*{5mm} d \\in [%s, %s]" %(answerList[0][0][0][0], answerList[0][0][0][1], answerList[0][0][1][0], answerList[0][0][1][1], answerList[0][0][2][0], answerList[0][0][2][1], answerList[0][0][3][0], answerList[0][0][3][1])
-c1 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\hspace*{5mm} c \\in [%s, %s], \\text{ and } \\hspace*{5mm} d \\in [%s, %s]" %(answerList[1][0][0][0], answerList[1][0][0][1], answerList[1][0][1][0], answerList[1][0][1][1], answerList[1][0][2][0], answerList[1][0][2][1], answerList[1][0][3][0], answerList[1][0][3][1])
-c2 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\hspace*{5mm} c \\in [%s, %s], \\text{ and } \\hspace*{5mm} d \\in [%s, %s]" %(answerList[2][0][0][0], answerList[2][0][0][1], answerList[2][0][1][0], answerList[2][0][1][1], answerList[2][0][2][0], answerList[2][0][2][1], answerList[2][0][3][0], answerList[2][0][3][1])
-c3 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\hspace*{5mm} c \\in [%s, %s], \\text{ and } \\hspace*{5mm} d \\in [%s, %s]" %(answerList[3][0][0][0], answerList[3][0][0][1], answerList[3][0][1][0], answerList[3][0][1][1], answerList[3][0][2][0], answerList[3][0][2][1], answerList[3][0][3][0], answerList[3][0][3][1])
-c4 = "\\text{None of the above.}"
-choices = [c0, c1, c2, c3, c4]
-choiceComments = [answerList[0][1], answerList[1][1], answerList[2][1], answerList[3][1], distractor4Interval[1]]
+                option_value_list = []
+                for temp_dict in list_of_dicts:
+                    if type(temp_dict['values_for_interval_generation']) == type(str()):
+                        pass
+                    else:
+                        option_value_list.append(temp_dict['values_for_interval_generation'])
 
-answerIndex = 0
-letters = ["A", "B", "C", "D", "E"]
-for checkLetter in letters:
-    if answerList[answerIndex][2] == 1:
-        answerLetter = letters[answerIndex]
-        break
-    answerIndex = answerIndex+1
+            interval_options = interval_masking_method.createIntervalOptions(option_value_list, 5, 1)
 
-displayStemType="String"
-displayProblemType="Math Mode"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+            run_without_error = 1
+        except Exception as e:
+            print(e)
+            pass
+   
+    index_counter = 0
+    solution_dict = list_of_dicts[0]
+    while index_counter < len(list_of_dicts)-1:
+        temp_dict = list_of_dicts[index_counter]
+        temp_choice_interval_pairs = interval_options[index_counter]
+        temp_interval_1 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
+        temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
+        temp_interval_3 = commonly_used_functions.display_interval(temp_choice_interval_pairs[2])
+        temp_interval_4 = commonly_used_functions.display_interval(temp_choice_interval_pairs[3])
+        temp_dict[f'choice_presentation'] = "a \\in %s, \\hspace*{5mm} b \\in %s, \\hspace*{5mm} c \\in %s, \\text{ and } \\hspace*{5mm} d \\in %s" %(temp_interval_1, temp_interval_2, temp_interval_3, temp_interval_4)
+        index_counter += 1
+
+    presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(list_of_dicts)
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
+
+    ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
+    if response_type=="Multiple-Choice":
+        display_stem = 'Factor the quadratic below. Then, choose the intervals that contain the constants in the form $(ax+b)(cx+d); b \\leq d.$'
+    else:
+        display_stem = 'Factor the quadratic below into the form $(ax+b)(cx+d)$.'
+    display_problem = commonly_used_functions.generatePolynomialDisplay(generate_quadratic_coefficients(solution))
+    general_comment = "$ac$ had many factors in this problem. It is best to list out the possible pairs in order to make sure you don't miss any."
+
+    display_stem_type="String"
+    display_problem_type="Math Mode"
+    display_options_type="Math Mode"
+
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+    return [question_dict, options_df]

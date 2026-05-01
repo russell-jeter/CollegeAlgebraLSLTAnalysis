@@ -1,37 +1,83 @@
-import sys
-import numpy
+import numpy as np
+import pandas as pd
 import random
-#import math
 import matplotlib.pyplot as plt
+import os
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
 
-def generateSolutionAndDistractors(coefficients, vertex):
+code_name = 'convert_quadratic_graph_to_equation'
+
+def generate_all_option_dicts(coefficients, vertex):
     a, b, c = coefficients
-    solution = [[a, b, c], "* $f(x)=%s$, which is the correct option." %generatePolynomialDisplay([a, b, c]), 1]
-    distractor1 = [[a, -b, c], "$f(x)=%s$, which corresponds to incorrectly using vertex form as $f(x) = a(x+h)^2+k$." %generatePolynomialDisplay([a, -b, c]), 0]
-    distractor2 = [[-a, b, -c + 2*vertex[1]], "$f(x)=%s$, which corresponds to incorrectly using vertex form as $f(x) = a(x+h)^2+k$ AND making $a$ the opposite sign than it should be." %generatePolynomialDisplay([-a, b, -c + 2*vertex[1]]), 0]
-    distractor3 = [[a, -b, c - 2*vertex[1]], "$f(x)=%s$, which corresponds to incorrectly using vertex form as $f(x) = a(x+h)^2 - k$." %generatePolynomialDisplay([a, -b, c - 2*vertex[1]]), 0]
-    distractor4 = [[-a, -b, -c + 2*vertex[1]], "$f(x)=%s$, which corresponds to making $a$ the opposite sign than it should be." %generatePolynomialDisplay([-a, -b, -c + 2*vertex[1]]), 0]
-    return [solution, distractor1, distractor2, distractor3, distractor4]
 
-def graphTheFunctionAndReturnCoefficients(a, vertex):
+    display_solution = commonly_used_functions.generatePolynomialDisplay(coefficients)
+    solution_feedback = f"* ${display_solution}$, which is the correct option."
+    solution_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'solution',
+        'Expected solution',
+        coefficients, 
+        display_solution,
+        solution_feedback,
+        1
+    )
+
+    distractor_1_coeffs = [a, -b, c]
+    display_distractor_1 = commonly_used_functions.generatePolynomialDisplay(distractor_1_coeffs)
+    distractor_1_feedback = " $f(x)=%s$, which corresponds to incorrectly using vertex form as $f(x) = a(x+h)^2+k$." %display_distractor_1
+    distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_1',
+        'Misconception - Used form $f(x) = a(x+h)^2+k$',
+        distractor_1_coeffs,
+        display_distractor_1,
+        distractor_1_feedback,
+        0
+    )
+
+    distractor_2_coeffs = [-a, b, -c+2*vertex[1]]
+    display_distractor_2 = commonly_used_functions.generatePolynomialDisplay(distractor_2_coeffs)
+    distractor_2_feedback = " $f(x)=%s$, which corresponds to incorrectly using vertex form as $f(x) = a(x+h)^2+k$ AND making $a$ the opposite sign than it should be." %display_distractor_2
+    distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_2',
+        'Misconception - Used form $f(x) = -a(x+h)^2+k$',
+        distractor_2_coeffs,
+        display_distractor_2,
+        distractor_2_feedback,
+        0
+    )
+
+    distractor_3_coeffs = [a, -b, c-2*vertex[1]]
+    display_distractor_3 = commonly_used_functions.generatePolynomialDisplay(distractor_3_coeffs)
+    distractor_3_feedback = " $f(x)=%s$, which corresponds to incorrectly using vertex form as $f(x) = a(x+h)^2 - k$." %display_distractor_3
+    distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_3',
+        'Misconception - Used form $f(x) = a(x+h)^2-k$',
+        distractor_3_coeffs,
+        display_distractor_3,
+        distractor_3_feedback,
+        0
+    )
+
+    distractor_4_coeffs = [-a, -b, -c+2*vertex[1]]
+    display_distractor_4 = commonly_used_functions.generatePolynomialDisplay(distractor_4_coeffs)
+    distractor_4_feedback = " $f(x)=%s$, which corresponds to making $a$ the opposite sign than it should be." %display_distractor_4
+    distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_4',
+        'Misconception - Used form $f(x) = -a(x-h)^2+k$',
+        distractor_4_coeffs,
+        display_distractor_4,
+        distractor_4_feedback,
+        0
+    )
+
+    return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
+
+def graph_function_return_coefficents(a, vertex, version):
     #a * (x-vertex[0])**2 + vertex[1]
     SMALL_SIZE = 24
     MEDIUM_SIZE = 28
@@ -44,56 +90,79 @@ def graphTheFunctionAndReturnCoefficients(a, vertex):
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
     plt.figure(1)
-    graphX = numpy.arange(vertex[0] - 3, vertex[0] + 3, 0.01)
+    graphX = np.arange(vertex[0] - 3, vertex[0] + 3, 0.01)
     graphY = a * (graphX-vertex[0])**2 + vertex[1]
     plt.plot(graphX, graphY, linewidth = 5, color = 	'#02325f')
     plt.plot( [ vertex[0] ], [ vertex[1] ], 'bs')
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.savefig('/' + str(DIR) + '/Figures/' + str(thisQuestion) + str(version) + '.png', bbox_inches='tight')
+    base_dir = os.getcwd()
+    figure_path = os.path.join(base_dir, 'temp_files', 'build_exams', 'figures', f'{code_name}_{version}.png')
+    plt.savefig(figure_path, bbox_inches='tight')
     plt.close()
     return [a, -2*vertex[0]*a, a*(vertex[0]**2) +vertex[1]]
 
-a = maybeMakeNegative(1)
-vertex = [maybeMakeNegative(random.randint(1, 2))*2, maybeMakeNegative(random.randint(1, 5))*2]
-coefficients = graphTheFunctionAndReturnCoefficients(a, vertex)
-solution, distractor1, distractor2, distractor3, distractor4 = generateSolutionAndDistractors(coefficients, vertex)
-solutionList = [ solution[0], distractor1[0], distractor2[0], distractor3[0], distractor4[0] ]
-intervalRange = 3
-precision = 1
-intervalOptions = createIntervalOptions(solutionList, intervalRange, precision)
-answerList = [ [intervalOptions[0], solution[1], solution[2]], [intervalOptions[1], distractor1[1], distractor1[2]], [intervalOptions[2], distractor2[1], distractor2[2]], [intervalOptions[3], distractor3[1], distractor3[2]], [intervalOptions[4], distractor4[1], distractor4[2]] ]
-random.shuffle(answerList)
+def convert_quadratic_graph_to_equation_function(response_type, version):
+    run_without_error = 0
+    while run_without_error == 0:
+        try:
+            a = commonly_used_functions.maybeMakeNegative(1)
+            vertex = [commonly_used_functions.maybeMakeNegative(random.randint(1, 2))*2, commonly_used_functions.maybeMakeNegative(random.randint(1, 5))*2]
+            coefficients = graph_function_return_coefficents(a, vertex, version)
+            list_of_dicts = generate_all_option_dicts(coefficients, vertex)
 
-if response_type=="Multiple-Choice":
-    displayStem = 'Write the equation of the graph presented below in the form $f(x)=ax^2+bx+c$, assuming  $a=1$ or $a=-1$. Then, choose the intervals that $a, b,$ and $c$ belong to.'
-else:
-    displayStem = 'Write the equation of the graph presented below in the form $f(x)=ax^2+bx+c$, assuming  $a=1$ or $a=-1$.'
-displayProblem = f"{thisQuestion}{version}"
-displaySolution = "f(x) = %s" %generatePolynomialDisplay(solution[0])
-generalComment = "When the graph is pointing up, $a=1$. When the graph is pointing down, $a=-1$. Be sure to use Vertex Form: $y = a(x-h)^2+k$."
+            option_value_list = []
+            for temp_dict in list_of_dicts:
+                option_value_list.append(temp_dict['values_for_interval_generation'])
 
-c0 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\text{ and } \\hspace*{5mm} c \\in [%s, %s]" %(answerList[0][0][0][0], answerList[0][0][0][1], answerList[0][0][1][0], answerList[0][0][1][1], answerList[0][0][2][0], answerList[0][0][2][1])
-c1 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\text{ and } \\hspace*{5mm} c \\in [%s, %s]" %(answerList[1][0][0][0], answerList[1][0][0][1], answerList[1][0][1][0], answerList[1][0][1][1], answerList[1][0][2][0], answerList[1][0][2][1])
-c2 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\text{ and } \\hspace*{5mm} c \\in [%s, %s]" %(answerList[2][0][0][0], answerList[2][0][0][1], answerList[2][0][1][0], answerList[2][0][1][1], answerList[2][0][2][0], answerList[2][0][2][1])
-c3 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\text{ and } \\hspace*{5mm} c \\in [%s, %s]" %(answerList[3][0][0][0], answerList[3][0][0][1], answerList[3][0][1][0], answerList[3][0][1][1], answerList[3][0][2][0], answerList[3][0][2][1])
-c4 = "a \\in [%s, %s], \\hspace*{5mm} b \\in [%s, %s], \\text{ and } \\hspace*{5mm} c \\in [%s, %s]" %(answerList[4][0][0][0], answerList[4][0][0][1], answerList[4][0][1][0], answerList[4][0][1][1], answerList[4][0][2][0], answerList[4][0][2][1])
-choices = [c0, c1, c2, c3, c4]
-choiceComments = [answerList[0][1], answerList[1][1], answerList[2][1], answerList[3][1], answerList[4][1]]
+            interval_options = interval_masking_method.createIntervalOptions(option_value_list, 3, 1)
 
-answerIndex = 0
-letters = ["A", "B", "C", "D", "E"]
-for checkLetter in letters:
-    if answerList[answerIndex][2] == 1:
-        answerLetter = letters[answerIndex]
-        break
-    answerIndex = answerIndex+1
+            run_without_error = 1
+        except:
+            pass
+   
+    index_counter = 0
+    solution_dict = list_of_dicts[0]
+    for temp_dict in list_of_dicts:
+        temp_choice_interval_pairs = interval_options[index_counter]
+        temp_interval_1 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
+        temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
+        temp_interval_3 = commonly_used_functions.display_interval(temp_choice_interval_pairs[2])
+        temp_dict[f'choice_presentation'] = "a \\in %s, \\hspace{3mm} b \\in %s, \\text{ and } \\hspace{3mm} c \\in %s" %(temp_interval_1, temp_interval_2, temp_interval_3)
+        index_counter += 1
 
-displayStemType="String"
-displayProblemType="Graph"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+    presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(list_of_dicts)
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
+
+    ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
+    if response_type=="Multiple-Choice":
+        display_stem = 'Write the equation of the graph presented below in the form $f(x)=ax^2+bx+c$, assuming  $a=1$ or $a=-1$. Then, choose the intervals that $a, b,$ and $c$ belong to.'
+    else:
+        display_stem = 'Write the equation of the graph presented below in the form $f(x)=ax^2+bx+c$, assuming  $a=1$ or $a=-1$.'
+    display_problem = "\\text{Equation that was graphed:} f(x)= %s" %commonly_used_functions.generatePolynomialDisplay(coefficients)
+    general_comment = "When the graph is pointing up, $a=1$. When the graph is pointing down, $a=-1$. Be sure to use Vertex Form: $y = a(x-h)^2+k$."
+
+    display_stem_type="String"
+    display_problem_type="Graph"
+    display_options_type="Math Mode"
+
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+    return [question_dict, options_df]

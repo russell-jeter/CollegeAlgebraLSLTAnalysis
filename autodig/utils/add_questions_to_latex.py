@@ -87,7 +87,7 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
                 examFile.write('\n')
         elif display_options_type=="Graph":
             examFile.write(r"\begin{multicols}{2}")
-            for i in range(len(choices)):
+            for i in range(len(choices)-1): # Last one is None of the above
                 options=["A", "B", "C", "D", "E", "F", "G", "H"]
                 examFile.write(r"\item \includegraphics[width = 0.3\textwidth]{../figures/%s_%s_%s.png}" %(question_dict['code_name'], options[i], question_dict['version']))
             examFile.write(r"\end{multicols}")

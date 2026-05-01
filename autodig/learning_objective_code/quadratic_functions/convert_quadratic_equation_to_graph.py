@@ -1,53 +1,56 @@
-import sys
-import numpy
+import numpy as np
+import pandas as pd
 import random
-#import math
 import matplotlib.pyplot as plt
+import os
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
 
-# Type 2 - Function to graph
+code_name = 'convert_quadratic_equation_to_graph'
 
-def putChoicesInOrder(choiceAndComment):
-    if choiceAndComment[0] == "A":
-        place = 0
-    elif choiceAndComment[0] == "B":
-        place = 1
-    elif choiceAndComment[0] == "C":
-        place = 2
-    elif choiceAndComment[0] == "D":
-        place = 3
+def put_dicts_in_order(list_of_dicts):
+    correct_order = ['A', 'B', 'C', 'D', 'E']
+    ordered_dicts = []
+    for ordered_letter in correct_order:
+        for temp_dict in list_of_dicts:
+            if temp_dict['letter'] == ordered_letter:
+                ordered_dicts.append(temp_dict)
+                break
+    return ordered_dicts
+
+def generate_display_problem(aCoeffFtG, vertexFtG):
+    if aCoeffFtG < 0:
+        if vertexFtG[0] < 0:
+            if vertexFtG[1] < 0:
+                displayProblem = 'f(x) = -(x+%s)^2 - %s' %(-vertexFtG[0], -vertexFtG[1])
+            else:
+                displayProblem = 'f(x) = -(x+%s)^2 + %s' %(-vertexFtG[0], vertexFtG[1])
+        else:
+            if vertexFtG[1] < 0:
+                displayProblem = 'f(x) = -(x-%s)^2 - %s' %(vertexFtG[0], -vertexFtG[1])
+            else:
+                displayProblem = 'f(x) = -(x-%s)^2 + %s' %(vertexFtG[0], vertexFtG[1])
     else:
-        place = 4
-    return place
+        if vertexFtG[0] < 0:
+            if vertexFtG[1] < 0:
+                displayProblem = 'f(x) = (x+%s)^2 - %s' %(-vertexFtG[0], -vertexFtG[1])
+            else:
+                displayProblem = 'f(x) = (x+%s)^2 + %s' %(-vertexFtG[0], vertexFtG[1])
+        else:
+            if vertexFtG[1] < 0:
+                displayProblem = 'f(x) = (x-%s)^2 - %s' %(vertexFtG[0], -vertexFtG[1])
+            else:
+                displayProblem = 'f(x) = (x-%s)^2 + %s' %(vertexFtG[0], vertexFtG[1])
+    return displayProblem
 
-aCoeffFtG = maybeMakeNegative(random.randint(1, 4))
-vertexFtG = [int(0), int(0)]
-vertexFtG[0] = maybeMakeNegative(random.randint(1, 4))
-vertexFtG[1] = maybeMakeNegative(random.randint(10, 20))
-# aCoeffFtG* (x-vertexFtG[0])**2 + vertexFtG[1]
+def generate_graphs_and_option_dicts(aCoeffFtG, vertexFtG, version):
+    base_dir = os.getcwd()
 
-def generateGraphs(aCoeffFtG, vertexFtG):
-    figureAnswerList = [["A", '', 1], ["B", '', 0], ["C", '', 0], ["D", '', 0]]
-    random.shuffle(figureAnswerList)
-    xPlot = numpy.arange(-5, 5, 0.01)
-    graphX = numpy.arange(-5, 5, 0.01)
+    figure_letter_list = ['A', 'B', 'C', 'D']
+    random.shuffle(figure_letter_list)
+
+    xPlot = np.arange(-5, 5, 0.01)
+    graphX = np.arange(-5, 5, 0.01)
 
     solutionGraph = aCoeffFtG* (xPlot-vertexFtG[0])**2 + vertexFtG[1]
     SMALL_SIZE = 24
@@ -62,13 +65,27 @@ def generateGraphs(aCoeffFtG, vertexFtG):
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
     showPlot = plt.plot(graphX, solutionGraph, linewidth = 5, color = 	'#02325f')
+
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.savefig('/' + str(DIR) + '/Figures/' + str(thisQuestion) + figureAnswerList[0][0] + str(version) + '.png', bbox_inches='tight')
+    figure_path_0 = os.path.join(base_dir, 'temp_files', 'build_exams', 'figures', f'{code_name}_{figure_letter_list[0]}_{version}.png')
+    plt.savefig(figure_path_0, bbox_inches='tight')
     plt.close()
-    figureAnswerList[0][1] = "This is the correct option."
-    answerLetter = figureAnswerList[0][0]
+
+    display_solution = generate_display_problem(aCoeffFtG, vertexFtG)
+    solution_feedback = "* Correct option."
+    solution_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'solution',
+        'Expected solution',
+        display_solution, 
+        f'Graph of {display_solution}',
+        solution_feedback,
+        1
+    )
+    solution_dict['letter'] = figure_letter_list[0]
+    solution_dict['choice_presentation'] = f'{code_name}_{figure_letter_list[0]}_{version}.png'
 
     # a(x+h)^2+k
     postiveHdistractor = aCoeffFtG* (xPlot+vertexFtG[0])**2 + vertexFtG[1]
@@ -76,19 +93,47 @@ def generateGraphs(aCoeffFtG, vertexFtG):
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.savefig('/' + str(DIR) + '/Figures/' + str(thisQuestion) + figureAnswerList[1][0] + str(version) + '.png', bbox_inches='tight')
+    figure_path_1 = os.path.join(base_dir, 'temp_files', 'build_exams', 'figures', f'{code_name}_{figure_letter_list[1]}_{version}.png')
+    plt.savefig(figure_path_1, bbox_inches='tight')
     plt.close()
-    figureAnswerList[1][1] = "Used the incorrect general form $f(x) = a(x+h)^2 + k$"
+
+    display_option_1 = generate_display_problem(aCoeffFtG, [-vertexFtG[0], vertexFtG[1]])
+    option_1_feedback = " Used the incorrect general form $f(x) = a(x+h)^2 + k$"
+    option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_1',
+        'Misconception - general form $f(x) = a(x+h)^2 + k$',
+        display_option_1, 
+        f'Graph of {display_option_1}',
+        option_1_feedback,
+        0
+    )
+    option_1_dict['letter'] = figure_letter_list[1]
+    option_1_dict['choice_presentation'] = f'{code_name}_{figure_letter_list[1]}_{version}.png'
 
     # -a(x-h)^2+k
     negativeAdistractor = -aCoeffFtG* (xPlot-vertexFtG[0])**2 + vertexFtG[1]
-    showPlot = plt.plot(graphX, negativeAdistractor, linewidth = 5, color = 	'#02325f')
+    showPlot = plt.plot(graphX, negativeAdistractor, linewidth = 5, color = '#02325f')
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.savefig('/' + str(DIR) + '/Figures/' + str(thisQuestion) + figureAnswerList[2][0] + str(version) + '.png', bbox_inches='tight')
+    figure_path_2 = os.path.join(base_dir, 'temp_files', 'build_exams', 'figures', f'{code_name}_{figure_letter_list[2]}_{version}.png')
+    plt.savefig(figure_path_2, bbox_inches='tight')
     plt.close()
-    figureAnswerList[2][1] = "Used the incorrect general form $f(x) = -a(x-h)^2 + k$"
+
+    display_option_2 = generate_display_problem(-aCoeffFtG, vertexFtG)
+    option_2_feedback = " Used the incorrect general form $f(x) = -a(x-h)^2 + k$"
+    option_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_2',
+        'Misconception - general form $f(x) = -a(x-h)^2 + k$',
+        display_option_2, 
+        f'Graph of {display_option_2}',
+        option_2_feedback,
+        0
+    )
+    option_2_dict['letter'] = figure_letter_list[2]
+    option_2_dict['choice_presentation'] = f'{code_name}_{figure_letter_list[2]}_{version}.png'
 
     #-a(x+h)^2+k
     negativeApositiveHdistractor = -aCoeffFtG* (xPlot+vertexFtG[0])**2 + vertexFtG[1]
@@ -96,68 +141,83 @@ def generateGraphs(aCoeffFtG, vertexFtG):
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.savefig('/' + str(DIR) + '/Figures/' + str(thisQuestion) + figureAnswerList[3][0] + str(version) + '.png', bbox_inches='tight')
+    figure_path_3 = os.path.join(base_dir, 'temp_files', 'build_exams', 'figures', f'{code_name}_{figure_letter_list[3]}_{version}.png')
+    plt.savefig(figure_path_3, bbox_inches='tight')
     plt.close()
-    figureAnswerList[3][1] = "Used the incorrect general form $f(x) = -a(x+h)^2 + k$"
-    #
-    return figureAnswerList
 
-figureAnswerList = generateGraphs(aCoeffFtG, vertexFtG)
-answerLetter = figureAnswerList[0][0]
+    display_option_3 = generate_display_problem(-aCoeffFtG, vertexFtG)
+    option_3_feedback = " Used the incorrect general form $f(x) = -a(x+h)^2 + k$"
+    option_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_3',
+        'Misconception - general form $f(x) = -a(x-h)^2 + k$',
+        display_option_3, 
+        f'Graph of {display_option_2}',
+        option_3_feedback,
+        0
+    )
+    option_3_dict['letter'] = figure_letter_list[3]
+    option_3_dict['choice_presentation'] = f'{code_name}_{figure_letter_list[3]}_{version}.png'
 
-# Note the stem is the same for multiple-choice and free-response.
-displayStem = 'Graph the equation below.'
-if aCoeffFtG < 0:
-    if vertexFtG[0] < 0:
-        if vertexFtG[1] < 0:
-            displayProblem = 'f(x) = -(x+%s)^2 - %s' %(-vertexFtG[0], -vertexFtG[1])
-        else:
-            displayProblem = 'f(x) = -(x+%s)^2 + %s' %(-vertexFtG[0], vertexFtG[1])
+    option_4_feedback = " You likely thought the vertex did not correspond to the equation."
+    option_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_4', 
+        'Catch all - Unexpected vertex placement?',
+        'None of the above', 
+        'None of the above',
+        option_4_feedback,
+        0
+    )
+    option_4_dict['letter'] = 'E'
+    option_4_dict['choice_presentation'] = 'None of the above'
+
+    option_dicts = [solution_dict, option_1_dict, option_2_dict, option_3_dict, option_4_dict]
+    return option_dicts
+
+def convert_quadratic_equation_to_graph_function(response_type, version):
+    aCoeffFtG = commonly_used_functions.maybeMakeNegative(random.randint(1, 4))
+    vertexFtG = [0, 0]
+    vertexFtG[0] = commonly_used_functions.maybeMakeNegative(random.randint(1, 4))
+    vertexFtG[1] = commonly_used_functions.maybeMakeNegative(random.randint(10, 20))
+
+    option_dicts = generate_graphs_and_option_dicts(aCoeffFtG, vertexFtG, version)
+    solution_dict = option_dicts[0]
+
+    ordered_option_dicts = put_dicts_in_order(option_dicts)
+
+    presentation_order = []
+    for temp_dict in ordered_option_dicts:
+        presentation_order.append(temp_dict['name'])
+
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(ordered_option_dicts)
+
+    if response_type=="Multiple-Choice":
+        display_stem = 'Choose the graph of the equation below.'
     else:
-        if vertexFtG[1] < 0:
-            displayProblem = 'f(x) = -(x-%s)^2 - %s' %(vertexFtG[0], -vertexFtG[1])
-        else:
-            displayProblem = 'f(x) = -(x-%s)^2 + %s' %(vertexFtG[0], vertexFtG[1])
-else:
-    if vertexFtG[0] < 0:
-        if vertexFtG[1] < 0:
-            displayProblem = 'f(x) = (x+%s)^2 - %s' %(-vertexFtG[0], -vertexFtG[1])
-        else:
-            displayProblem = 'f(x) = (x+%s)^2 + %s' %(-vertexFtG[0], vertexFtG[1])
-    else:
-        if vertexFtG[1] < 0:
-            displayProblem = 'f(x) = (x-%s)^2 - %s' %(vertexFtG[0], -vertexFtG[1])
-        else:
-            displayProblem = 'f(x) = (x-%s)^2 + %s' %(vertexFtG[0], vertexFtG[1])
+        display_stem = 'Graph the equation below.'
 
-displaySolution = f"{thisQuestion}{figureAnswerList[0][0]}{version}"
-generalComment = "Remember that Vertex Form is $y = a(x-h)^2+k$, where the vertex is $(h, k)$."
+    display_problem = generate_display_problem(aCoeffFtG, vertexFtG)
+    general_comment = "Remember that Vertex Form is $y = a(x-h)^2+k$, where the vertex is $(h, k)$."
 
-c0 = f"{thisQuestion}A{version}"
-c1 = f"{thisQuestion}B{version}"
-c2 = f"{thisQuestion}C{version}"
-c3 = f"{thisQuestion}D{version}"
-c4 = "None of the above"
-choices = [c0, c1, c2, c3]
+    display_stem_type="String"
+    display_problem_type="Math Mode"
+    display_options_type="Graph"
 
-choiceComments = ["", "", "", "", ""]
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
 
-placement0 = putChoicesInOrder(figureAnswerList[0])
-placement1 = putChoicesInOrder(figureAnswerList[1])
-placement2 = putChoicesInOrder(figureAnswerList[2])
-placement3 = putChoicesInOrder(figureAnswerList[3])
-placements = [placement0, placement1, placement2, placement3]
-
-choiceComments[placement0] = figureAnswerList[0][1]
-choiceComments[placement1] = figureAnswerList[1][1]
-choiceComments[placement2] = figureAnswerList[2][1]
-choiceComments[placement3] = figureAnswerList[3][1]
-choiceComments[4] = "You likely thought the vertex did not correspond to the equation."
-
-displayStemType="String"
-displayProblemType="Math Mode"
-displayOptionsType="Graph"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+    # return 1 dictionary (for the question) and dataframe by options for the question
+    return [question_dict, options_df]
