@@ -66,7 +66,7 @@ def extractValue(solutionInterval):
 def generate_all_option_dicts(solution_endpoints):
     a, b = solution_endpoints
     display_solution = "(-\\infty, %s) \\text{ or } (%s, \\infty)" %(round(a, 3), round(b, 3))
-    solution_feedback = "* %s, which is the correct option." %display_solution
+    solution_feedback = "* $%s$, which is the correct option." %display_solution
     solution_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'solution', 
@@ -79,7 +79,7 @@ def generate_all_option_dicts(solution_endpoints):
     
     distractor_1_endpoints = [-b, -a]
     display_distractor_1 = "(-\\infty, %s) \\text{ or } (%s, \\infty)" %(round(-b, 3), round(-a, 3))
-    distractor_1_feedback = " %s, which corresponds to inverting the inequality and negating the solution." %display_distractor_1
+    distractor_1_feedback = " $%s$, which corresponds to inverting the inequality and negating the solution." %display_distractor_1
     distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_1',
@@ -92,7 +92,7 @@ def generate_all_option_dicts(solution_endpoints):
 
     distractor_2_endpoints = [a, b]
     display_distractor_2 = "(-\\infty, %s] \\text{ or } [%s, \\infty)" %(round(a, 3), round(b, 3))
-    distractor_2_feedback = " %s, which corresponds to including the endpoints (when they should be excluded)." %display_distractor_2
+    distractor_2_feedback = " $%s$, which corresponds to including the endpoints (when they should be excluded)." %display_distractor_2
     distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_2', 
@@ -105,7 +105,7 @@ def generate_all_option_dicts(solution_endpoints):
 
     distractor_3_endpoints = [-b, -a]
     display_distractor_3 = "(-\\infty, %s] \\text{ or } [%s, \\infty)" %(round(-b, 3), round(-a, 3))
-    distractor_3_feedback = " %s, which corresponds to including the endpoints (when they should be excluded) and inverting the inequality and negating the solution." %display_distractor_3
+    distractor_3_feedback = " $%s$, which corresponds to including the endpoints (when they should be excluded) and inverting the inequality and negating the solution." %display_distractor_3
     distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_3',
@@ -117,7 +117,7 @@ def generate_all_option_dicts(solution_endpoints):
     )
 
     display_distractor_4 = "(-\\infty, \\infty)"
-    distractor_4_feedback = f" ${display_distractor_4}$, which corresponds to the variable canceling and does not happen in this instance."
+    distractor_4_feedback = " $%s$, which corresponds to the variable canceling and does not happen in this instance." %display_distractor_4
     distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_4', 

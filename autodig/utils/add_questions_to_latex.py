@@ -66,7 +66,7 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
         for j in range(num_cols-1):
             examFile.write(r"%s &" %display_problem[num_rows-1][j])
         examFile.write(r"%s" %display_problem[num_rows-1][num_cols-1])
-        examFile.write('\end{tabular}')
+        examFile.write('\\end{tabular}')
     
     response_type = question_dict['Response Type']
     display_options_type = question_dict['Display Options Type']
@@ -157,7 +157,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
         keyFile.write('\n')
         # Iterate through the rows and print and & between with a \tabularnewline at the end. Since last row doesn't need one it is done at the end after the loop finishes
         for i in range(num_rows-1):
-            for j in range(num_cols-1):
+            for j in range(num_cols-1): # Last one is None of the above
                 keyFile.write(r"%s &" %display_problem[i][j])
             # Last item in row does not have an &
             keyFile.write(r"%s" %display_problem[i][num_cols-1])
@@ -166,7 +166,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
         for j in range(num_cols-1):
             keyFile.write(r"%s &" %display_problem[num_rows-1][j])
         keyFile.write(r"%s" %display_problem[num_rows-1][num_cols-1])
-        keyFile.write('\end{tabular}')
+        keyFile.write('\\end{tabular}')
 
     response_type = question_dict['Response Type']
     display_options_type = question_dict['Display Options Type']
@@ -195,7 +195,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
             keyFile.write('\n')
             keyFile.write('\n')
         elif display_options_type=="Math Mode":
-            keyFile.write("The solution is \( %s \), which is option %s." %(solution, answer_letter))
+            keyFile.write("The solution is \\( %s \\), which is option %s." %(solution, answer_letter))
             keyFile.write(r"\begin{enumerate}[label=\Alph*.]")
             keyFile.write('\n')
             for i in range(len(choices)):
@@ -215,7 +215,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
             keyFile.write('\n')
             keyFile.write(r"\begin{multicols}{2}")
             keyFile.write('\n')
-            for i in range(len(choices)):
+            for i in range(len(choices)-1):
                 options=["A", "B", "C", "D", "E", "F", "G", "H"]
                 keyFile.write(r"\item \includegraphics[width = 0.3\textwidth]{../figures/%s_%s_%s.png}" %(code_name, options[i], version))
                 keyFile.write('\n')
@@ -238,7 +238,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
             keyFile.write('\n')
             keyFile.write('\n')
         elif display_options_type=="Math Mode":
-            keyFile.write("The solution is \( %s \)." %(solution))
+            keyFile.write("The solution is \\( %s \\)." %(solution))
             keyFile.write(r"\begin{enumerate}[label=\Alph*.]")
             keyFile.write('\n')
             keyFile.write(r'\textbf{Plausible alternative answers include:}')

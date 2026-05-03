@@ -11,6 +11,16 @@ from learning_objective_code.linear_functions import solve_linear_rational_coeff
 from learning_objective_code.linear_functions import linear_graph_to_standard_form
 from learning_objective_code.linear_functions import build_linear_from_two_points
 from learning_objective_code.linear_functions import build_parallel_or_perpendicular_line
+from learning_objective_code.inequalities import describe_using_interval
+from learning_objective_code.inequalities import solve_compound_and
+from learning_objective_code.inequalities import solve_compound_or
+from learning_objective_code.inequalities import solve_inequality_integer_coefficients
+from learning_objective_code.inequalities import solve_inequality_rational_coefficients
+from learning_objective_code.quadratic_functions import solve_quadratic_with_factoring
+from learning_objective_code.quadratic_functions import factor_trinomial_with_a_over_1
+from learning_objective_code.quadratic_functions import convert_quadratic_equation_to_graph
+from learning_objective_code.quadratic_functions import solve_using_quadratic_formula
+from learning_objective_code.quadratic_functions import convert_quadratic_graph_to_equation
 
 dict_0, df_0 = divide_complex_numbers.divide_complex_numbers_function("Multiple-Choice")
 dict_1, df_1 = multiply_complex_numbers.multiply_complex_numbers_function("Multiple-Choice")
@@ -22,6 +32,16 @@ dict_6, df_6 = solve_linear_rational_coefficients.solve_linear_rational_coeffici
 dict_7, df_7 = linear_graph_to_standard_form.linear_graph_to_standard_form_function("Multiple-Choice", "A")
 dict_8, df_8 = build_linear_from_two_points.build_linear_from_two_points_function("Multiple-Choice")
 dict_9, df_9 = build_parallel_or_perpendicular_line.build_parallel_or_perpendicular_line_function("Multiple-Choice")
+dict_10, df_10 = describe_using_interval.describe_using_interval_function("Multiple-Choice")
+dict_11, df_11 = solve_compound_and.solve_compound_and_function("Multiple-Choice")
+dict_12, df_12 = solve_compound_or.solve_compound_or_function("Multiple-Choice")
+dict_13, df_13 = solve_inequality_integer_coefficients.solve_inequality_integer_coefficients_function("Multiple-Choice")
+dict_14, df_14 = solve_inequality_rational_coefficients.solve_inequality_rational_coefficients_function("Multiple-Choice")
+dict_15, df_15 = solve_quadratic_with_factoring.solve_quadratic_with_factoring_function("Multiple-Choice")
+dict_16, df_16 = factor_trinomial_with_a_over_1.factor_trinomial_with_a_over_1_function("Multiple-Choice")
+dict_17, df_17 = convert_quadratic_equation_to_graph.convert_quadratic_equation_to_graph_function("Multiple-Choice", "A")
+dict_18, df_18 = solve_using_quadratic_formula.solve_using_quadratic_formula_function("Multiple-Choice")
+dict_19, df_19 = convert_quadratic_graph_to_equation.convert_quadratic_graph_to_equation_function("Multiple-Choice", "A")
 
 base_dir = os.getcwd()
 save_questions_df_file_path = os.path.join(base_dir, 'temp_files', 'build_exams', 'questions_to_create_df.xlsx')

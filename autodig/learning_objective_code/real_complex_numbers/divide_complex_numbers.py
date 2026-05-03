@@ -28,6 +28,22 @@ def display_complex_float(list_coefficients):
             display = "%.2f  + %.2f i" %(a, b)
     return display
 
+def generate_int_display_problem(list_coefficients):
+    a = int(list_coefficients[0])
+    b = int(list_coefficients[1])
+    
+    if b < 0:
+        if b == -1:
+            display = "%s  - i" %a
+        else:
+            display = "%s  - %s i" %(a, -b)
+    else:
+        if b == 1:
+            display = "%s + i" %a
+        else:
+            display = "%s  + %s i" %(a, b)
+    return display
+
 def generate_distractors_and_feedback(coefficients):
     a1, b1, a2, b2 = coefficients
 
@@ -159,7 +175,7 @@ def divide_complex_numbers_function(response_type):
         display_stem = 'Simplify the expression below into the form $a+bi$. Then, choose the intervals that $a$ and $b$ belong to.'
     else:
         display_stem = 'Simplify the expression below into the form $a+bi$.'
-    display_problem = "\\frac{%s}{%s}" %(display_complex_float([coefficients[0], coefficients[1]]), display_complex_float([coefficients[2], coefficients[3]]))
+    display_problem = "\\frac{%s}{%s}" %(generate_int_display_problem([coefficients[0], coefficients[1]]), generate_int_display_problem([coefficients[2], coefficients[3]]))
     general_comment = "Multiply the numerator and denominator by the *conjugate* of the denominator, then simplify. For example, if we have $2+3i$, the conjugate is $2-3i$."
 
     display_stem_type="String"

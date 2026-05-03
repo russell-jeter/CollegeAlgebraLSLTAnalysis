@@ -20,6 +20,22 @@ def display_complex_float(list_coefficients):
             display = "%.2f  + %.2f i" %(a, b)
     return display
 
+def generate_int_display_problem(list_coefficients):
+    a = int(list_coefficients[0])
+    b = int(list_coefficients[1])
+    
+    if b < 0:
+        if b == -1:
+            display = "%s  - i" %a
+        else:
+            display = "%s  - %s i" %(a, -b)
+    else:
+        if b == 1:
+            display = "%s + i" %a
+        else:
+            display = "%s  + %s i" %(a, b)
+    return display
+
 def generateProblemCoefficients():
     listIntegers = range(2, 11)
     constants = random.sample(listIntegers, 4)
@@ -142,7 +158,7 @@ def multiply_complex_numbers_function(response_type):
         display_stem = 'Simplify the expression below into the form $a+bi$. Then, choose the intervals that $a$ and $b$ belong to.'
     else:
         display_stem = 'Simplify the expression below into the form $a+bi$.'
-    display_problem = "(%s)(%s)" %(display_complex_float([problemCoefficients[0], problemCoefficients[1]]), display_complex_float([problemCoefficients[2], problemCoefficients[3]]))
+    display_problem = "(%s)(%s)" %(generate_int_display_problem([problemCoefficients[0], problemCoefficients[1]]), generate_int_display_problem([problemCoefficients[2], problemCoefficients[3]]))
     general_comment = "You can treat $i$ as a variable and distribute. Just remember that $i^2=-1$, so you can continue to reduce after you distribute."
 
 

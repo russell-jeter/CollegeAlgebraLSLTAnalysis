@@ -190,7 +190,7 @@ def factor_trinomial_with_a_over_1_function(response_type):
         temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
         temp_interval_3 = commonly_used_functions.display_interval(temp_choice_interval_pairs[2])
         temp_interval_4 = commonly_used_functions.display_interval(temp_choice_interval_pairs[3])
-        temp_dict[f'choice_presentation'] = "a \\in %s, \\hspace*{5mm} b \\in %s, \\hspace*{5mm} c \\in %s, \\text{ and } \\hspace*{5mm} d \\in %s" %(temp_interval_1, temp_interval_2, temp_interval_3, temp_interval_4)
+        temp_dict[f'choice_presentation'] = "a \\in %s, b \\in %s, c \\in %s, \\text{ and } d \\in %s" %(temp_interval_1, temp_interval_2, temp_interval_3, temp_interval_4)
         index_counter += 1
 
     presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']

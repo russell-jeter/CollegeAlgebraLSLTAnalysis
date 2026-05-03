@@ -139,13 +139,13 @@ def solve_compound_and_function(response_type):
         solution_dict = option_1_dict
 
         option_2_dict['short_description'] = "Misconception - flipping final inequality"
-        option_2_dict['feedback'] = f" {option_2_dict['value']}, which corresponds to flipping the inequality."
+        option_2_dict['feedback'] = f" ${option_2_dict['value']}$, which corresponds to flipping the inequality."
 
         option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality"
-        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality."
+        option_3_dict['feedback'] = f" ${option_3_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality."
 
         option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality"
-        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality."
+        option_4_dict['feedback'] = f" ${option_4_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality."
 
         option_5_dict['short_description'] = "Catch-all none of the above response"
         option_5_dict['feedback'] = "This corresponds to thinking that the values were not correct."
@@ -159,16 +159,16 @@ def solve_compound_and_function(response_type):
         solution_dict = option_5_dict
 
         option_1_dict['short_description'] = "Arithmetic - Values are negative of what they should be"
-        option_1_dict['feedback'] = f" {option_1_dict['value']}, which is the correct interval but negatives of the actual endpoints."
+        option_1_dict['feedback'] = f" ${option_1_dict['value']}$, which is the correct interval but negatives of the actual endpoints."
 
         option_2_dict['short_description'] = "Misconception - flipping final inequality and negatives"
-        option_2_dict['feedback'] = f" {option_2_dict['value']}, which corresponds to flipping the inequality and getting negatives of the actual endpoints."
+        option_2_dict['feedback'] = f" ${option_2_dict['value']}$, which corresponds to flipping the inequality and getting negatives of the actual endpoints."
 
         option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality and negatives"
-        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints."
+        option_3_dict['feedback'] = f" ${option_3_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints."
 
         option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality AND negatives"
-        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints."
+        option_4_dict['feedback'] = f" ${option_4_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints."
 
     elif problem_type == 2: # left \leq middle < right
         display_problem = '%s \\leq %s < %s'%(AndInequalityLeft, AndInequalityMiddle, AndInequalityRight)
@@ -179,13 +179,13 @@ def solve_compound_and_function(response_type):
         solution_dict = option_2_dict
 
         option_1_dict['short_description'] = "Misconception - flipping final inequality"
-        option_1_dict['feedback'] = f" {option_1_dict['value']}, which corresponds to flipping the inequality."
+        option_1_dict['feedback'] = f" ${option_1_dict['value']}$, which corresponds to flipping the inequality."
 
         option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality"
-        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality."
+        option_3_dict['feedback'] = f" ${option_3_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality."
 
         option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality"
-        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality."
+        option_4_dict['feedback'] = f" ${option_4_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality."
 
         option_5_dict['short_description'] = "Catch-all none of the above response"
         option_5_dict['feedback'] = "This corresponds to thinking that the values were not correct."
@@ -199,16 +199,16 @@ def solve_compound_and_function(response_type):
         solution_dict = option_5_dict
 
         option_1_dict['short_description'] = "Misconception - flipping final inequality and negatives"
-        option_1_dict['feedback'] = f" {option_1_dict['value']}, which corresponds to flipping the inequality and getting negatives of the actual endpoints."
+        option_1_dict['feedback'] = f" ${option_1_dict['value']}$, which corresponds to flipping the inequality and getting negatives of the actual endpoints."
 
         option_2_dict['short_description'] = "Arithmetic - Values are negative of what they should be"
-        option_2_dict['feedback'] = f" {option_2_dict['value']}, which is the correct interval but negatives of the actual endpoints."
+        option_2_dict['feedback'] = f" ${option_2_dict['value']}$, which is the correct interval but negatives of the actual endpoints."
 
         option_3_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality AND flipping the inequality AND negatives"
-        option_3_dict['feedback'] = f" {option_3_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints."
+        option_3_dict['feedback'] = f" ${option_3_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality AND flipping the inequality AND getting negatives of the actual endpoints."
 
         option_4_dict['short_description'] = "Misconception - and-inequality displayed as or-inequality and negatives"
-        option_4_dict['feedback'] = f" {option_4_dict['value']}, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints."
+        option_4_dict['feedback'] = f" ${option_4_dict['value']}$, which corresponds to displaying the and-inequality as an or-inequality and getting negatives of the actual endpoints."
 
     solution_dicts_list = [option_1_dict, option_2_dict, option_3_dict, option_4_dict, option_5_dict]
     presentation_order = []

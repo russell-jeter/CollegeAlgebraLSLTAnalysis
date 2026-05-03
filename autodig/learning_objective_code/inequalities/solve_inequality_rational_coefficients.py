@@ -50,7 +50,7 @@ def createCoefficients():
         endpoint = diff_of_left_right.r
     return [numerators, denominators, endpoint[0]]
 
-def generate_display_problem(numerators, denominators):
+def generate_display_problem(problemType, numerators, denominators):
     n0, n1, n2, n3 = numerators
     d0, d1, d2, d3 = denominators
     if n1 < 0 and n3 < 0:
@@ -146,7 +146,7 @@ def solve_inequality_rational_coefficients_function(response_type):
     checkingToFlipInequality = n1*d2-n2*d1
 
     solution_display_directions = generate_solution_display_directions(problemType, checkingToFlipInequality, endpointCleaned)
-    display_problem = generate_solution_display_directions(problemType, checkingToFlipInequality, endpointCleaned)
+    display_problem = generate_display_problem(problemType, numerators, denominators)
 
     display_solution = createIntervalToDisplay(solution_display_directions)
     solution_feedback = "* $%s$, which is the correct option." %display_solution
@@ -164,7 +164,7 @@ def solve_inequality_rational_coefficients_function(response_type):
 
     ### Distractor 1 is the inverse of the solution ###
     display_option_1 = createIntervalToDisplay([switch_direction(solution_display_directions[0]), solution_display_directions[1], solution_display_directions[2]])
-    option_1_feedback = " %s, which corresponds to switching the direction of the interval. You likely did this if you did not flip the inequality when dividing by a negative!" %display_option_1
+    option_1_feedback = " $%s$, which corresponds to switching the direction of the interval. You likely did this if you did not flip the inequality when dividing by a negative!" %display_option_1
     option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_1',
@@ -179,7 +179,7 @@ def solve_inequality_rational_coefficients_function(response_type):
 
     ### Distractor 2 is the negation of the solution endpoint ###
     display_option_2 = createIntervalToDisplay([solution_display_directions[0], solution_display_directions[1], -solution_display_directions[2]])
-    option_2_feedback = " %s, which corresponds to negating the endpoint of the solution." %display_option_2
+    option_2_feedback = " $%s$, which corresponds to negating the endpoint of the solution." %display_option_2
     option_2_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_2',
@@ -194,7 +194,7 @@ def solve_inequality_rational_coefficients_function(response_type):
 
     ### Distractor 3 is the negation AND inverse of the solution ###
     display_option_3 = createIntervalToDisplay([switch_direction(solution_display_directions[0]), solution_display_directions[1], -solution_display_directions[2]])
-    option_3_feedback = " %s, which corresponds to switching the direction of the interval AND negating the endpoint. You likely did this if you did not flip the inequality when dividing by a negative as well as not moving values over to a side properly." %display_option_3
+    option_3_feedback = " $%s$, which corresponds to switching the direction of the interval AND negating the endpoint. You likely did this if you did not flip the inequality when dividing by a negative as well as not moving values over to a side properly." %display_option_3
     option_3_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_3',
@@ -208,7 +208,7 @@ def solve_inequality_rational_coefficients_function(response_type):
     option_3_dict['choice_presentation'] = "%s, \\text{ where } a \\in %s" %(option_3_format, option_3_interval)
 
     ### Distractor 4 is None of the above ###
-    option_4_feedback = "\\text{None of the above}. You may have chosen this if you thought the inequality did not match the ends of the intervals."
+    option_4_feedback = "None of the above. You may have chosen this if you thought the inequality did not match the ends of the intervals."
     option_4_dict = commonly_used_functions.value_and_feedback_to_dict(
         code_name, 
         'distractor_4',

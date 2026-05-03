@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  1 MAY 2026 10:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  3 MAY 2026 14:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -675,16 +675,13 @@ Overfull \hbox (25.00003pt too wide) in paragraph at lines 190--218
 [][] 
  []
 
-<../figures/linear_graph_to_standard_form_A.png, id=61, 441.5697pt x 343.2825pt
+<../figures/linear_graph_to_standard_form_A.png, id=61, 516.0078pt x 353.4003pt
 >
 File: ../figures/linear_graph_to_standard_form_A.png Graphic file (type png)
 <use ../figures/linear_graph_to_standard_form_A.png>
 Package pdftex.def Info: ../figures/linear_graph_to_standard_form_A.png  used o
 n input line 218.
-(pdftex.def)             Requested size: 234.8775pt x 182.59885pt.
-
-Underfull \vbox (badness 7944) has occurred while \output is active []
-
+(pdftex.def)             Requested size: 234.8775pt x 160.86208pt.
 
 
 
@@ -695,28 +692,33 @@ Package fancyhdr Warning: \headheight is too small (0.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
 
-[4]
+[4 <../figures/linear_graph_to_standard_form_A.png>]
 Overfull \hbox (25.00003pt too wide) in paragraph at lines 218--240
 [][] 
  []
 
 
-
-
-Package fancyhdr Warning: \headheight is too small (0.0pt): 
-(fancyhdr)                Make it at least 12.0pt, for example:
-(fancyhdr)                \setlength{\headheight}{12.0pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
-
-[5 <../figures/linear_graph_to_standard_form_A.png>]
 Overfull \hbox (25.00003pt too wide) in paragraph at lines 240--262
 [][] 
  []
 
 
-Overfull \hbox (25.00003pt too wide) in paragraph at lines 262--263
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[5]
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 262--284
+[][] 
+ []
+
+
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 284--306
 [][] 
  []
 
@@ -730,7 +732,152 @@ Package fancyhdr Warning: \headheight is too small (0.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
 
-[6] (key_test_file_name_A.aux)
+[6]
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 306--328
+[][] 
+ []
+
+
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 328--350
+[][] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[7]
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 350--372
+[][] 
+ []
+
+
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 372--394
+[][] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[8]
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 394--416
+[][] 
+ []
+
+
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 416--430
+[][] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[9]
+<../figures/convert_quadratic_equation_to_graph_A_A.png, id=156, 457.4691pt x 3
+46.1733pt>
+File: ../figures/convert_quadratic_equation_to_graph_A_A.png Graphic file (type
+ png)
+<use ../figures/convert_quadratic_equation_to_graph_A_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_A_A.png
+  used on input line 430.
+(pdftex.def)             Requested size: 140.92793pt x 106.64177pt.
+File: ../figures/convert_quadratic_equation_to_graph_A_A.png Graphic file (type
+ png)
+<use ../figures/convert_quadratic_equation_to_graph_A_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_A_A.png
+  used on input line 430.
+(pdftex.def)             Requested size: 140.92793pt x 106.64177pt.
+<../figures/convert_quadratic_equation_to_graph_B_A.png, id=157, 477.7047pt x 3
+43.2825pt>
+File: ../figures/convert_quadratic_equation_to_graph_B_A.png Graphic file (type
+ png)
+<use ../figures/convert_quadratic_equation_to_graph_B_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_B_A.png
+  used on input line 430.
+(pdftex.def)             Requested size: 140.92793pt x 101.26746pt.
+<../figures/convert_quadratic_equation_to_graph_C_A.png, id=158, 457.4691pt x 3
+46.896pt>
+File: ../figures/convert_quadratic_equation_to_graph_C_A.png Graphic file (type
+ png)
+<use ../figures/convert_quadratic_equation_to_graph_C_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_C_A.png
+  used on input line 430.
+(pdftex.def)             Requested size: 140.92793pt x 106.86441pt.
+<../figures/convert_quadratic_equation_to_graph_D_A.png, id=159, 477.7047pt x 3
+43.2825pt>
+File: ../figures/convert_quadratic_equation_to_graph_D_A.png Graphic file (type
+ png)
+<use ../figures/convert_quadratic_equation_to_graph_D_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_D_A.png
+  used on input line 430.
+(pdftex.def)             Requested size: 140.92793pt x 101.26746pt.
+
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 430--452
+[][] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[10 <../figures/convert_quadratic_equation_to_graph_A_A.png> <../figures/conver
+t_quadratic_equation_to_graph_B_A.png> <../figures/convert_quadratic_equation_t
+o_graph_C_A.png> <../figures/convert_quadratic_equation_to_graph_D_A.png>]
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 452--480
+[][] 
+ []
+
+<../figures/convert_quadratic_graph_to_equation_A.png, id=178, 461.8053pt x 343
+.2825pt>
+File: ../figures/convert_quadratic_graph_to_equation_A.png Graphic file (type p
+ng)
+<use ../figures/convert_quadratic_graph_to_equation_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_graph_to_equation_A.png  
+used on input line 480.
+(pdftex.def)             Requested size: 234.8775pt x 174.59508pt.
+
+Overfull \hbox (25.00003pt too wide) in paragraph at lines 480--481
+[][] 
+ []
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (0.0pt): 
+(fancyhdr)                Make it at least 12.0pt, for example:
+(fancyhdr)                \setlength{\headheight}{12.0pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
+
+[11 <../figures/convert_quadratic_graph_to_equation_A.png>]
+(key_test_file_name_A.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-09-10>
@@ -739,13 +886,13 @@ Package rerunfilecheck Info: File `key_test_file_name_A.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 12169 strings out of 473899
- 193588 string characters out of 5726499
- 601008 words of memory out of 5000000
- 34797 multiletter control sequences out of 15000+600000
+ 12271 strings out of 473899
+ 196239 string characters out of 5726499
+ 601012 words of memory out of 5000000
+ 34834 multiletter control sequences out of 15000+600000
  561053 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,559b,687s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,559b,688s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
 fonts/cm/cmex10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/p
@@ -754,9 +901,9 @@ s/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
 TeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/dcham/AppData/Local/Progr
 ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/dcham/AppData/Lo
 cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on key_test_file_name_A.pdf (6 pages, 140723 bytes).
+Output written on key_test_file_name_A.pdf (11 pages, 246524 bytes).
 PDF statistics:
- 146 PDF objects out of 1000 (max. 8388607)
- 67 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 250 PDF objects out of 1000 (max. 8388607)
+ 132 named destinations out of 1000 (max. 500000)
+ 31 words of extra memory for PDF output out of 10000 (max. 10000000)
 

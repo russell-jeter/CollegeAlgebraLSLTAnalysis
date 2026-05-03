@@ -1,45 +1,27 @@
-import sys
 from sympy import primerange
-import numpy
+import numpy as np
+import pandas as pd
 import random
 from math import gcd
 
-DIR=sys.argv[1]
-debug=sys.argv[2]
-if debug == "save":
-    database_name=sys.argv[3]
-    question_list=sys.argv[4]
-    version=sys.argv[5]
-    thisQuestion=sys.argv[6]
-    OS_type=sys.argv[7]
-    response_type=sys.argv[8]
-else:
-    version="Z"
-    thisQuestion="debug_image"
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForQuestionCode")
-from commonlyUsedFunctions import *
-from intervalMaskingMethod import *
-sys.path.insert(1, f"/{DIR}/PythonScripts/ScriptsForDatabases")
-from storeQuestionData import *
+from utils import commonly_used_functions, interval_masking_method
 
-def generateFactors(minimumPrime, maximumPrime, numberOfFactors):
+code_name = 'solve_quadratic_with_factoring'
+
+def generate_factors(minimumPrime, maximumPrime, numberOfFactors):
     listPrimes = list(primerange(minimumPrime, maximumPrime))
     bFactors = [random.sample(listPrimes, 1) for i in range(numberOfFactors)]
     dFactors = [random.sample(listPrimes, 1) for i in range(numberOfFactors)]
     return [bFactors, dFactors]
-def generateSolution(minimum, maximum, factors):
-    bFactors = factors[0]
-    dFactors = factors[1]
-    b = maybeMakeNegative(numpy.prod(bFactors))
-    d = maybeMakeNegative(numpy.prod(dFactors))
-    a = random.randint(minimum, maximum)
-    c = random.randint(minimum, maximum)
+
+def generate_solution_factor_coefficients(minimum, maximum, factors):
     # This makes sure the middle coefficient does not cancel out and allow the student to solve without the quadratic formula or factoring.
+    a, b, c, d = [0, 0, 0, 0]
     while (a*d+b*c==0) or (gcd(a, b) > 1) or (gcd(c, d) > 1):
         bFactors = factors[0]
         dFactors = factors[1]
-        b = maybeMakeNegative(numpy.prod(bFactors))
-        d = maybeMakeNegative(numpy.prod(dFactors))
+        b = commonly_used_functions.maybeMakeNegative(np.prod(bFactors))
+        d = commonly_used_functions.maybeMakeNegative(np.prod(dFactors))
         a = random.randint(minimum, maximum)
         c = random.randint(minimum, maximum)
     #This will guarantee that we always generate solutions with b < d
@@ -48,25 +30,11 @@ def generateSolution(minimum, maximum, factors):
     else:
         return[c, d, a, b]
 
-def generateProblem(solution):
+def generate_quadratic_coefficients(solution):
     a, b, c, d = solution
     return [a*c, a*d + b*c, b*d]
 
-#def distractorA1(solution):
-#    a = float(solution[0])
-#    b = float(solution[1])
-#    c = float(solution[2])
-#    d = float(solution[3])
-#
-#    z0 = -b
-#    z1 = float(-d/(a*c))
-#
-#    if (z0<=z1):
-#        return [z0, z1]
-#    else:
-#        return [z1, z0]
-
-def generateAnswer(solution):
+def generate_solution_values(solution):
     s0 = float(solution[0])
     s1 = float(solution[1])
     s2 = float(solution[2])
@@ -74,23 +42,23 @@ def generateAnswer(solution):
     z0 = float(-s1/s0)
     z1 = float(-s3/s2)
     if (z0 < z1):
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([solution[0], solution[1]]), generatePolynomialDisplay([solution[2], solution[3]]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([solution[0], solution[1]]), commonly_used_functions.generatePolynomialDisplay([solution[2], solution[3]]))
         answer = [z0, z1, factoredPolynomial]
     else:
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([solution[2], solution[3]]), generatePolynomialDisplay([solution[0], solution[1]]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([solution[2], solution[3]]), commonly_used_functions.generatePolynomialDisplay([solution[0], solution[1]]))
         answer = [z1, z0, factoredPolynomial]
     return answer
 
-def distractorFatorWithA1(solution):
+def generate_distractor_1_values(solution):
     a, b, c, d = solution
     if -a*d < -b*c:
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([1, a*d]), generatePolynomialDisplay([1, b*c]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([1, a*d]), commonly_used_functions.generatePolynomialDisplay([1, b*c]))
         return [-a*d, -b*c, factoredPolynomial]
     else:
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([1, b*c]), generatePolynomialDisplay([1, a*d]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([1, b*c]), commonly_used_functions.generatePolynomialDisplay([1, a*d]))
         return [-b*c, -a*d, factoredPolynomial]
 
-def distractorC1(solution):
+def generate_distractor_2_values(solution):
     a = float(solution[0])
     b = float(solution[1])
     c = float(solution[2])
@@ -98,15 +66,15 @@ def distractorC1(solution):
     z0 = float(-b/(a*c))
     z1 = -d
     if (z0<=z1):
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([solution[0]*solution[2], solution[1]]), generatePolynomialDisplay([1, solution[3]]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([solution[0]*solution[2], solution[1]]), commonly_used_functions.generatePolynomialDisplay([1, solution[3]]))
         return [z0, z1, factoredPolynomial]
     else:
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([1, solution[3]]), generatePolynomialDisplay([solution[0]*solution[2], solution[1]]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([1, solution[3]]), commonly_used_functions.generatePolynomialDisplay([solution[0]*solution[2], solution[1]]))
         return [z1, z0, factoredPolynomial]
 
-def distractorLumpedCFactors(solution, factors):
+def generate_distractor_3_values(solution, factors):
     bFactors = factors[0]
-    dFactors = factors[1]
+    #dFactors = factors[1]
     a = float(solution[0])
     b = float(solution[1])
     c = float(solution[2])
@@ -121,20 +89,20 @@ def distractorLumpedCFactors(solution, factors):
     intC = int(c)
     intD = int(d)
     if (z0<=z1):
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([intA, intB]), generatePolynomialDisplay([intC, intD]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([intA, intB]), commonly_used_functions.generatePolynomialDisplay([intC, intD]))
         return [z0, z1, factoredPolynomial]
     else:
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([intC, intD]), generatePolynomialDisplay([intA, intB]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([intC, intD]), commonly_used_functions.generatePolynomialDisplay([intA, intB]))
         return [z1, z0, factoredPolynomial]
 
-def distractorLumpedAFactors(solution, factors):
-    bFactors = factors[0]
+def generate_distractor_4_values(solution, factors):
+    #bFactors = factors[0]
     dFactors = factors[1]
     a = float(solution[0])
     b = float(solution[1])
     c = float(solution[2])
     d = float(solution[3])
-    index = random.randint(0,len(bFactors)-1)
+    index = random.randint(0,len(dFactors)-1)
     d = float(d/(dFactors[index][0]))
     b = b*dFactors[index][0]
     z0 = float(-b/a)
@@ -144,78 +112,148 @@ def distractorLumpedAFactors(solution, factors):
     intC = int(c)
     intD = int(d)
     if (z0<=z1):
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([intA, intB]), generatePolynomialDisplay([intC, intD]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([intA, intB]), commonly_used_functions.generatePolynomialDisplay([intC, intD]))
         return [z0, z1, factoredPolynomial]
     else:
-        factoredPolynomial = "(%s)(%s)" %(generatePolynomialDisplay([intC, intD]), generatePolynomialDisplay([intA, intB]))
+        factoredPolynomial = "(%s)(%s)" %(commonly_used_functions.generatePolynomialDisplay([intC, intD]), commonly_used_functions.generatePolynomialDisplay([intA, intB]))
         return [z1, z0, factoredPolynomial]
 
-def generateSolutionAndDistractors():
-    factors = generateFactors(minimum, maximum, numberOfFactors)
-    solution = generateSolution(minimum, maximum, factors)
-    distractor1 = distractorFatorWithA1(solution)
-    distractor2 = distractorC1(solution)
-    distractor3 = distractorLumpedCFactors(solution, factors)
-    distractor4 = distractorLumpedAFactors(solution, factors)
-    while ( (distractor1[0] == distractor2[0]) or (distractor1[0] == distractor3[0]) or (distractor1[0] == distractor4[0]) or (distractor2[0] == distractor3[0]) or (distractor2[0] == distractor4[0]) or (distractor3[0] == distractor4[0]) ):
-        factors = generateFactors(minimum, maximum, numberOfFactors)
-        solution = generateSolution(minimum, maximum, factors)
-        distractor1 = distractorFatorWithA1(solution)
-        distractor2 = distractorC1(solution)
-        distractor3 = distractorLumpedCFactors(solution, factors)
-        distractor4 = distractorLumpedAFactors(solution, factors)
-    return [factors, solution, distractor1, distractor2, distractor3, distractor4]
+def generate_all_option_dicts(solution_coefficients, factors):
+    solution_s1, solution_s2, solution_polynomial_factored = generate_solution_values(solution_coefficients)
+    display_solution = "x_1 = %.3f \\text{ and } x_2 = %.3f" %(solution_s1, solution_s2)
+    solution_feedback = "* $%s$, which is the correct option. Obtained by solving the factored version $%s$." %(display_solution, solution_polynomial_factored)
+    solution_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'solution',
+        'Expected solution',
+        [solution_s1, solution_s2], 
+        display_solution,
+        solution_feedback,
+        1
+    )
 
-intervalRange = 5
-minimum = 2
-maximum = 5
-numberOfFactors = 2
+    distractor_1_s1, distractor_1_s2, distractor_1_polynomial_factored = generate_distractor_1_values(solution_coefficients)
+    display_distractor_1 = "x_1 = %.3f \\text{ and } x_2 = %.3f" %(distractor_1_s1, distractor_1_s2)
+    distractor_1_feedback = " $%s$, which corresponds to solving the factored version $%s$." %(display_distractor_1, distractor_1_polynomial_factored)
+    distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_1',
+        f'Misconception - Factored as if a=1 and c = a*c',
+        [distractor_1_s1, distractor_1_s2],
+        display_distractor_1,
+        distractor_1_feedback,
+        0
+    )
 
-factors, solution, distractor1, distractor2, distractor3, distractor4 = generateSolutionAndDistractors()
-problem = generateProblem(solution)
-answer = generateAnswer(solution)
+    distractor_2_s1, distractor_2_s2, distractor_2_polynomial_factored = generate_distractor_2_values(solution_coefficients)
+    display_distractor_2 = "x_1 = %.3f \\text{ and } x_2 = %.3f" %(distractor_2_s1, distractor_2_s2)
+    distractor_2_feedback = " $%s$, which corresponds to solving the factored version $%s$." %(display_distractor_2, distractor_2_polynomial_factored)
+    distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_2',
+        f'Misconception [unexpected] - Factored as if c=1 and a = a*c',
+        [distractor_2_s1, distractor_2_s2],
+        display_distractor_2,
+        distractor_2_feedback,
+        0
+    )
 
-solutionList = [[answer[0], answer[1]], [distractor1[0], distractor1[1]], [distractor2[0], distractor2[1]], [distractor3[0], distractor3[1]], [distractor4[0], distractor4[1]]]
-precision = 1
-intervalOptions = createIntervalOptions(solutionList, intervalRange, precision)
+    distractor_3_s1, distractor_3_s2, distractor_3_polynomial_factored = generate_distractor_3_values(solution_coefficients, factors)
+    display_distractor_3 = "x_1 = %.3f \\text{ and } x_2 = %.3f" %(distractor_3_s1, distractor_3_s2)
+    distractor_3_feedback = " $%s$, which corresponds to solving the factored version $%s$." %(display_distractor_3, distractor_3_polynomial_factored)
+    distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_3',
+        f'Arithmetic - product correct but sum for middle term not',
+        [distractor_3_s1, distractor_3_s2],
+        display_distractor_3,
+        distractor_3_feedback,
+        0
+    )
 
-if response_type=="Multiple-Choice":
-    displayStem = 'Solve the quadratic equation below. Then, choose the intervals that the solutions $x_1$ and $x_2$ belong to, with $x_1 \\leq x_2$.'
-else:
-    displayStem = 'Solve the quadratic equation below.'
-displayProblem = "%s = 0" %generatePolynomialDisplay(problem)
-displaySolution = "x_1 = %.3f \\text{ and } x_2 = %.3f" %(answer[0], answer[1])
-generalComment = "This question can be factored, but it may be faster to find the solutions via the Quadratic Equation."
+    distractor_4_s1, distractor_4_s2, distractor_4_polynomial_factored = generate_distractor_4_values(solution_coefficients, factors)
+    display_distractor_4 = "x_1 = %.3f \\text{ and } x_2 = %.3f" %(distractor_4_s1, distractor_4_s2)
+    distractor_4_feedback = " $%s$, which corresponds to solving the factored version $%s$." %(display_distractor_4, distractor_4_polynomial_factored)
+    distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
+        code_name, 
+        'distractor_4',
+        f'Arithmetic - product correct but sum for middle term not',
+        [distractor_4_s1, distractor_4_s2],
+        display_distractor_4,
+        distractor_4_feedback,
+        0
+    )
 
-solutionInterval = [intervalOptions[0], "* $x_1 = %.3f \\text{ and } x_2 = %.3f$, which is the correct option. Obtained by solving the factored version $%s$" %(answer[0], answer[1], answer[2]), 1]
-distractor1Interval = [intervalOptions[1], "$x_1 = %.3f \\text{ and } x_2 = %.3f$, which corresponds to solving the factored version $%s$" %(distractor1[0], distractor1[1], distractor1[2]), 0]
-distractor2Interval = [intervalOptions[2], "$x_1 = %.3f \\text{ and } x_2 = %.3f$, which corresponds to solving the factored version $%s$" %(distractor2[0], distractor2[1], distractor2[2]), 0]
-distractor3Interval = [intervalOptions[3], "$x_1 = %.3f \\text{ and } x_2 = %.3f$, which corresponds to solving the factored version $%s$" %(distractor3[0], distractor3[1], distractor3[2]), 0]
-distractor4Interval = [intervalOptions[4], "$x_1 = %.3f \\text{ and } x_2 = %.3f$, which corresponds to solving the factored version $%s$" %(distractor4[0], distractor4[1], distractor4[2]), 0]
+    return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-answerList = [solutionInterval, distractor1Interval, distractor2Interval, distractor3Interval, distractor4Interval]
-random.shuffle(answerList)
+def solve_quadratic_with_factoring_function(response_type):
+    run_without_error = 0
+    while run_without_error == 0:
+        try:
+            list_of_first_distractor_values = [0, 0, 0, 0]
+            while len(list_of_first_distractor_values) != len(list(set(list_of_first_distractor_values))):
+                minimum = 2
+                maximum = 5
+                numberOfFactors = 2
+                factors = generate_factors(minimum, maximum, numberOfFactors)
+                solution_coefficients = generate_solution_factor_coefficients(minimum, maximum, factors)
 
-c0 = "x_1 \\in [%s, %s] \\text{ and } x_2 \\in [%s, %s]" %(answerList[0][0][0][0], answerList[0][0][0][1], answerList[0][0][1][0], answerList[0][0][1][1])
-c1 = "x_1 \\in [%s, %s] \\text{ and } x_2 \\in [%s, %s]" %(answerList[1][0][0][0], answerList[1][0][0][1], answerList[1][0][1][0], answerList[1][0][1][1])
-c2 = "x_1 \\in [%s, %s] \\text{ and } x_2 \\in [%s, %s]" %(answerList[2][0][0][0], answerList[2][0][0][1], answerList[2][0][1][0], answerList[2][0][1][1])
-c3 = "x_1 \\in [%s, %s] \\text{ and } x_2 \\in [%s, %s]" %(answerList[3][0][0][0], answerList[3][0][0][1], answerList[3][0][1][0], answerList[3][0][1][1])
-c4 = "x_1 \\in [%s, %s] \\text{ and } x_2 \\in [%s, %s]" %(answerList[4][0][0][0], answerList[4][0][0][1], answerList[4][0][1][0], answerList[4][0][1][1])
-choices = [c0, c1, c2, c3, c4]
-choiceComments = [answerList[0][1], answerList[1][1], answerList[2][1], answerList[3][1], answerList[4][1]]
+                all_dicts_list = generate_all_option_dicts(solution_coefficients, factors)
+                list_of_first_distractor_values = []
+                list_of_both_distractor_values = []
+                for temp_dict in all_dicts_list:
+                    temp_list_values = temp_dict['values_for_interval_generation']
+                    list_of_first_distractor_values.append(temp_list_values[0])
+                    list_of_both_distractor_values.append(temp_list_values)
+                
+                interval_options = interval_masking_method.createIntervalOptions(list_of_both_distractor_values, 5, 1)
 
-answerIndex = 0
-letters = ["A", "B", "C", "D", "E"]
-for checkLetter in letters:
-    if answerList[answerIndex][2] == 1:
-        answerLetter = letters[answerIndex]
-        break
-    answerIndex = answerIndex+1
+                run_without_error = 1
+        except Exception as e:
+            print(e)
+            pass
 
-displayStemType="String"
-displayProblemType="Math Mode"
-displayOptionsType="Math Mode"
-if debug=="save":
-    writeToDatabase(OS_type, DIR, database_name, question_list, thisQuestion, displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
-else:
-    print_for_debugger(displayStemType, displayStem, displayProblemType, displayProblem, displayOptionsType, choices, choiceComments, displaySolution, answerLetter, generalComment)
+    index_counter = 0
+
+    solution_dict = all_dicts_list[0]
+    for temp_dict in all_dicts_list:
+        temp_choice_interval_pairs = interval_options[index_counter]
+        temp_interval_1 = commonly_used_functions.display_interval(temp_choice_interval_pairs[0])
+        temp_interval_2 = commonly_used_functions.display_interval(temp_choice_interval_pairs[1])
+        temp_dict[f'choice_presentation'] = "x_1 \\text{ in } %s \\text{ and } x_2 \\text{ in } %s" %(temp_interval_1, temp_interval_2)
+        index_counter += 1
+
+    presentation_order = ['solution', 'distractor_1', 'distractor_2', 'distractor_3', 'distractor_4']
+    random.shuffle(presentation_order)
+    answer_letter = commonly_used_functions.identify_answer_letter(presentation_order)
+
+    options_df = pd.DataFrame(all_dicts_list)
+    options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
+
+    ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
+    if response_type=="Multiple-Choice":
+        display_stem = 'Solve the quadratic equation below. Then, choose the intervals that the solutions $x_1$ and $x_2$ belong to, with $x_1 \\leq x_2$.'
+    else:
+        display_stem = 'Solve the quadratic equation below.'
+    display_problem = commonly_used_functions.generatePolynomialDisplay(generate_quadratic_coefficients(solution_coefficients))
+    general_comment = "This question can be factored, but it may be faster to find the solutions via the Quadratic Equation."
+
+    display_stem_type="String"
+    display_problem_type="Math Mode"
+    display_options_type="Math Mode"
+
+    question_dict = {
+        'code_name': code_name,
+        'Response Type': response_type, # Included as argument in function
+        'Display Stem Type': display_stem_type, # Options: String, Math Mode, Graph
+        'Display Stem': display_stem,
+        'Display Problem Type': display_problem_type, # Options: String, Math Mode, Graph, Table
+        'Display Problem': display_problem,
+        'Display Options Type': display_options_type, # Options: String, Math Mode, Graph
+        'Solution': solution_dict['value'],
+        'Answer Letter': answer_letter,
+        'General Comment': general_comment
+    }
+
+    # return 1 dictionary (for the question) and dataframe by options for the question
+    return [question_dict, options_df]
