@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  3 MAY 2026 14:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  4 MAY 2026 13:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -688,13 +688,13 @@ Overfull \hbox (6.79684pt too wide) in paragraph at lines 82--95
 | [] 
  []
 
-<../figures/linear_graph_to_standard_form_A.png, id=51, 516.0078pt x 353.4003pt
+<../figures/linear_graph_to_standard_form_A.png, id=52, 461.8053pt x 343.2825pt
 >
 File: ../figures/linear_graph_to_standard_form_A.png Graphic file (type png)
 <use ../figures/linear_graph_to_standard_form_A.png>
 Package pdftex.def Info: ../figures/linear_graph_to_standard_form_A.png  used o
 n input line 95.
-(pdftex.def)             Requested size: 234.8775pt x 160.86208pt.
+(pdftex.def)             Requested size: 234.8775pt x 174.59508pt.
 
 Overfull \hbox (6.79684pt too wide) in paragraph at lines 95--104
 | [] 
@@ -785,38 +785,38 @@ Overfull \hbox (6.79684pt too wide) in paragraph at lines 176--180
 | [] 
  []
 
-<../figures/convert_quadratic_equation_to_graph_A_A.png, id=134, 457.4691pt x 3
-46.1733pt>
+<../figures/convert_quadratic_equation_to_graph_A_A.png, id=134, 441.5697pt x 3
+43.2825pt>
 File: ../figures/convert_quadratic_equation_to_graph_A_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_A_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_A_A.png
   used on input line 180.
-(pdftex.def)             Requested size: 140.92793pt x 106.64177pt.
-<../figures/convert_quadratic_equation_to_graph_B_A.png, id=135, 477.7047pt x 3
-43.2825pt>
+(pdftex.def)             Requested size: 140.92793pt x 109.5593pt.
+<../figures/convert_quadratic_equation_to_graph_B_A.png, id=135, 461.8053pt x 3
+50.5095pt>
 File: ../figures/convert_quadratic_equation_to_graph_B_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_B_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_B_A.png
   used on input line 180.
-(pdftex.def)             Requested size: 140.92793pt x 101.26746pt.
-<../figures/convert_quadratic_equation_to_graph_C_A.png, id=136, 457.4691pt x 3
-46.896pt>
+(pdftex.def)             Requested size: 140.92793pt x 106.9614pt.
+<../figures/convert_quadratic_equation_to_graph_C_A.png, id=136, 461.8053pt x 3
+50.5095pt>
 File: ../figures/convert_quadratic_equation_to_graph_C_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_C_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_C_A.png
   used on input line 180.
-(pdftex.def)             Requested size: 140.92793pt x 106.86441pt.
-<../figures/convert_quadratic_equation_to_graph_D_A.png, id=137, 477.7047pt x 3
+(pdftex.def)             Requested size: 140.92793pt x 106.9614pt.
+<../figures/convert_quadratic_equation_to_graph_D_A.png, id=137, 441.5697pt x 3
 43.2825pt>
 File: ../figures/convert_quadratic_equation_to_graph_D_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_D_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_D_A.png
   used on input line 180.
-(pdftex.def)             Requested size: 140.92793pt x 101.26746pt.
+(pdftex.def)             Requested size: 140.92793pt x 109.5593pt.
 
 Overfull \hbox (6.79684pt too wide) in paragraph at lines 180--189
 | [] 
@@ -839,14 +839,14 @@ Overfull \hbox (6.79684pt too wide) in paragraph at lines 189--202
 | [] 
  []
 
-<../figures/convert_quadratic_graph_to_equation_A.png, id=162, 461.8053pt x 343
+<../figures/convert_quadratic_graph_to_equation_A.png, id=162, 441.5697pt x 343
 .2825pt>
 File: ../figures/convert_quadratic_graph_to_equation_A.png Graphic file (type p
 ng)
 <use ../figures/convert_quadratic_graph_to_equation_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_graph_to_equation_A.png  
 used on input line 202.
-(pdftex.def)             Requested size: 234.8775pt x 174.59508pt.
+(pdftex.def)             Requested size: 234.8775pt x 182.59885pt.
 
 Overfull \hbox (6.79684pt too wide) in paragraph at lines 202--203
 | [] 
@@ -874,7 +874,7 @@ Package rerunfilecheck Info: File `exam_test_file_name_A.out' has not changed.
 Here is how much of TeX's memory you used:
  12759 strings out of 473899
  203850 string characters out of 5726499
- 613756 words of memory out of 5000000
+ 611756 words of memory out of 5000000
  35316 multiletter control sequences out of 15000+600000
  561606 words of font info for 52 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -886,7 +886,7 @@ ublic/amsfonts/cm/cmmi12.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/font
 s/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
 TeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/dcham/AppData/Local/Prog
 rams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on exam_test_file_name_A.pdf (8 pages, 197048 bytes).
+Output written on exam_test_file_name_A.pdf (8 pages, 196184 bytes).
 PDF statistics:
  230 PDF objects out of 1000 (max. 8388607)
  129 named destinations out of 1000 (max. 500000)

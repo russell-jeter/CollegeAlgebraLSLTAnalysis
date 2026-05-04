@@ -54,65 +54,65 @@ def generateSolutionAndDistractors(coefficients):
     product = complex1*complex2
 
     solution = [int(product.real), int(product.imag)]
-    solution_feedback = f'${display_complex_float(solution)}$, which is the correct option.'
+    solution_feedback = f'${generate_int_display_problem(solution)}$, which is the correct option.'
     solution_dict = commonly_used_functions.value_and_feedback_to_dict(
         'multiply_complex_numbers',
         'solution', 
         'Expected solution', 
         solution,
-        display_complex_float(solution), 
+        generate_int_display_problem(solution), 
         solution_feedback,
         1
     )
 
     distractor1Product = complex(a1, -b1)*complex(a2, b2)
     distractor_1 = [int(distractor1Product.real), int(distractor1Product.imag)]
-    distractor_1_feedback = f'${display_complex_float(distractor_1)}$, which corresponds to adding a minus sign in the first term.'
+    distractor_1_feedback = f'${generate_int_display_problem(distractor_1)}$, which corresponds to adding a minus sign in the first term.'
     distractor_1_dict = commonly_used_functions.value_and_feedback_to_dict(
         'multiply_complex_numbers',
         'distractor_1', 
         'Adding a minus sign in the first term', 
         distractor_1,
-        display_complex_float(distractor_1), 
+        generate_int_display_problem(distractor_1), 
         distractor_1_feedback,
         0
     )
 
     distractor2Product = complex(a1, b1)*complex(a2, -b2)
     distractor_2 = [int(distractor2Product.real), int(distractor2Product.imag)]
-    distractor_2_feedback = f'${display_complex_float(distractor_2)}$, which corresponds to adding a minus sign in the second term.'
+    distractor_2_feedback = f'${generate_int_display_problem(distractor_2)}$, which corresponds to adding a minus sign in the second term.'
     distractor_2_dict = commonly_used_functions.value_and_feedback_to_dict(
         'multiply_complex_numbers',
         'distractor_2', 
         'Adding a minus sign in the second term', 
         distractor_2,
-        display_complex_float(distractor_2), 
+        generate_int_display_problem(distractor_2), 
         distractor_2_feedback,
         0
     )
 
     distractor3Product = complex(a1, -b1)*complex(a2, -b2)
     distractor_3 = [int(distractor3Product.real), int(distractor3Product.imag)]
-    distractor_3_feedback = f'${display_complex_float(distractor_3)}$, which corresponds to adding a minus sign to both term.'
+    distractor_3_feedback = f'${generate_int_display_problem(distractor_3)}$, which corresponds to adding a minus sign to both term.'
     distractor_3_dict = commonly_used_functions.value_and_feedback_to_dict(
         'multiply_complex_numbers',
         'distractor_3', 
         'Adding a minus sign in both terms', 
         distractor_3,
-        display_complex_float(distractor_3), 
+        generate_int_display_problem(distractor_3), 
         distractor_3_feedback,
         0
     )
 
     distractor4Product = complex(a1*a2, b1*b2)
     distractor_4 = [int(distractor4Product.real), int(distractor4Product.imag)]
-    distractor_4_feedback = f'${display_complex_float(distractor_4)}$, which corresponds to just multiplying the real terms to get the real part of the solution and the coefficients in the complex terms to get the complex part.'
+    distractor_4_feedback = f'${generate_int_display_problem(distractor_4)}$, which corresponds to just multiplying the real terms to get the real part of the solution and the coefficients in the complex terms to get the complex part.'
     distractor_4_dict = commonly_used_functions.value_and_feedback_to_dict(
         'multiply_complex_numbers',
         'distractor_4', 
         'Multiplying like coefficient terms only', 
         distractor_4,
-        display_complex_float(distractor_4), 
+        generate_int_display_problem(distractor_4), 
         distractor_4_feedback,
         0
     )

@@ -76,7 +76,7 @@ def generate_structure_0():
         'distractor_4', 
         'Catch-all none of the above, unknown thinking', 
         'None of the above',
-        'None of the above', 
+        '\\text{None of the above}', 
         distractor_4_feedback,
         0
     )

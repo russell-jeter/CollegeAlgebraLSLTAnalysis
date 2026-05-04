@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-def print_question_to_exam(question_dict, options_df, file_name, base_dir):
+def print_question_to_exam(question_dict, options_df, file_name, base_dir, interval_options):
     exam_file_path = os.path.join(base_dir, 'temp_files', 'build_exams', 'administer_version', f'{file_name}.tex')
     examFile = open(exam_file_path, 'a')
     if question_dict['Response Type'] == "Multiple-Choice":
@@ -70,7 +70,11 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
     
     response_type = question_dict['Response Type']
     display_options_type = question_dict['Display Options Type']
-    choices = options_df['choice_presentation'].tolist()
+
+    if interval_options == 1:
+        choices = options_df['choice_presentation'].tolist()
+    else:
+        choices = options_df['value'].tolist()
 
     if response_type=="Multiple-Choice":
         # Begins enumerate for options
@@ -100,7 +104,7 @@ def print_question_to_exam(question_dict, options_df, file_name, base_dir):
     examFile.write('\n')
     examFile.close()
 
-def print_question_to_key(question_dict, options_df, file_name, base_dir):
+def print_question_to_key(question_dict, options_df, file_name, base_dir, interval_options):
     code_name = question_dict['code_name']
     version = question_dict['version']
 
@@ -174,7 +178,11 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
     answer_letter = question_dict['Answer Letter']
     general_comment = question_dict['General Comment']
 
-    choices = options_df['choice_presentation'].tolist()
+    if interval_options == 1:
+        choices = options_df['choice_presentation'].tolist()
+    else:
+        choices = options_df['value'].tolist()
+
     choice_comments = options_df['feedback'].tolist()
 
     if response_type=="Multiple-Choice":
@@ -266,13 +274,13 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir):
     lettersAnswerKey.write("%s," %answer_letter)
     lettersAnswerKey.close()
 
-def print_questions_by_code_name(question_dict, question_options_info_df, file_name, base_dir):
+def print_questions_by_code_name(question_dict, question_options_info_df, file_name, base_dir, interval_options):
     options_df = question_options_info_df[question_options_info_df['code_name'] == question_dict['code_name']]
     version = question_dict['version']
-    print_question_to_exam(question_dict, options_df, f'exam_{file_name}_{version}', base_dir)
-    print_question_to_key(question_dict, options_df, f'key_{file_name}_{version}', base_dir)
+    print_question_to_exam(question_dict, options_df, f'exam_{file_name}_{version}', base_dir, interval_options)
+    print_question_to_key(question_dict, options_df, f'key_{file_name}_{version}', base_dir, interval_options)
 
-def print_all_questions_to_latex_files(file_name, base_dir):
+def print_all_questions_to_latex_files(file_name, base_dir, interval_options):
     path_to_excel_file = os.path.join(base_dir, 'temp_files', 'build_exams', f'{file_name}.xlsx')
     question_info_df = pd.read_excel(path_to_excel_file, sheet_name='question_info', index_col=0)
     question_options_info_df = pd.read_excel(path_to_excel_file, sheet_name='question_options_info', index_col=0)
@@ -281,4 +289,4 @@ def print_all_questions_to_latex_files(file_name, base_dir):
         question_info_df['version'] = 'A'
         question_options_info_df['version'] = 'A'
 
-    question_info_df.apply(print_questions_by_code_name, args=(question_options_info_df, file_name, base_dir, ), axis=1)
+    question_info_df.apply(print_questions_by_code_name, args=(question_options_info_df, file_name, base_dir, interval_options, ), axis=1)

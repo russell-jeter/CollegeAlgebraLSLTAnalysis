@@ -76,7 +76,7 @@ def solve_compound_and_function(response_type):
         'option_1',
         'Placeholder distractor short_description', # short_description
         modified_endpoints, 
-        f'({modified_endpoints[0]}, {modified_endpoints[1]}]',
+        f'({round(modified_endpoints[0], 3)}, {round(modified_endpoints[1], 3)}]',
         'Placeholder student feedback', # feedback
         0
     )
@@ -88,7 +88,7 @@ def solve_compound_and_function(response_type):
         'option_2',
         'Placeholder distractor short_description', # short_description
         modified_endpoints, 
-        f'[{modified_endpoints[0]}, {modified_endpoints[1]})',
+        f'[{round(modified_endpoints[0], 3)}, {round(modified_endpoints[1], 3)})',
         'Placeholder student feedback', # feedback
         0
     )
@@ -100,7 +100,7 @@ def solve_compound_and_function(response_type):
         'option_3',
         'Placeholder distractor short_description', # short_description
         modified_endpoints, 
-        f'(-\\infty, {modified_endpoints[0]}) \\cup [{modified_endpoints[1]}, \\infty)',
+        f'(-\\infty, {round(modified_endpoints[0], 3)}) \\cup [{round(modified_endpoints[1], 3)}, \\infty)',
         'Placeholder student feedback', # feedback
         0
     )
@@ -112,7 +112,7 @@ def solve_compound_and_function(response_type):
         'option_4',
         'Placeholder distractor short_description', # short_description
         modified_endpoints, 
-        f'(-\\infty, {modified_endpoints[0]}] \\cup ({modified_endpoints[1]}, \\infty)',
+        f'(-\\infty, {round(modified_endpoints[0], 3)}] \\cup ({round(modified_endpoints[1], 3)}, \\infty)',
         'Placeholder student feedback', # feedback
         0
     )
