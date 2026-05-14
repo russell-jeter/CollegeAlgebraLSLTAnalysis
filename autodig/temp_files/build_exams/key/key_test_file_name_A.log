@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  4 MAY 2026 13:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  14 MAY 2026 16:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -675,16 +675,13 @@ Overfull \hbox (25.00003pt too wide) in paragraph at lines 190--218
 [][] 
  []
 
-<../figures/linear_graph_to_standard_form_A.png, id=60, 461.8053pt x 343.2825pt
+<../figures/linear_graph_to_standard_form_A.png, id=59, 461.8053pt x 343.2825pt
 >
 File: ../figures/linear_graph_to_standard_form_A.png Graphic file (type png)
 <use ../figures/linear_graph_to_standard_form_A.png>
 Package pdftex.def Info: ../figures/linear_graph_to_standard_form_A.png  used o
 n input line 218.
 (pdftex.def)             Requested size: 234.8775pt x 174.59508pt.
-
-Underfull \vbox (badness 2790) has occurred while \output is active []
-
 
 
 
@@ -795,7 +792,15 @@ Overfull \hbox (25.00003pt too wide) in paragraph at lines 416--430
 [][] 
  []
 
-<../figures/convert_quadratic_equation_to_graph_A_A.png, id=154, 441.5697pt x 3
+<../figures/convert_quadratic_equation_to_graph_B_A.png, id=154, 461.8053pt x 3
+51.9549pt>
+File: ../figures/convert_quadratic_equation_to_graph_B_A.png Graphic file (type
+ png)
+<use ../figures/convert_quadratic_equation_to_graph_B_A.png>
+Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_B_A.png
+  used on input line 430.
+(pdftex.def)             Requested size: 140.92793pt x 107.40247pt.
+<../figures/convert_quadratic_equation_to_graph_A_A.png, id=155, 441.5697pt x 3
 43.2825pt>
 File: ../figures/convert_quadratic_equation_to_graph_A_A.png Graphic file (type
  png)
@@ -803,28 +808,20 @@ File: ../figures/convert_quadratic_equation_to_graph_A_A.png Graphic file (type
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_A_A.png
   used on input line 430.
 (pdftex.def)             Requested size: 140.92793pt x 109.5593pt.
-File: ../figures/convert_quadratic_equation_to_graph_A_A.png Graphic file (type
- png)
-<use ../figures/convert_quadratic_equation_to_graph_A_A.png>
-Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_A_A.png
-  used on input line 430.
-(pdftex.def)             Requested size: 140.92793pt x 109.5593pt.
-<../figures/convert_quadratic_equation_to_graph_B_A.png, id=155, 461.8053pt x 3
-50.5095pt>
 File: ../figures/convert_quadratic_equation_to_graph_B_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_B_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_B_A.png
   used on input line 430.
-(pdftex.def)             Requested size: 140.92793pt x 106.9614pt.
+(pdftex.def)             Requested size: 140.92793pt x 107.40247pt.
 <../figures/convert_quadratic_equation_to_graph_C_A.png, id=156, 461.8053pt x 3
-50.5095pt>
+51.9549pt>
 File: ../figures/convert_quadratic_equation_to_graph_C_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_C_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_C_A.png
   used on input line 430.
-(pdftex.def)             Requested size: 140.92793pt x 106.9614pt.
+(pdftex.def)             Requested size: 140.92793pt x 107.40247pt.
 <../figures/convert_quadratic_equation_to_graph_D_A.png, id=157, 441.5697pt x 3
 43.2825pt>
 File: ../figures/convert_quadratic_equation_to_graph_D_A.png Graphic file (type
@@ -848,29 +845,21 @@ Package fancyhdr Warning: \headheight is too small (0.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-12.0pt}.
 
-[10 <../figures/convert_quadratic_equation_to_graph_A_A.png> <../figures/conver
-t_quadratic_equation_to_graph_B_A.png> <../figures/convert_quadratic_equation_t
+[10 <../figures/convert_quadratic_equation_to_graph_B_A.png> <../figures/conver
+t_quadratic_equation_to_graph_A_A.png> <../figures/convert_quadratic_equation_t
 o_graph_C_A.png> <../figures/convert_quadratic_equation_to_graph_D_A.png>]
-Overfull \hbox (5.36986pt too wide) in paragraph at lines 452--452
-[]$\OML/cmm/m/it/10 x[] \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 ^^@\OT1/cmr/m/n/10 0
-\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 648[]\OML/cmm/m/it/10 x[] \OT1/cmr/m/n/10 = \
-OMS/cmsy/m/n/10 ^^@\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 289$, whi
-ch cor-re-sponds to us-ing the Quadratic For-mula as $[]$ 
- []
-
-
 Overfull \hbox (25.00003pt too wide) in paragraph at lines 452--480
 [][] 
  []
 
-<../figures/convert_quadratic_graph_to_equation_A.png, id=174, 441.5697pt x 343
+<../figures/convert_quadratic_graph_to_equation_A.png, id=175, 446.6286pt x 343
 .2825pt>
 File: ../figures/convert_quadratic_graph_to_equation_A.png Graphic file (type p
 ng)
 <use ../figures/convert_quadratic_graph_to_equation_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_graph_to_equation_A.png  
 used on input line 480.
-(pdftex.def)             Requested size: 234.8775pt x 182.59885pt.
+(pdftex.def)             Requested size: 234.8775pt x 180.5298pt.
 
 
 
@@ -911,7 +900,7 @@ Here is how much of TeX's memory you used:
  34834 multiletter control sequences out of 15000+600000
  561053 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,559b,687s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,559b,686s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
 fonts/cm/cmex10.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/fonts/type1/p
@@ -920,7 +909,7 @@ s/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
 TeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/dcham/AppData/Local/Progr
 ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/dcham/AppData/Lo
 cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on key_test_file_name_A.pdf (12 pages, 245213 bytes).
+Output written on key_test_file_name_A.pdf (12 pages, 249821 bytes).
 PDF statistics:
  255 PDF objects out of 1000 (max. 8388607)
  133 named destinations out of 1000 (max. 500000)

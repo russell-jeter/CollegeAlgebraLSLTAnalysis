@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  4 MAY 2026 13:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.22)  14 MAY 2026 16:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -794,21 +794,21 @@ Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_A_A.png
   used on input line 180.
 (pdftex.def)             Requested size: 140.92793pt x 109.5593pt.
 <../figures/convert_quadratic_equation_to_graph_B_A.png, id=135, 461.8053pt x 3
-50.5095pt>
+51.9549pt>
 File: ../figures/convert_quadratic_equation_to_graph_B_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_B_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_B_A.png
   used on input line 180.
-(pdftex.def)             Requested size: 140.92793pt x 106.9614pt.
+(pdftex.def)             Requested size: 140.92793pt x 107.40247pt.
 <../figures/convert_quadratic_equation_to_graph_C_A.png, id=136, 461.8053pt x 3
-50.5095pt>
+51.9549pt>
 File: ../figures/convert_quadratic_equation_to_graph_C_A.png Graphic file (type
  png)
 <use ../figures/convert_quadratic_equation_to_graph_C_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_equation_to_graph_C_A.png
   used on input line 180.
-(pdftex.def)             Requested size: 140.92793pt x 106.9614pt.
+(pdftex.def)             Requested size: 140.92793pt x 107.40247pt.
 <../figures/convert_quadratic_equation_to_graph_D_A.png, id=137, 441.5697pt x 3
 43.2825pt>
 File: ../figures/convert_quadratic_equation_to_graph_D_A.png Graphic file (type
@@ -839,14 +839,14 @@ Overfull \hbox (6.79684pt too wide) in paragraph at lines 189--202
 | [] 
  []
 
-<../figures/convert_quadratic_graph_to_equation_A.png, id=162, 441.5697pt x 343
+<../figures/convert_quadratic_graph_to_equation_A.png, id=162, 446.6286pt x 343
 .2825pt>
 File: ../figures/convert_quadratic_graph_to_equation_A.png Graphic file (type p
 ng)
 <use ../figures/convert_quadratic_graph_to_equation_A.png>
 Package pdftex.def Info: ../figures/convert_quadratic_graph_to_equation_A.png  
 used on input line 202.
-(pdftex.def)             Requested size: 234.8775pt x 182.59885pt.
+(pdftex.def)             Requested size: 234.8775pt x 180.5298pt.
 
 Overfull \hbox (6.79684pt too wide) in paragraph at lines 202--203
 | [] 
@@ -886,7 +886,7 @@ ublic/amsfonts/cm/cmmi12.pfb><C:/Users/dcham/AppData/Local/Programs/MiKTeX/font
 s/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/dcham/AppData/Local/Programs/MiK
 TeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/dcham/AppData/Local/Prog
 rams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on exam_test_file_name_A.pdf (8 pages, 196184 bytes).
+Output written on exam_test_file_name_A.pdf (8 pages, 199918 bytes).
 PDF statistics:
  230 PDF objects out of 1000 (max. 8388607)
  129 named destinations out of 1000 (max. 500000)

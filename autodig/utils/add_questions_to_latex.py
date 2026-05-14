@@ -276,6 +276,7 @@ def print_question_to_key(question_dict, options_df, file_name, base_dir, interv
 
 def print_questions_by_code_name(question_dict, question_options_info_df, file_name, base_dir, interval_options):
     options_df = question_options_info_df[question_options_info_df['code_name'] == question_dict['code_name']]
+    options_df = options_df.sort_values(by=['letter']) # Organizes options for ease of printing
     version = question_dict['version']
     print_question_to_exam(question_dict, options_df, f'exam_{file_name}_{version}', base_dir, interval_options)
     print_question_to_key(question_dict, options_df, f'key_{file_name}_{version}', base_dir, interval_options)

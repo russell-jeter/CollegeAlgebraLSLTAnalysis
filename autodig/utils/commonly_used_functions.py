@@ -15,7 +15,6 @@ def assign_option_letters(presentation_order, options_df):
 
     return options_df
 
-
 def value_and_feedback_to_dict(code_name, name, short_description, values_for_intervals, value, feedback, truth_value):
     """Quickly define option dict by passing values in order. 
 
