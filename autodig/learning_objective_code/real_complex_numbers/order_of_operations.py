@@ -152,7 +152,7 @@ def generate_structure_1():
         'order_of_operations',
         'distractor_4', 
         'Catch-all none of the above, unknown thinking', 
-        'None of the above',
+        '\\text{None of the above}',
         'None of the above', 
         distractor_4_feedback,
         0
@@ -162,7 +162,7 @@ def generate_structure_1():
 
     return [solution_dicts_list, display_problem]
 
-def order_of_operations_function(response_type):
+def order_of_operations_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -207,7 +207,7 @@ def order_of_operations_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)       
 
     ### DEFINE STEM, PROBLEM, GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Simplify the expression below and choose the interval the simplification is contained within.'
     else:
         display_stem = 'Simplify the expression below.'

@@ -120,7 +120,7 @@ def generateSolutionAndDistractors(coefficients):
     return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
 
-def multiply_complex_numbers_function(response_type):
+def multiply_complex_numbers_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -154,7 +154,7 @@ def multiply_complex_numbers_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type == "Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Simplify the expression below into the form $a+bi$. Then, choose the intervals that $a$ and $b$ belong to.'
     else:
         display_stem = 'Simplify the expression below into the form $a+bi$.'

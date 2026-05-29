@@ -130,7 +130,7 @@ def generate_all_option_dicts(solution_endpoints):
 
     return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-def solve_compound_or_function(response_type):
+def solve_compound_or_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -199,7 +199,7 @@ def solve_compound_or_function(response_type):
     else:
         displayRightFactor = "%s + %s x < %s x" %(factor2Coefficients[0], factor2Coefficients[1], factor2Coefficients[2])
 
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
     else:
         display_stem = 'Solve the linear inequality below.'

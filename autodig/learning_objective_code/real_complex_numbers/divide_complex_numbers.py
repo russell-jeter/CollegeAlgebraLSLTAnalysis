@@ -135,7 +135,7 @@ def generateProblemCoefficientsAndSolution():
         )
     return [coefficients, solution_dict]
 
-def divide_complex_numbers_function(response_type):
+def divide_complex_numbers_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -171,8 +171,8 @@ def divide_complex_numbers_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
-        display_stem = 'Simplify the expression below into the form $a+bi$. Then, choose the intervals that $a$ and $b$ belong to.'
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
+            display_stem = 'Simplify the expression below into the form $a+bi$. Then, choose the intervals that $a$ and $b$ belong to.'
     else:
         display_stem = 'Simplify the expression below into the form $a+bi$.'
     display_problem = "\\frac{%s}{%s}" %(generate_int_display_problem([coefficients[0], coefficients[1]]), generate_int_display_problem([coefficients[2], coefficients[3]]))

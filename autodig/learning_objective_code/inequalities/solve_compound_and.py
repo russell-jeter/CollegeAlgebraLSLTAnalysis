@@ -34,7 +34,7 @@ def present_choice_intervals(string_presentation, interval_options):
     choice_presentation = '%s, \\text{ where } a \\in %s \\text{ and } b \\in %s' %(string_presentation, option_interval_a, option_interval_b)
     return choice_presentation
 
-def solve_compound_and_function(response_type):
+def solve_compound_and_function(response_type, interval_type):
     coefficients = [0, 0, 0, 0, 0, 0, 0]
     endpoints = [0, 0]
     while (
@@ -220,7 +220,7 @@ def solve_compound_and_function(response_type):
     options_df = pd.DataFrame(solution_dicts_list)
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)   
 
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
     else:
         display_stem = 'Solve the linear inequality below.'

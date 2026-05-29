@@ -36,7 +36,7 @@ def createIntervalToDisplay(solution_display_directions):
         intervalToDisplay = "\\text{An error occured when creating this interval look.}"
     return intervalToDisplay
 
-def solve_inequality_integer_coefficients_function(response_type):
+def solve_inequality_integer_coefficients_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -178,7 +178,7 @@ def solve_inequality_integer_coefficients_function(response_type):
     options_df = pd.DataFrame(solution_dicts_list)
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)   
 
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Solve the linear inequality below. Then, choose the constant and interval combination that describes the solution set.'
     else:
         display_stem = 'Solve the linear inequality below.'

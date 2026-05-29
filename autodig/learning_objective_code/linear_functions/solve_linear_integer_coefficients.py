@@ -105,7 +105,7 @@ def generate_all_option_dicts(coefficients):
 
     return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-def solve_linear_integer_coefficients_function(response_type):
+def solve_linear_integer_coefficients_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -143,7 +143,7 @@ def solve_linear_integer_coefficients_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Solve the equation below. Then, choose the interval that contains the solution.'
     else:
         display_stem = 'Solve the equation below.'

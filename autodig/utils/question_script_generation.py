@@ -28,10 +28,11 @@ def add_dict_and_df_for_question(row, file_name):
     code_name = row['code_name']
     response_type = row['response_type']
     version = row['version']
+    interval_type = row['interval_options']
     if row['need_version'] == 0: 
-        run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}")'
+        run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}", "{interval_type}")'
     else: # Graphs currently need version
-        run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}", "{version}")'
+        run_line = f'dict_{question_number}, df_{question_number} = {code_name}.{code_name}_function("{response_type}", "{interval_type}", "{version}")'
     open_and_write(file_name, [run_line])
 
 def add_load_questions_df(file_name):

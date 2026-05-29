@@ -111,7 +111,7 @@ def generate_all_option_dicts(solution, point):
 
     return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-def build_parallel_or_perpendicular_line_function(response_type):
+def build_parallel_or_perpendicular_line_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -147,7 +147,7 @@ def build_parallel_or_perpendicular_line_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Find the equation of the line described below. Write the linear equation in the form $ y=mx+b $ and choose the intervals that contain $m$ and $b$.'
     else:
         display_stem = 'Find the equation of the line described below. Write the linear equation in the form $y=mx+b$.'

@@ -175,7 +175,7 @@ def generate_graphs_and_option_dicts(aCoeffFtG, vertexFtG, version):
     option_dicts = [solution_dict, option_1_dict, option_2_dict, option_3_dict, option_4_dict]
     return option_dicts
 
-def convert_quadratic_equation_to_graph_function(response_type, version):
+def convert_quadratic_equation_to_graph_function(response_type, interval_type, version):
     aCoeffFtG = commonly_used_functions.maybeMakeNegative(random.randint(1, 4))
     vertexFtG = [0, 0]
     vertexFtG[0] = commonly_used_functions.maybeMakeNegative(random.randint(1, 4))

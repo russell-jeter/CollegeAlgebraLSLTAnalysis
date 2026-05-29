@@ -103,7 +103,7 @@ def graph_function_return_coefficents(a, vertex, version):
     plt.close()
     return [a, -2*vertex[0]*a, a*(vertex[0]**2) +vertex[1]]
 
-def convert_quadratic_graph_to_equation_function(response_type, version):
+def convert_quadratic_graph_to_equation_function(response_type, interval_type, version):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -140,7 +140,7 @@ def convert_quadratic_graph_to_equation_function(response_type, version):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Write the equation of the graph presented below in the form $f(x)=ax^2+bx+c$, assuming  $a=1$ or $a=-1$. Then, choose the intervals that $a, b,$ and $c$ belong to.'
     else:
         display_stem = 'Write the equation of the graph presented below in the form $f(x)=ax^2+bx+c$, assuming  $a=1$ or $a=-1$.'

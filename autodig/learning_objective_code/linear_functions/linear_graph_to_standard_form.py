@@ -162,7 +162,7 @@ def plotGraph(slopeGraph, yInt, point2, point3, version):
     plt.close()
     return
 
-def linear_graph_to_standard_form_function(response_type, version):
+def linear_graph_to_standard_form_function(response_type, interval_type, version):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -202,7 +202,7 @@ def linear_graph_to_standard_form_function(response_type, version):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Write the equation of the line in the graph below in Standard Form $Ax+By=C$. Then, choose the intervals that contain $A, B, \\text{ and } C$.'
     else:
         display_stem = "Write the equation of the line in the graph below in Standard Form $Ax+By=C$."

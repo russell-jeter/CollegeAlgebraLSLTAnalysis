@@ -146,7 +146,7 @@ def generate_all_option_dicts(solution, factors):
 
     return [solution_dict, distractor_1_dict, distractor_2_dict, distractor_3_dict, distractor_4_dict]
 
-def factor_trinomial_with_a_over_1_function(response_type):
+def factor_trinomial_with_a_over_1_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -201,7 +201,7 @@ def factor_trinomial_with_a_over_1_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Factor the quadratic below. Then, choose the intervals that contain the constants in the form $(ax+b)(cx+d); b \\leq d.$'
     else:
         display_stem = 'Factor the quadratic below into the form $(ax+b)(cx+d)$.'

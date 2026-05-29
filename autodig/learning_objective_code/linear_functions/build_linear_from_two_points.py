@@ -98,7 +98,7 @@ def generateSolutionAndDistractors(problem):
 
     return list_of_dicts
 
-def build_linear_from_two_points_function(response_type):
+def build_linear_from_two_points_function(response_type, interval_type):
     run_without_error = 0
     while run_without_error == 0:
         try:
@@ -132,7 +132,7 @@ def build_linear_from_two_points_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)
 
     ### DEFINE STEM, PROBLEM, AND GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'First, find the equation of the line containing the two points below. Then, write the equation in the form $ y=mx+b $ and choose the intervals that contain $m$ and $b$.'
     else:
         display_stem = 'First, find the equation of the line containing the two points below. Then, write the equation in the form $ y=mx+b $.'

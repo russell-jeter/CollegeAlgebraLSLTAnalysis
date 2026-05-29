@@ -83,7 +83,7 @@ def generateNonReal():
             simplifiedNumber = '\\sqrt{%d} i' %(discrim * irrationalmaker)
     return [displayProblem, simplifiedNumber]
 
-def subgroup_real_numbers_function(response_type):
+def subgroup_real_numbers_function(response_type, interval_type):
     option_0_feedback = " These are the counting numbers with 0 (0, 1, 2, 3, ...)"
     option_0_dict = commonly_used_functions.value_and_feedback_to_dict(
         'subgroup_real_numbers',

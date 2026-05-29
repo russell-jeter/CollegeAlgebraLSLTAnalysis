@@ -15,7 +15,7 @@ def generate_distance_and_from_number(minimum, maximum):
     endValues = fromNumber - distance, fromNumber + distance
     return [distance, fromNumber, endValues]
 
-def describe_using_interval_function(response_type):
+def describe_using_interval_function(response_type, interval_type):
     distance, from_number, end_values = generate_distance_and_from_number(2, 10)
     
     option_1_dict = commonly_used_functions.value_and_feedback_to_dict(
@@ -175,7 +175,7 @@ def describe_using_interval_function(response_type):
     options_df = commonly_used_functions.assign_option_letters(presentation_order, options_df)   
 
     ### DEFINE STEM, PROBLEM, GENERAL COMMENT ###
-    if response_type=="Multiple-Choice":
+    if (response_type=="Multiple-Choice") and (int(interval_type) == 1):
         display_stem = 'Using an interval or intervals, choose the option that describes all the $x$-values within or including a distance of the given values.'
     else:
         display_stem = 'Using an interval or intervals, describe all the $x$-values within or including a distance of the given values.'

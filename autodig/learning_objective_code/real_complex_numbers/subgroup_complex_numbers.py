@@ -156,8 +156,7 @@ def generateNonNumber(): #Question Type 5 generates Non-Complex numbers (dividin
         displayProblem = '\\sqrt{\\frac{%d}{0}} i+\\sqrt{%d}i' %(numerator, inside)
     return displayProblem
 
-
-def subgroup_complex_numbers_function(response_type):
+def subgroup_complex_numbers_function(response_type, interval_type):
     option_0_feedback = " These are numbers that can be written as fraction of Integers (e.g., -2/3 + 5)"
     option_0_dict = commonly_used_functions.value_and_feedback_to_dict(
         'subgroup_complex_numbers',
